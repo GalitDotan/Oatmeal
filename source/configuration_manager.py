@@ -13,10 +13,10 @@ class ConfigurationManagerError(Exception):
 
 
 class ConfigurationManager(with_metaclass(Singleton)):
-    def __init__(self, json_string, mapping_function=lambda x: x):
+    def __init__(self, json_string, json_decoder=lambda x: x):
         self.configurations = dict()
         self.derived_configurations = dict()
-        self.mapping_function = mapping_function
+        self.json_decoder = json_decoder    # see OtmlConfigurationManager.json_decoder
         json_dict = json.loads(json_string)
         self.load_configurations_from_json_dict(json_dict)
 
@@ -26,16 +26,14 @@ class ConfigurationManager(with_metaclass(Singleton)):
     def load_configurations_from_json_dict(self, json_dict):
         for (key, value) in json_dict.items():
             if type(value) is UNICODE_TYPE:
-                self.configurations[key] = self.mapping_function(value)
+                self.configurations[key] = self.json_decoder(value)
             else:
                 self.configurations[key] = value
 
-    def update_configurations(self, other_json_string):
-        other_json_dict = json.loads(other_json_string)
-        other_json_set_of_keys = set(iterkeys(other_json_dict))
-        configurations_set_of_keys = set(iterkeys(self.configurations))
-        if other_json_set_of_keys.issubset(configurations_set_of_keys):
-            self.load_configurations_from_json_dict(other_json_dict)
+    def update_configurations(self, other_json):
+        other = json.loads(other_json)
+        if set(self.configurations).issuperset(set(other)):
+            self.load_configurations_from_json_dict(other)
         else:
             raise ConfigurationManagerError("configuration update is not a subset of current configurations")
 

@@ -25,21 +25,24 @@
     "RANDOM_POSITION_FOR_FEATURE_BUNDLE_REMOVAL_IN_PHONOTACTIC": "True",
 
     "LEXICON_MUTATION_WEIGHTS": {
-    "insert_segment": 1,
-    "delete_segment": 1,
-    "change_segment": 0},
+        "insert_segment": 1,
+        "delete_segment": 1,
+        "change_segment": 0
+    },
     "CONSTRAINT_SET_MUTATION_WEIGHTS": {
-    "insert_constraint": 1,
-    "remove_constraint": 1,
-    "demote_constraint": 1,
-    "insert_feature_bundle_phonotactic_constraint": 1,
-    "remove_feature_bundle_phonotactic_constraint": 1,
-    "augment_feature_bundle": 0},
+        "insert_constraint": 1,
+        "remove_constraint": 1,
+        "demote_constraint": 1,
+        "insert_feature_bundle_phonotactic_constraint": 1,
+        "remove_feature_bundle_phonotactic_constraint": 1,
+        "augment_feature_bundle": 0
+    },
     "CONSTRAINT_INSERTION_WEIGHTS": {
-    "Dep": 0,
-    "Max": 1,
-    "Ident": 0,
-    "Phonotactic": 1},
+        "Dep": 0,
+        "Max": 1,
+        "Ident": 0,
+        "Phonotactic": 1
+    },
 
     "INITIAL_TEMPERATURE": 100,
     "THRESHOLD": "10**-2",

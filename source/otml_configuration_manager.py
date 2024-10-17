@@ -11,9 +11,9 @@ from unicode_mixin import UnicodeMixin
 class OtmlConfigurationError(Exception):
     pass
 
-class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin):
+class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin): #
     def __init__(self, json_str):
-        ConfigurationManager.__init__(self, json_str, mapping_function=OtmlConfigurationManager.mapping_function)
+        ConfigurationManager.__init__(self, json_str, json_decoder=OtmlConfigurationManager.json_decoder)
         self.initial_configurations_dict = deepcopy(self.configurations)
         self.initial_derived_configurations_dict = deepcopy(self.derived_configurations)
 
@@ -23,25 +23,26 @@ class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin):
 
 
     @staticmethod
-    def mapping_function(string_value):
-        if string_value == "True":
-            return True
-        elif string_value == "False":
-            return False
-        elif string_value == 'INF':
-            return float('inf')
-        elif "**" in string_value:  #convert "x**y" literal to x**y
-            power_symbol_index = string_value.index("**")
-            power_symbol_length = len("**")
-            return int(string_value[:power_symbol_index])**int(string_value[power_symbol_index+power_symbol_length:])
-        else:
-            return string_value
+    def json_decoder(string):
+        CONSTANTS = {
+            "True": True,
+            "False": False,
+            "INF": float('inf')
+        }
+        if string in CONSTANTS:
+            return CONSTANTS[string]
+
+        if "**" in string: #convert "x**y" literal to x**y
+            x, y = string.split("**")
+            return int(x) ** int(y)
+
+        return string
 
     def validate_configurations(self):
         dictionary_configuration_names = ["LEXICON_MUTATION_WEIGHTS", "CONSTRAINT_SET_MUTATION_WEIGHTS",
                                           "CONSTRAINT_INSERTION_WEIGHTS"]
         for dictionary_configuration_name in dictionary_configuration_names:
-            if type(self.configurations[dictionary_configuration_name]) is not dict:
+            if type(self.configurations[dictionary_configuration_name]) != dict:
                 raise OtmlConfigurationError("{} should be a dictionary".format(dictionary_configuration_name))
 
         for dictionary_configuration_name in dictionary_configuration_names:
@@ -51,13 +52,13 @@ class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin):
                                          self.configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"])
         _check_weights_total_is_not_zero(self.configurations["CONSTRAINT_INSERTION_WEIGHTS"])
 
-        if self.configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"]["augment_feature_bundle"] is 1:
+        if self.configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"]["augment_feature_bundle"] == 1:
             raise NotImplementedError
 
-        if self.configurations["LEXICON_MUTATION_WEIGHTS"]["change_segment"] is 1:
+        if self.configurations["LEXICON_MUTATION_WEIGHTS"]["change_segment"] == 1:
             raise NotImplementedError
 
-        if self.configurations["ALLOW_CANDIDATES_WITH_CHANGED_SEGMENTS"] is True:
+        if self.configurations["ALLOW_CANDIDATES_WITH_CHANGED_SEGMENTS"]:
             raise NotImplementedError
 
         if self.configurations["MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] > self.configurations["INITIAL_NUMBER_OF_FEATURES"]:
