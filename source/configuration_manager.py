@@ -1,22 +1,21 @@
-from six import with_metaclass, iterkeys, PY3
+from six import with_metaclass, PY3
 from singelton import Singleton
 
 import json
+
+from source.errors import ConfigurationManagerError
 
 if PY3:
     UNICODE_TYPE = str
 else:
     UNICODE_TYPE = unicode
 
-class ConfigurationManagerError(Exception):
-    pass
-
 
 class ConfigurationManager(with_metaclass(Singleton)):
     def __init__(self, json_string, json_decoder=lambda x: x):
         self.configurations = dict()
         self.derived_configurations = dict()
-        self.json_decoder = json_decoder    # see OtmlConfigurationManager.json_decoder
+        self.json_decoder = json_decoder  # see OtmlConfigurationManager.json_decoder
         json_dict = json.loads(json_string)
         self.load_configurations_from_json_dict(json_dict)
 
@@ -24,7 +23,7 @@ class ConfigurationManager(with_metaclass(Singleton)):
         self.derive_configurations()
 
     def load_configurations_from_json_dict(self, json_dict):
-        for (key, value) in json_dict.items():
+        for key, value in json_dict.items():
             if type(value) is UNICODE_TYPE:
                 self.configurations[key] = self.json_decoder(value)
             else:
@@ -46,7 +45,6 @@ class ConfigurationManager(with_metaclass(Singleton)):
     def derive_configurations(self):
         pass
 
-
     def __getitem__(self, key):
         if key in self.configurations:
             return self.configurations[key]
@@ -65,5 +63,3 @@ class ConfigurationManager(with_metaclass(Singleton)):
 
         self.validate_configurations()
         self.derive_configurations()
-
-

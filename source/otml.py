@@ -6,19 +6,16 @@ The working directory for activating this file should be "otml"
 #Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
-import sys
 import platform
 from os import getcwd
-from os.path import dirname, join, split, basename, splitext, exists
+from os.path import dirname, join, basename, exists
 from optparse import OptionParser
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
+from otml_configuration_manager import OtmlConfigurationManager
+from source.errors import OtmlConfigurationError, OtmlError
 import codecs
 from base64 import urlsafe_b64encode
 from uuid import uuid4
 
-class OtmlError(Exception):
-    pass
 
 #--configuration simulations/bb/bb_configuration.json
 

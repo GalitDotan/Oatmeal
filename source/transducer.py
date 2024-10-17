@@ -9,13 +9,12 @@ from collections import defaultdict
 
 from six import PY3, StringIO, itervalues
 
+from source.errors import CostVectorOperationError
 from unicode_mixin import UnicodeMixin
 from grammar.feature_table import NULL_SEGMENT, JOKER_SEGMENT, Segment
 
 logger = logging.getLogger(__name__)
 
-class TransducerError(Exception):
-    pass
 
 class Transducer(UnicodeMixin, object):
     __slots__ = ["name", "states", "alphabet", "_arcs", "initial_state", "final_states", "arcs_by_state_dict", "length_of_cost_vectors"]
@@ -468,11 +467,6 @@ class Arc(UnicodeMixin, object):
 
         return str([str(self.origin_state), str(self.input.get_symbol()), output, str(self.cost_vector),
                     str(self.terminal_state)])
-
-
-class CostVectorOperationError(Exception):
-    pass
-
 
 
 class CostVector(UnicodeMixin, object):

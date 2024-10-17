@@ -9,7 +9,8 @@ import random
 from datetime import timedelta
 import time
 import re
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
+from otml_configuration_manager import OtmlConfigurationManager
+from source.errors import OtmlConfigurationError
 import subprocess
 from grammar.grammar import Grammar
 from grammar.constraint_set import ConstraintSet
@@ -265,7 +266,7 @@ def _pretty_runtime_str(run_time_in_seconds):
     time_delta = timedelta(seconds=run_time_in_seconds)
     timedelta_string = str(time_delta)
 
-    m = re.search('(\d* (days|day), )?(\d*):(\d*):(\d*)', timedelta_string)
+    m = re.search(r'(\d* (days|day), )?(\d*):(\d*):(\d*)', timedelta_string)
     days_string = m.group(1)
     hours = int(m.group(3))
     minutes = int(m.group(4))

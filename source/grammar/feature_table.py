@@ -1,5 +1,5 @@
-#Python2 and Python 3 compatibility:
-from __future__ import absolute_import, division, print_function, unicode_literals
+# Python2 and Python 3 compatibility:
+# from __future__ import absolute_import, division, print_function, unicode_literals
 
 import codecs
 import json
@@ -10,17 +10,15 @@ import os
 
 from six import string_types, integer_types, StringIO, iterkeys
 
-from unicode_mixin import UnicodeMixin
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
-
+from source.unicode_mixin import UnicodeMixin
+from source.errors import OtmlConfigurationError
+from source.errors import FeatureParseError
+from otml_configuration_manager import OtmlConfigurationManager
 
 logger = logging.getLogger(__name__)
 configurations = OtmlConfigurationManager.get_instance()
 if configurations is None:
     raise OtmlConfigurationError("OtmlConfigurationManager was not initialized")
-
-class FeatureParseError(Exception):
-    pass
 
 
 class FeatureTable(UnicodeMixin, object):
@@ -28,8 +26,8 @@ class FeatureTable(UnicodeMixin, object):
         self.feature_table_dict = dict()
         self.feature_types_dict = dict()
         self.segments_list = list()
-        feature_type_list = [dict(**feature) for feature in feature_table_dict_from_json['feature']]
-        feature_types_label_in_order = [feature['label'] for feature in feature_table_dict_from_json['feature']]
+        feature_type_list = [dict(**feature) for feature in feature_table_dict_from_json["feature"]]
+        feature_types_label_in_order = [feature["label"] for feature in feature_table_dict_from_json["feature"]]
 
         for feature_type_label in feature_types_label_in_order:
             if feature_types_label_in_order.count(feature_type_label) > 1:
@@ -40,10 +38,10 @@ class FeatureTable(UnicodeMixin, object):
             self.feature_order_dict[i] = feature
 
         for feature_type in feature_type_list:
-            self.feature_types_dict[feature_type['label']] = feature_type['values']
+            self.feature_types_dict[feature_type["label"]] = feature_type["values"]
 
-        for symbol in feature_table_dict_from_json['feature_table'].keys():
-            feature_values = feature_table_dict_from_json['feature_table'][symbol]
+        for symbol in feature_table_dict_from_json["feature_table"].keys():
+            feature_values = feature_table_dict_from_json["feature_table"][symbol]
             if len(feature_values) != len(self.feature_types_dict):
                 raise FeatureParseError("Mismatch in number of features for segment {0}".format(symbol))
             symbol_feature_dict = dict()
@@ -56,7 +54,6 @@ class FeatureTable(UnicodeMixin, object):
 
         for symbol in self.get_alphabet():
             self.segments_list.append(Segment(symbol, self))
-
 
     @classmethod
     def loads(cls, feature_table_str):
@@ -76,21 +73,20 @@ class FeatureTable(UnicodeMixin, object):
     @staticmethod
     def get_feature_table_dict_form_csv(file):
         feature_table_dict = dict()
-        feature_table_dict['feature'] = list()
-        feature_table_dict['feature_table'] = dict()
+        feature_table_dict["feature"] = list()
+        feature_table_dict["feature_table"] = dict()
         lines = file.readlines()
         lines = [x.strip() for x in lines]
-        feature_label_list = lines[0][1:].split(",")  #first line, ignore firt comma (,cons, labial..)
-        feature_table_dict['feature'] = list()
+        feature_label_list = lines[0][1:].split(",")  # first line, ignore firt comma (,cons, labial..)
+        feature_table_dict["feature"] = list()
         for label in feature_label_list:
-            feature_table_dict['feature'].append({'label': label, 'values': ['-', '+']})
+            feature_table_dict["feature"].append({"label": label, "values": ["-", "+"]})
 
         for line in lines[1:]:
-            values_list = line.split(',')
-            feature_table_dict['feature_table'][values_list[0]] = values_list[1:]
+            values_list = line.split(",")
+            feature_table_dict["feature_table"][values_list[0]] = values_list[1:]
 
         return feature_table_dict
-
 
     def get_number_of_features(self):
         return len(self.feature_types_dict)
@@ -119,12 +115,9 @@ class FeatureTable(UnicodeMixin, object):
     def is_valid_symbol(self, symbol):
         return symbol in self.feature_table_dict
 
-
     def __unicode__(self):
         values_str_io = StringIO()
-        print("Feature Table with {0} features and {1} segments:".format(self.get_number_of_features(),
-                                                                        len(self.get_alphabet())), end="\n",
-                                                                        file=values_str_io)
+        print("Feature Table with {0} features and {1} segments:".format(self.get_number_of_features(), len(self.get_alphabet())), end="\n", file=values_str_io)
 
         print("{:20s}".format("Segment/Feature"), end="", file=values_str_io)
         for i in list(range(len(self.feature_order_dict))):
@@ -139,23 +132,20 @@ class FeatureTable(UnicodeMixin, object):
 
         return values_str_io.getvalue()
 
-
     def __getitem__(self, item):
         if isinstance(item, string_types):
             return self.feature_table_dict[item]
-        if isinstance(item, integer_types):    # TODO this should support an ordered access to the feature table.
-                                                #  is this a good implementation?
+        if isinstance(item, integer_types):  # TODO this should support an ordered access to the feature table.
+            #  is this a good implementation?
             return self.feature_table_dict[self.feature_order_dict[item]]
         else:
             segment, feature = item
             return self.feature_table_dict[segment][feature]
 
 
-
-
 class Segment(UnicodeMixin, object):
     def __init__(self, symbol, feature_table=None):
-        self.symbol = symbol   # JOKER and NULL segments need feature_table=None
+        self.symbol = symbol  # JOKER and NULL segments need feature_table=None
         if feature_table:
             self.feature_table = feature_table
             self.feature_dict = feature_table[symbol]
@@ -173,18 +163,18 @@ class Segment(UnicodeMixin, object):
 
     @staticmethod
     def intersect(x, y):
-        """ Intersect two segments, a segment and a set, or two sets.
+        """Intersect two segments, a segment and a set, or two sets.
 
         :type x: Segment or set
         :type y: Segment or set
         """
         if isinstance(x, set):
             x, y = y, x  # if x is a set then maybe y is a segment, switch between them so that
-                         # Segment.__and__ will take affect
+            # Segment.__and__ will take affect
         return x & y
 
     def __and__(self, other):
-        """ Based on ```(17) symbol unification```(Riggle, 2004)
+        """Based on ```(17) symbol unification```(Riggle, 2004)
 
         :type other: Segment or set
         """
@@ -219,16 +209,17 @@ class Segment(UnicodeMixin, object):
         else:
             return self.symbol
 
-
     def __getitem__(self, item):
         return self.feature_dict[item]
 
-#----------------------
-#Special segments - required for transducer construction
+
+# ----------------------
+# Special segments - required for transducer construction
 NULL_SEGMENT = Segment("-")
 JOKER_SEGMENT = Segment("*")
 
-#----------------------
+# ----------------------
+
 
 class FeatureType(UnicodeMixin, object):
     def __init__(self, label, values):

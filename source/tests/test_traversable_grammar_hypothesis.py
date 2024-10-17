@@ -103,7 +103,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
             min_value = min(list_of_ints)
             list_of_strings = []
             for value in list_of_ints:
-                if value is not min_value:
+                if value != min_value:
                     list_of_strings.append(str(value))
                 else:
                     list_of_strings.append("*{}*".format(value))

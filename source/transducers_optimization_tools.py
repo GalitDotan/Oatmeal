@@ -6,15 +6,13 @@ import itertools
 from functools import reduce
 import pickle
 
+from source.errors import TransducerOptimizationError
 from transducer import Transducer, CostVector, Arc
 from grammar.lexicon import Word
 import random
 
 
 logger = logging.getLogger(__name__)
-
-class TransducerOptimizationError(Exception):
-    pass
 
 
 def get_cheapest_state(list_of_states, cost_by_state_dict):

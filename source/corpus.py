@@ -5,7 +5,8 @@ import textwrap
 
 from unicode_mixin import UnicodeMixin
 from grammar.lexicon import Word, get_words_from_file
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
+from otml_configuration_manager import OtmlConfigurationManager
+from source.errors import OtmlConfigurationError
 
 configurations = OtmlConfigurationManager.get_instance()
 if configurations is None:

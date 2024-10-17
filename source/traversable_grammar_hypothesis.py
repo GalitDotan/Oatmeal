@@ -7,8 +7,8 @@ from math import ceil, log
 import pickle
 
 from unicode_mixin import UnicodeMixin
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
-
+from otml_configuration_manager import OtmlConfigurationManager
+from source.errors import OtmlConfigurationError
 
 logger = logging.getLogger(__name__)
 configurations = OtmlConfigurationManager.get_instance()

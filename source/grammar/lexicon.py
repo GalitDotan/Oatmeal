@@ -7,13 +7,14 @@ from math import log, ceil
 import codecs
 from ast import literal_eval
 
-from unicode_mixin import UnicodeMixin
+from source.errors import OtmlConfigurationError
+from source.unicode_mixin import UnicodeMixin
 
 
-from grammar.feature_table import Segment
-from transducer import CostVector, Arc, State, Transducer, NULL_SEGMENT, JOKER_SEGMENT
-from randomization_tools import get_weighted_list
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
+from source.grammar.feature_table import Segment
+from source.transducer import CostVector, Arc, State, Transducer, NULL_SEGMENT, JOKER_SEGMENT
+from source.randomization_tools import get_weighted_list
+from otml_configuration_manager import OtmlConfigurationManager
 
 
 
@@ -152,7 +153,7 @@ class Lexicon(UnicodeMixin, object):
         """
         input_words is either a list of words or a file than contains a list of words
         """
-        if type(input_words) is list:
+        if type(input_words) == list:
             string_words = input_words
         else:
             string_words = get_words_from_file(input_words)

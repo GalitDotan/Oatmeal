@@ -1,7 +1,6 @@
 #Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from six import iterkeys
 import logging
 
 from random import choice
@@ -11,9 +10,7 @@ from transducers_optimization_tools import optimize_transducer_grammar_for_word,
 from unicode_mixin import UnicodeMixin
 from randomization_tools import get_weighted_list
 from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
-from debug_tools import write_to_dot, timeit
-
-
+from debug_tools import write_to_dot
 
 logger = logging.getLogger(__name__)
 configurations = OtmlConfigurationManager.get_instance()
@@ -24,11 +21,6 @@ if configurations is None:
 outputs_by_constraint_set_and_word = dict()
 
 grammar_transducers = dict()
-
-
-
-class GrammarParseError(Exception):
-    pass
 
 
 class Grammar(UnicodeMixin, object):

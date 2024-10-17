@@ -5,10 +5,6 @@ from copy import deepcopy
 from unittest import TestCase
 
 
-
-class StochasticTestError(Exception):
-    pass
-
 class StochasticTestCase(TestCase):
     def stochastic_object_method_testing(self, object_, method_name, possible_results, num_of_tests, possible_result_threshold,
                                          all_possible_result_flag=False, method_args=()):

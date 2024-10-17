@@ -1,4 +1,4 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
@@ -10,12 +10,13 @@ from six import StringIO, with_metaclass
 
 from unicode_mixin import UnicodeMixin
 from grammar.feature_bundle import FeatureBundle
-from grammar.grammar import GrammarParseError
+from source.errors import GrammarParseError, OtmlConfigurationError
 from transducer import CostVector, Arc, State, Transducer
 from grammar.feature_table import JOKER_SEGMENT, NULL_SEGMENT
 from itertools import permutations
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
+from otml_configuration_manager import OtmlConfigurationManager
 
+from source.errors import ConstraintError
 
 logger = logging.getLogger(__name__)
 configurations = OtmlConfigurationManager.get_instance()
@@ -27,21 +28,22 @@ _all_constraints = list()
 
 constraint_transducers = dict()
 
+
 def get_number_of_constraints():
     return len(_all_constraints)
 
 
 class ConstraintMetaClass(type):
     def __new__(mcs, name, bases, attributes):
-        if name != 'NewBase' and name != 'Constraint':  # NewBase is a the name of the base class used
-            _all_constraints.append(name)                 # in six.with_metaclass
+        if name != "NewBase" and name != "Constraint":  # NewBase is a the name of the base class used
+            _all_constraints.append(name)  # in six.with_metaclass
         return type.__new__(mcs, name, bases, attributes)
 
 
 class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
 
     def __init__(self, bundles_list, allow_multiple_bundles, feature_table):
-        """ bundle_list can contain either raw dictionaries or full blown FeatureBundle """
+        """bundle_list can contain either raw dictionaries or full blown FeatureBundle"""
         self.feature_table = feature_table
         if len(bundles_list) > 1 and not allow_multiple_bundles:
             raise GrammarParseError("More bundles than allowed")
@@ -49,13 +51,12 @@ class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
         self.feature_bundles = list()  # contain FeatureBundles
 
         for bundle in bundles_list:
-            if type(bundle) is dict:
+            if type(bundle) == dict:
                 self.feature_bundles.append(FeatureBundle(bundle, feature_table))
-            elif type(bundle) is FeatureBundle:
+            elif type(bundle) == FeatureBundle:
                 self.feature_bundles.append(bundle)
             else:
                 raise GrammarParseError("Not a dict or FeatureBundle")
-
 
     def augment_feature_bundle(self):
         success = choice(self.feature_bundles).augment_feature_bundle()
@@ -65,7 +66,6 @@ class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
 
     def get_encoding_length(self):
         return 1 + sum([featureBundle.get_encoding_length() for featureBundle in self.feature_bundles]) + 1
-
 
     @classmethod
     def get_constraint_class_by_name(cls, class_name):
@@ -77,10 +77,9 @@ class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
     def _base_faithfulness_transducer(self):
         segments = self.feature_table.get_segments()
         transducer = Transducer(segments, name=str(self))
-        state = State('q0')
+        state = State("q0")
         transducer.set_as_single_state(state)
         return transducer, segments, state
-
 
     @classmethod
     def generate_random(cls, feature_table):
@@ -115,8 +114,8 @@ class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
                 print("[", file=str_io, end="")
 
             for i_feature, feature in enumerate(sorted(featureBundle.get_keys())):  # sorted to avoid differences in
-                if i_feature != 0:                                               # implementations (esp between Py2 and
-                    print(", ", file=str_io, end="")                             # Py3) - tests
+                if i_feature != 0:  # implementations (esp between Py2 and
+                    print(", ", file=str_io, end="")  # Py3) - tests
                 print("{0}{1}".format(featureBundle[feature], feature), file=str_io, end="")
 
             if len(self.feature_bundles) > 1:
@@ -207,10 +206,12 @@ class IdentConstraint(Constraint):
     def get_constraint_name(cls):
         return "Ident"
 
+
 class FaithConstraint(Constraint):
     """
     This constraint has no feature bundle list
     """
+
     def __init__(self, bundles_list, feature_table):
         super(FaithConstraint, self).__init__([], False, feature_table)
 
@@ -227,10 +228,10 @@ class FaithConstraint(Constraint):
 
         return transducer
 
-
     @classmethod
     def get_constraint_name(cls):
         return "Faith"
+
 
 class PhonotacticConstraint(Constraint):
     def __init__(self, bundles_list, feature_table):
@@ -251,7 +252,7 @@ class PhonotacticConstraint(Constraint):
         if len(self.feature_bundles) > configurations["MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"]:
             if configurations["RANDOM_POSITION_FOR_FEATURE_BUNDLE_REMOVAL_IN_PHONOTACTIC"]:
 
-                self.feature_bundles.pop(randint(0, len(self.feature_bundles)-1))
+                self.feature_bundles.pop(randint(0, len(self.feature_bundles) - 1))
             else:
                 self.feature_bundles.pop()
             return True
@@ -267,8 +268,8 @@ class PhonotacticConstraint(Constraint):
             return i
 
         def compute_highest_num_of_satisfied_bundle(segment, j):
-            for k in range(j + 1, 0,-1):
-                if symbol_bundle_characteristic_matrix[segment][k-1]:
+            for k in range(j + 1, 0, -1):
+                if symbol_bundle_characteristic_matrix[segment][k - 1]:
                     return k
             else:
                 return 0
@@ -277,18 +278,14 @@ class PhonotacticConstraint(Constraint):
         segments = self.feature_table.get_segments()
         transducer = Transducer(segments, name=str(self))
 
-        symbol_bundle_characteristic_matrix = {segment: [segment.has_feature_bundle(self.feature_bundles[i])
-                                                         for i in range(n+1)]
-                                               for segment in segments}
+        symbol_bundle_characteristic_matrix = {segment: [segment.has_feature_bundle(self.feature_bundles[i]) for i in range(n + 1)] for segment in segments}
 
+        states = {i: {j: 0 for j in range(i)} for i in range(n + 1)}
 
-        states = {i: {j: 0 for j in range(i)} for i in range(n+1)}
-
-        initial_state = State('q0|0')    # here we use a tuple as label. it will change at the end of this function
+        initial_state = State("q0|0")  # here we use a tuple as label. it will change at the end of this function
         states[0][0] = initial_state
 
         transducer.set_as_single_state(initial_state)
-
 
         if not n:
             for segment in segments:
@@ -296,43 +293,38 @@ class PhonotacticConstraint(Constraint):
             transducer.add_arc(Arc(states[0][0], JOKER_SEGMENT, NULL_SEGMENT, CostVector([0]), states[0][0]))
 
         else:
-            for i in range(0, n+1):
+            for i in range(0, n + 1):
                 for j in range(i):
-                    state = State('q{0}|{1}'.format(i,j))
+                    state = State("q{0}|{1}".format(i, j))
                     states[i][j] = state
                     transducer.add_state(state)
-            max_num_of_satisfied_bundle_by_segment = {segment: compute_num_of_max_satisfied_bundle(segment)
-                                                      for segment in segments}
+            max_num_of_satisfied_bundle_by_segment = {segment: compute_num_of_max_satisfied_bundle(segment) for segment in segments}
             for segment in segments:
-                transducer.add_arc(Arc(states[0][0], JOKER_SEGMENT, segment, CostVector([0]),
-                                       states[symbol_bundle_characteristic_matrix[segment][0]][0]))
-            for i in range(n+1):
+                transducer.add_arc(Arc(states[0][0], JOKER_SEGMENT, segment, CostVector([0]), states[symbol_bundle_characteristic_matrix[segment][0]][0]))
+            for i in range(n + 1):
                 for j in range(i):
                     state = states[i][j]
                     transducer.add_final_state(state)
                     if i != n:
                         for segment in segments:
                             if symbol_bundle_characteristic_matrix[segment][i]:
-                                new_state_level = i+1
-                                new_state_mem = min([j+1, max_num_of_satisfied_bundle_by_segment[segment]])
+                                new_state_level = i + 1
+                                new_state_mem = min([j + 1, max_num_of_satisfied_bundle_by_segment[segment]])
                             else:
                                 new_state_level = compute_highest_num_of_satisfied_bundle(segment, j)
-                                new_state_mem = min([max_num_of_satisfied_bundle_by_segment[segment],
-                                                     abs(new_state_level - 1)])
+                                new_state_mem = min([max_num_of_satisfied_bundle_by_segment[segment], abs(new_state_level - 1)])
                             new_terminus = states[new_state_level][new_state_mem]
                             transducer.add_arc(Arc(state, JOKER_SEGMENT, segment, CostVector([0]), new_terminus))
                     else:  # i = n
                         for segment in segments:
                             new_state_level = compute_highest_num_of_satisfied_bundle(segment, j)
-                            new_state_mem = min([max_num_of_satisfied_bundle_by_segment[segment],
-                                                 abs(new_state_level - 1)])
+                            new_state_mem = min([max_num_of_satisfied_bundle_by_segment[segment], abs(new_state_level - 1)])
                             new_terminus = states[new_state_level][new_state_mem]
-                            transducer.add_arc(Arc(state, JOKER_SEGMENT, segment,
-                                                   CostVector([int(symbol_bundle_characteristic_matrix[segment][i])]), new_terminus))
+                            transducer.add_arc(Arc(state, JOKER_SEGMENT, segment, CostVector([int(symbol_bundle_characteristic_matrix[segment][i])]), new_terminus))
 
         transducer.clear_dead_states()
         for state in transducer.states:
-            transducer.add_arc(Arc( state, JOKER_SEGMENT, NULL_SEGMENT, CostVector([0]), state))
+            transducer.add_arc(Arc(state, JOKER_SEGMENT, NULL_SEGMENT, CostVector([0]), state))
 
         return transducer
 
@@ -341,8 +333,7 @@ class PhonotacticConstraint(Constraint):
         return "Phonotactic"
 
     def get_encoding_length(self):
-        return 1 + sum([featureBundle.get_encoding_length() for featureBundle in self.feature_bundles]) \
-                 + len(self.feature_bundles) + 1
+        return 1 + sum([featureBundle.get_encoding_length() for featureBundle in self.feature_bundles]) + len(self.feature_bundles) + 1
 
     @classmethod
     def generate_random(cls, feature_table):
@@ -350,7 +341,6 @@ class PhonotacticConstraint(Constraint):
         for i in range(configurations["INITIAL_NUMBER_OF_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"]):
             bundles.append(FeatureBundle.generate_random(feature_table))
         return PhonotacticConstraint(bundles, feature_table)
-
 
 
 class HeadDepConstraint(Constraint):
@@ -361,8 +351,8 @@ class HeadDepConstraint(Constraint):
         segments = self.feature_table.get_segments()
         transducer = Transducer(segments, name=str(self))
 
-        state1 = State('Dep1')
-        state2 = State('Dep2')
+        state1 = State("Dep1")
+        state2 = State("Dep2")
         transducer.add_state(state1)
         transducer.add_state(state2)
         transducer.initial_state = state1
@@ -372,14 +362,13 @@ class HeadDepConstraint(Constraint):
             transducer.add_arc(Arc(state1, segment, NULL_SEGMENT, CostVector([0]), state1))
             transducer.add_arc(Arc(state2, segment, NULL_SEGMENT, CostVector([0]), state2))
 
-
             segment_symbol = segment.get_symbol()
             if segment_symbol in yimas_cons:  # segment is consonant
                 transducer.add_arc(Arc(state1, NULL_SEGMENT, segment, CostVector([0]), state1))
                 transducer.add_arc(Arc(state1, segment, segment, CostVector([0]), state1))
                 transducer.add_arc(Arc(state2, segment, segment, CostVector([0]), state1))
                 transducer.add_arc(Arc(state2, NULL_SEGMENT, segment, CostVector([0]), state1))
-            elif segment_symbol in yimas_vowels:   # segment is vowel
+            elif segment_symbol in yimas_vowels:  # segment is vowel
                 transducer.add_arc(Arc(state1, NULL_SEGMENT, segment, CostVector([0]), state1))
                 transducer.add_arc(Arc(state1, segment, segment, CostVector([0]), state1))
                 transducer.add_arc(Arc(state2, segment, segment, CostVector([0]), state1))
@@ -391,7 +380,6 @@ class HeadDepConstraint(Constraint):
                 transducer.add_arc(Arc(state2, NULL_SEGMENT, segment, CostVector([0]), state2))
             else:
                 raise ConstraintError("{} not supported in this constraint".format(segment_symbol))
-
 
         return transducer
 
@@ -408,9 +396,9 @@ class MainLeftConstraint(Constraint):
         segments = self.feature_table.get_segments()
         transducer = Transducer(segments, name=str(self))
 
-        state1 = State('1')
-        state2 = State('2')
-        state3 = State('3')
+        state1 = State("1")
+        state2 = State("2")
+        state3 = State("3")
 
         transducer.add_state(state1)
         transducer.add_state(state2)
@@ -424,7 +412,7 @@ class MainLeftConstraint(Constraint):
 
         for segment in segments:
             segment_symbol = segment.get_symbol()
-            if segment_symbol in yimas_vowels:   # segment is vowel
+            if segment_symbol in yimas_vowels:  # segment is vowel
                 transducer.add_arc(Arc(state1, JOKER_SEGMENT, segment, CostVector([1]), state3))
                 transducer.add_arc(Arc(state2, JOKER_SEGMENT, segment, CostVector([0]), state3))
                 transducer.add_arc(Arc(state3, JOKER_SEGMENT, segment, CostVector([0]), state3))
@@ -456,8 +444,8 @@ class PrecedeConstraint(Constraint):
         segments = self.feature_table.get_segments()
         transducer = Transducer(segments, name=str(self))
 
-        state1 = State('Precede1')
-        state2 = State('Precede2')   # After seeing +stress (now it is okay to see +vowel)
+        state1 = State("Precede1")
+        state2 = State("Precede2")  # After seeing +stress (now it is okay to see +vowel)
         transducer.add_state(state1)
         transducer.add_state(state2)
         transducer.initial_state = state1
@@ -466,7 +454,7 @@ class PrecedeConstraint(Constraint):
 
         for segment in segments:
             segment_symbol = segment.get_symbol()
-            if segment_symbol in yimas_vowels:   # segment is vowel
+            if segment_symbol in yimas_vowels:  # segment is vowel
                 transducer.add_arc(Arc(state1, JOKER_SEGMENT, segment, CostVector([1]), state1))
                 transducer.add_arc(Arc(state2, JOKER_SEGMENT, segment, CostVector([0]), state2))
             elif segment_symbol == "'":  # segment is stress
@@ -495,8 +483,8 @@ class ContiguityConstraint(Constraint):
         segments = self.feature_table.get_segments()
         transducer = Transducer(segments, name=str(self))
 
-        state1 = State('Contiguity1')
-        state2 = State('Contiguity2')
+        state1 = State("Contiguity1")
+        state2 = State("Contiguity2")
         transducer.add_state(state1)
         transducer.add_state(state2)
         transducer.initial_state = state1
@@ -509,7 +497,7 @@ class ContiguityConstraint(Constraint):
             transducer.add_arc(Arc(state2, NULL_SEGMENT, segment, CostVector([1]), state1))
             transducer.add_arc(Arc(state2, segment, NULL_SEGMENT, CostVector([1]), state1))
             segment_symbol = segment.get_symbol()
-            if segment_symbol in yimas_vowels:   # segment is vowel
+            if segment_symbol in yimas_vowels:  # segment is vowel
                 transducer.add_arc(Arc(state1, segment, segment, CostVector([0]), state1))
                 transducer.add_arc(Arc(state2, segment, segment, CostVector([0]), state1))
             elif segment_symbol == "'":  # segment is stress
@@ -521,7 +509,6 @@ class ContiguityConstraint(Constraint):
             else:
                 raise ConstraintError("{} not supported in this constraint".format(segment_symbol))
 
-
         return transducer
 
     @classmethod
@@ -529,9 +516,5 @@ class ContiguityConstraint(Constraint):
         return "Contiguity"
 
 
-
-yimas_cons = ['t', 'p', 'k', 'c']
-yimas_vowels = ['a', 'i', 'u', 'v']
-
-class ConstraintError(Exception):
-    pass
+yimas_cons = ["t", "p", "k", "c"]
+yimas_vowels = ["a", "i", "u", "v"]

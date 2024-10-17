@@ -13,11 +13,11 @@ from six import StringIO, PY3
 from unicode_mixin import UnicodeMixin
 from random import choice, randrange
 from grammar.constraint import Constraint, get_number_of_constraints
-from grammar.grammar import GrammarParseError
+from source.errors import GrammarParseError, OtmlConfigurationError
 from transducer import Transducer
 from randomization_tools import get_weighted_list
 from grammar.constraint import MaxConstraint, DepConstraint, PhonotacticConstraint, IdentConstraint
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
+from otml_configuration_manager import OtmlConfigurationManager
 
 
 logger = logging.getLogger(__name__)
@@ -164,7 +164,7 @@ class ConstraintSet(UnicodeMixin, object):
 
 
     def _make_transducer(self):
-        if len(self.constraints) is 1:                             # if there is only on constraint in the
+        if len(self.constraints) == 1:                             # if there is only on constraint in the
             return pickle.loads(pickle.dumps(self.constraints[0].get_transducer(), -1))  # constraint set there is no need to intersect
         else:
             constraints_transducers = [constraint.get_transducer() for constraint in self.constraints]

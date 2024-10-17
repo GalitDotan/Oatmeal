@@ -7,7 +7,7 @@ from six import iterkeys
 from random import choice
 
 from unicode_mixin import UnicodeMixin
-from grammar.grammar import GrammarParseError
+from source.errors import GrammarParseError
 from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
 
 

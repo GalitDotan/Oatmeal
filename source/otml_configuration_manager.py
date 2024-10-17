@@ -6,10 +6,16 @@ from copy import deepcopy
 
 from six import StringIO
 
+from source.errors import OtmlConfigurationError
 from unicode_mixin import UnicodeMixin
 
-class OtmlConfigurationError(Exception):
-    pass
+
+CONFIGURATION_DICTIONARY_FIELDS = [
+    "LEXICON_MUTATION_WEIGHTS",
+    "CONSTRAINT_SET_MUTATION_WEIGHTS",
+    "CONSTRAINT_INSERTION_WEIGHTS",
+]
+
 
 class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin): #
     def __init__(self, json_str):
@@ -39,33 +45,19 @@ class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin): #
         return string
 
     def validate_configurations(self):
-        dictionary_configuration_names = ["LEXICON_MUTATION_WEIGHTS", "CONSTRAINT_SET_MUTATION_WEIGHTS",
-                                          "CONSTRAINT_INSERTION_WEIGHTS"]
-        for dictionary_configuration_name in dictionary_configuration_names:
-            if type(self.configurations[dictionary_configuration_name]) != dict:
-                raise OtmlConfigurationError("{} should be a dictionary".format(dictionary_configuration_name))
+        _validate_required_dictionary_fields(self.configurations)
 
-        for dictionary_configuration_name in dictionary_configuration_names:
-            _check_weight_values_validity(self.configurations[dictionary_configuration_name])
-
-        _check_weights_total_is_not_zero(self.configurations["LEXICON_MUTATION_WEIGHTS"],
-                                         self.configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"])
+        _check_weights_total_is_not_zero(
+            self.configurations["LEXICON_MUTATION_WEIGHTS"],
+             self.configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"],
+         )
         _check_weights_total_is_not_zero(self.configurations["CONSTRAINT_INSERTION_WEIGHTS"])
 
-        if self.configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"]["augment_feature_bundle"] == 1:
-            raise NotImplementedError
+        _validate_not_implemented_features(self.configurations)
 
-        if self.configurations["LEXICON_MUTATION_WEIGHTS"]["change_segment"] == 1:
-            raise NotImplementedError
-
-        if self.configurations["ALLOW_CANDIDATES_WITH_CHANGED_SEGMENTS"]:
-            raise NotImplementedError
-
-        if self.configurations["MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] > self.configurations["INITIAL_NUMBER_OF_FEATURES"]:
-            raise OtmlConfigurationError("MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT is bigger then INITIAL_NUMBER_OF_FEATURES")
+        _validate_feature_number(self.configurations)
 
         #TODO link between ["LEXICON_MUTATION_WEIGHTS"]["change_segment"] and ["ALLOW_CANDIDATES_WITH_CHANGED_SEGMENTS"]
-
 
     def derive_configurations(self):
         lexicon_mutation_weights = self.configurations["LEXICON_MUTATION_WEIGHTS"]
@@ -75,30 +67,31 @@ class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin): #
         self.derived_configurations["LEXICON_SELECTION_WEIGHT"] = sum(lexicon_mutation_weights.values())
         self.derived_configurations["CONSTRAINT_SET_SELECTION_WEIGHT"] = sum(constraint_set_mutation_weights.values())
 
-        self.derived_configurations["INSERT_SEGMENT_WEIGHT"] = lexicon_mutation_weights['insert_segment']
-        self.derived_configurations["DELETE_SEGMENT_WEIGHT"] = lexicon_mutation_weights['delete_segment']
-        self.derived_configurations["CHANGE_SEGMENT_WEIGHT"] = lexicon_mutation_weights['change_segment']
+        self.derived_configurations["INSERT_SEGMENT_WEIGHT"] = lexicon_mutation_weights["insert_segment"]
+        self.derived_configurations["DELETE_SEGMENT_WEIGHT"] = lexicon_mutation_weights["delete_segment"]
+        self.derived_configurations["CHANGE_SEGMENT_WEIGHT"] = lexicon_mutation_weights["change_segment"]
 
-        self.derived_configurations["INSERT_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights['insert_constraint']
-        self.derived_configurations["REMOVE_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights['remove_constraint']
-        self.derived_configurations["DEMOTE_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights['demote_constraint']
-        self.derived_configurations["INSERT_FEATURE_BUNDLE_PHONOTACTIC_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights['insert_feature_bundle_phonotactic_constraint']
-        self.derived_configurations["REMOVE_FEATURE_BUNDLE_PHONOTACTIC_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights['remove_feature_bundle_phonotactic_constraint']
-        self.derived_configurations["AUGMENT_FEATURE_BUNDLE_WEIGHT"] = constraint_set_mutation_weights['augment_feature_bundle']
+        self.derived_configurations["INSERT_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights["insert_constraint"]
+        self.derived_configurations["REMOVE_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights["remove_constraint"]
+        self.derived_configurations["DEMOTE_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights["demote_constraint"]
+        self.derived_configurations["INSERT_FEATURE_BUNDLE_PHONOTACTIC_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights["insert_feature_bundle_phonotactic_constraint"]
+        self.derived_configurations["REMOVE_FEATURE_BUNDLE_PHONOTACTIC_CONSTRAINT_WEIGHT"] = constraint_set_mutation_weights["remove_feature_bundle_phonotactic_constraint"]
+        self.derived_configurations["AUGMENT_FEATURE_BUNDLE_WEIGHT"] = constraint_set_mutation_weights["augment_feature_bundle"]
 
-        self.derived_configurations["DEP_WEIGHT_FOR_INSERT"] = constraint_insertion_weights['Dep']
-        self.derived_configurations["MAX_WEIGHT_FOR_INSERT"] = constraint_insertion_weights['Max']
-        self.derived_configurations["IDENT_WEIGHT_FOR_INSERT"] = constraint_insertion_weights['Ident']
-        self.derived_configurations["PHONOTACTIC_WEIGHT_FOR_INSERT"] = constraint_insertion_weights['Phonotactic']
+        self.derived_configurations["DEP_WEIGHT_FOR_INSERT"] = constraint_insertion_weights["Dep"]
+        self.derived_configurations["MAX_WEIGHT_FOR_INSERT"] = constraint_insertion_weights["Max"]
+        self.derived_configurations["IDENT_WEIGHT_FOR_INSERT"] = constraint_insertion_weights["Ident"]
+        self.derived_configurations["PHONOTACTIC_WEIGHT_FOR_INSERT"] = constraint_insertion_weights["Phonotactic"]
 
     def __unicode__(self):
         values_str_io = StringIO()
         print("Otml configuration manager with:", end="\n", file=values_str_io)
         for (key, value) in sorted(self.configurations.items()):
             value_string = ""
-            if type(value) is dict:
+            if type(value) == dict:
                 for (secondary_key, secondary_value) in self.configurations[key].items():
-                    value_string += (len(key)+2) * " " + "{}: {}\n".format(secondary_key, secondary_value) #manual justification
+
+                    value_string += (len(key)+2) * " " + "{}: {}\n".format(secondary_key, secondary_value)
                 value_string = value_string.strip()
             else:
                 value_string = str(value)
@@ -109,10 +102,8 @@ class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin): #
 
 def _check_weight_values_validity(weight_dict):
     for weight in weight_dict.values():
-        if not isinstance(weight, int):
-            raise OtmlConfigurationError("weight {} is not an int".format(weight))
-        elif weight < 0:
-            raise OtmlConfigurationError("weight {} is negative".format(weight))
+        if not isinstance(weight, int) or weight < 0:
+            raise OtmlConfigurationError("Illegal weight", {"weight": weight})
 
 
 def _check_weights_total_is_not_zero(*weight_dicts):
@@ -120,6 +111,28 @@ def _check_weights_total_is_not_zero(*weight_dicts):
     for weight_dict in weight_dicts:
         total = total + sum(weight_dict.values())
     if total == 0:
-        raise OtmlConfigurationError("sum of weights is zero")
+        raise OtmlConfigurationError("Sum of weights is zero")
 
 #
+def _validate_required_dictionary_fields(configurations):
+    for dictionary_configuration_name in CONFIGURATION_DICTIONARY_FIELDS:
+        if type(configurations[dictionary_configuration_name]) != dict:
+            raise OtmlConfigurationError("Required field should be a dictionary", {"field": dictionary_configuration_name})
+
+    for dictionary_configuration_name in CONFIGURATION_DICTIONARY_FIELDS:
+        _check_weight_values_validity(configurations[dictionary_configuration_name])
+
+
+def _validate_not_implemented_features(configurations):
+    if configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"]["augment_feature_bundle"]:
+        raise NotImplementedError
+    if configurations["LEXICON_MUTATION_WEIGHTS"]["change_segment"]:
+        raise NotImplementedError
+    if configurations["ALLOW_CANDIDATES_WITH_CHANGED_SEGMENTS"]:
+        raise NotImplementedError
+
+def _validate_feature_number(configurations):
+    if (configurations["MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"]
+            > configurations["INITIAL_NUMBER_OF_FEATURES"]
+    ):
+        raise OtmlConfigurationError("MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT is bigger then INITIAL_NUMBER_OF_FEATURES")
