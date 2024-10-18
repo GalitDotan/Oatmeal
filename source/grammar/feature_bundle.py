@@ -8,11 +8,12 @@ from random import choice
 
 from unicode_mixin import UnicodeMixin
 from source.errors import GrammarParseError
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
+from source.errors import OtmlConfigurationError
 
+from source.otml_configuration import OtmlConfiguration
 
 logger = logging.getLogger(__name__)
-configurations = OtmlConfigurationManager.get_instance()
+configurations: OtmlConfiguration = OtmlConfiguration.get_instance()
 if configurations is None:
     raise OtmlConfigurationError("OtmlConfigurationManager was not initialized")
 
@@ -48,12 +49,12 @@ class FeatureBundle(UnicodeMixin, object):
 
     @classmethod
     def generate_random(cls, feature_table):
-        if configurations["INITIAL_NUMBER_OF_FEATURES"]> feature_table.get_number_of_features():
+        if configurations.initial_number_of_features > feature_table.get_number_of_features():
             raise OtmlConfigurationError("INITIAL_NUMBER_OF_FEATURES is bigger from number of available features")
 
         feature_dict = dict()
         available_feature_labels = feature_table.get_features()
-        for i in range(configurations["INITIAL_NUMBER_OF_FEATURES"]):
+        for i in range(configurations.initial_number_of_features):
             feature_label = choice(available_feature_labels)
             feature_dict[feature_label] = feature_table.get_random_value(feature_label)
             available_feature_labels.remove(feature_label)

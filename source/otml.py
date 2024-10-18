@@ -10,11 +10,11 @@ import platform
 from os import getcwd
 from os.path import dirname, join, basename, exists
 from optparse import OptionParser
-from otml_configuration_manager import OtmlConfigurationManager
 from source.errors import OtmlConfigurationError, OtmlError
-import codecs
 from base64 import urlsafe_b64encode
 from uuid import uuid4
+
+from source.otml_configuration import OtmlConfiguration
 
 
 #--configuration simulations/bb/bb_configuration.json
@@ -48,20 +48,18 @@ def main():
         configuration_files_dir_name = basename(configuration_files_dir_path)
 
         #load configurations
-        configuration_json_str = codecs.open(configuration_file_path, 'r').read()
-        OtmlConfigurationManager(configuration_json_str)
-        configurations = OtmlConfigurationManager.get_instance()
+        configurations: OtmlConfiguration = OtmlConfiguration.get_instance()
 
         if options.sub_configuration_file_relative_path:
             pass
 
         #validate simulation name
-        if configuration_files_dir_name != configurations["SIMULATION_NAME"]:
+        if configuration_files_dir_name != configurations.simulation_name:
             raise OtmlConfigurationError("SIMULATION_NAME should match configuration file containing directory")
 
-        constraint_set_file_name = configurations["CONSTRAINT_SET_FILE_NAME"]
-        feature_table_file_name = configurations["FEATURE_TABLE_FILE_NAME"]
-        corpus_file_name = configurations["CORPUS_FILE_NAME"]
+        constraint_set_file_name = configurations.constraint_set_file_name
+        feature_table_file_name = configurations.feature_table_file_name
+        corpus_file_name = configurations.corpus_file_name
 
         #check existence of data files
         constraint_set_file_path = join(configuration_files_dir_path, constraint_set_file_name)

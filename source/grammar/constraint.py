@@ -14,12 +14,12 @@ from source.errors import GrammarParseError, OtmlConfigurationError
 from transducer import CostVector, Arc, State, Transducer
 from grammar.feature_table import JOKER_SEGMENT, NULL_SEGMENT
 from itertools import permutations
-from otml_configuration_manager import OtmlConfigurationManager
 
 from source.errors import ConstraintError
+from source.otml_configuration import OtmlConfiguration
 
 logger = logging.getLogger(__name__)
-configurations = OtmlConfigurationManager.get_instance()
+configurations: OtmlConfiguration = OtmlConfiguration.get_instance()
 if configurations is None:
     raise OtmlConfigurationError("OtmlConfigurationManager was not initialized")
 
@@ -142,7 +142,7 @@ class MaxConstraint(Constraint):
             else:
                 transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 0), state))
 
-        if configurations["ALLOW_CANDIDATES_WITH_CHANGED_SEGMENTS"]:
+        if configurations.allow_candidates_with_changed_segments:
             for first_segment, second_segment in permutations(segments, 2):
                 transducer.add_arc(Arc(state, first_segment, second_segment, CostVector.get_vector(1, 0), state))
 
@@ -168,7 +168,7 @@ class DepConstraint(Constraint):
             else:
                 transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 0), state))
 
-        if configurations["ALLOW_CANDIDATES_WITH_CHANGED_SEGMENTS"]:
+        if configurations.allow_candidates_with_changed_segments:
             for first_segment, second_segment in permutations(segments, 2):
                 transducer.add_arc(Arc(state, first_segment, second_segment, CostVector.get_vector(1, 0), state))
 
@@ -222,7 +222,7 @@ class FaithConstraint(Constraint):
             transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 1), state))
             transducer.add_arc(Arc(state, segment, segment, CostVector.get_vector(1, 0), state))
 
-        if configurations["ALLOW_CANDIDATES_WITH_CHANGED_SEGMENTS"]:
+        if configurations.allow_candidates_with_changed_segments:
             for first_segment, second_segment in permutations(segments, 2):
                 transducer.add_arc(Arc(state, first_segment, second_segment, CostVector.get_vector(1, 1), state))
 
@@ -238,9 +238,9 @@ class PhonotacticConstraint(Constraint):
         super(PhonotacticConstraint, self).__init__(bundles_list, True, feature_table)
 
     def insert_feature_bundle(self):
-        if len(self.feature_bundles) < configurations["MAX_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"]:
+        if len(self.feature_bundles) < configurations.max_feature_bundles_in_phonotactic_constraint:
             new_feature_bundle = FeatureBundle.generate_random(self.feature_table)
-            if configurations["RANDOM_POSITION_FOR_FEATURE_BUNDLE_INSERTION_IN_PHONOTACTIC"]:
+            if configurations.random_position_for_feature_bundle_insertion_in_phonotactic:
                 self.feature_bundles.insert(randint(0, len(self.feature_bundles)), new_feature_bundle)
             else:
                 self.feature_bundles.append(new_feature_bundle)
@@ -249,8 +249,8 @@ class PhonotacticConstraint(Constraint):
             return False
 
     def remove_feature_bundle(self):
-        if len(self.feature_bundles) > configurations["MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"]:
-            if configurations["RANDOM_POSITION_FOR_FEATURE_BUNDLE_REMOVAL_IN_PHONOTACTIC"]:
+        if len(self.feature_bundles) > configurations.min_feature_bundles_in_phonotactic_constraint:
+            if configurations.random_position_for_feature_bundle_removal_in_phonotactic:
 
                 self.feature_bundles.pop(randint(0, len(self.feature_bundles) - 1))
             else:
@@ -338,7 +338,7 @@ class PhonotacticConstraint(Constraint):
     @classmethod
     def generate_random(cls, feature_table):
         bundles = list()
-        for i in range(configurations["INITIAL_NUMBER_OF_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"]):
+        for i in range(configurations.initial_number_of_bundles_in_phonotactic_constraint):
             bundles.append(FeatureBundle.generate_random(feature_table))
         return PhonotacticConstraint(bundles, feature_table)
 

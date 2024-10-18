@@ -1,13 +1,17 @@
-class Singleton(type):
-    _instances = {}
+class Singleton:
+    instance = None
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-    def get_instance(cls):
-        if cls in cls._instances:
-            return cls._instances[cls]
+    def __new__(cls, *args, **kwargs):
+        if not cls.instance:
+            cls.instance = super().__new__(cls)
+            return cls.instance
         else:
-            return None
+            return cls.instance
+
+
+    @classmethod
+    def get_instance(cls):
+        if cls.instance:
+            return cls.instance
+        else:
+            raise ValueError("Tried to fetch non-instantiated Singleton type", {"type": cls.__name__})

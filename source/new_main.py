@@ -1,7 +1,5 @@
-import codecs
 import os
-from otml_configuration_manager import OtmlConfigurationManager
-
+from source.otml_configuration import OtmlConfiguration
 
 CURRENT_PATH = os.path.split(os.path.abspath(__file__))[0]
 FIXTURES_PATH = os.path.join(CURRENT_PATH, "tests/fixtures")
@@ -11,14 +9,15 @@ CORPUS_DIR = "corpora"
 CONSTRAINTS_DIR = "constraint_sets"
 CONFIGS_DIR = "configuration"
 
-feature_table_file_path = f"{FIXTURES_PATH}/{FEATURES_DIR}/french_deletion_feature_table.json"
-corpus_file_path = f"{FIXTURES_PATH}/{CORPUS_DIR}/french_deletion_corpus.txt"
-constraint_set_file_path = f"{FIXTURES_PATH}/{CONSTRAINTS_DIR}/french_deletion_constraint_set.json"
+SIMULATION_NAME = "french_deletion"
+
+feature_table_file_path = f"{FIXTURES_PATH}/{FEATURES_DIR}/{SIMULATION_NAME}_feature_table.json"
+corpus_file_path = f"{FIXTURES_PATH}/{CORPUS_DIR}/{SIMULATION_NAME}_corpus.txt"
+constraint_set_file_path = f"{FIXTURES_PATH}/{CONSTRAINTS_DIR}/{SIMULATION_NAME}_constraint_set.json"
 
 configuration_file_path = f"{FIXTURES_PATH}/{CONFIGS_DIR}/otml_configuration.json"
 
-configuration_json_str = codecs.open(configuration_file_path, 'r').read()
-OtmlConfigurationManager(configuration_json_str)
+OtmlConfiguration.from_json(configuration_file_path)
 
 from grammar.lexicon import Lexicon
 from grammar.feature_table import FeatureTable

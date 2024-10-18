@@ -9,11 +9,13 @@ from transducer import Transducer
 from transducers_optimization_tools import optimize_transducer_grammar_for_word, make_optimal_paths
 from unicode_mixin import UnicodeMixin
 from randomization_tools import get_weighted_list
-from otml_configuration_manager import OtmlConfigurationManager, OtmlConfigurationError
+from source.errors import OtmlConfigurationError
 from debug_tools import write_to_dot
 
+from source.otml_configuration import OtmlConfiguration
+
 logger = logging.getLogger(__name__)
-configurations = OtmlConfigurationManager.get_instance()
+configurations: OtmlConfiguration = OtmlConfiguration.get_instance()
 if configurations is None:
     raise OtmlConfigurationError("OtmlConfigurationManager was not initialized")
 
@@ -34,8 +36,8 @@ class Grammar(UnicodeMixin, object):
         return self.constraint_set.get_encoding_length() + self.lexicon.get_encoding_length()
 
     def make_mutation(self):
-        mutation_weights = [(self.lexicon, configurations["LEXICON_SELECTION_WEIGHT"]),
-                            (self.constraint_set, configurations["CONSTRAINT_SET_SELECTION_WEIGHT"])]
+        mutation_weights = [(self.lexicon, configurations.lexicon_mutation_weights.sum),
+                            (self.constraint_set, configurations.constraint_set_mutation_weights.sum),]
 
         weighted_mutatable_object_list = get_weighted_list(mutation_weights)
         object_to_mutate = choice(weighted_mutatable_object_list)

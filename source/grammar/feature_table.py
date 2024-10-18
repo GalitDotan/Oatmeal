@@ -10,13 +10,13 @@ import os
 
 from six import string_types, integer_types, StringIO, iterkeys
 
+from source.otml_configuration import OtmlConfiguration
 from source.unicode_mixin import UnicodeMixin
 from source.errors import OtmlConfigurationError
 from source.errors import FeatureParseError
-from otml_configuration_manager import OtmlConfigurationManager
 
 logger = logging.getLogger(__name__)
-configurations = OtmlConfigurationManager.get_instance()
+configurations: OtmlConfiguration = OtmlConfiguration.get_instance()
 if configurations is None:
     raise OtmlConfigurationError("OtmlConfigurationManager was not initialized")
 

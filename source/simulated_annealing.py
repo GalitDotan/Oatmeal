@@ -9,7 +9,6 @@ import random
 from datetime import timedelta
 import time
 import re
-from otml_configuration_manager import OtmlConfigurationManager
 from source.errors import OtmlConfigurationError
 import subprocess
 from grammar.grammar import Grammar
@@ -17,10 +16,9 @@ from grammar.constraint_set import ConstraintSet
 from grammar.constraint import Constraint
 from grammar.lexicon import Word
 from mail import MailManager
+from source.otml_configuration import OtmlConfiguration
 
-
-
-configurations = OtmlConfigurationManager.get_instance()
+configurations: OtmlConfiguration = OtmlConfiguration.get_instance()
 if configurations is None:
     raise OtmlConfigurationError("OtmlConfigurationManager was not initialized")
 
@@ -100,16 +98,16 @@ class SimulatedAnnealing(object):
         self.start_time = time.time()
         self.previous_interval_time = self.start_time
         logger.info("Process Id: {}".format(process_id))
-        if configurations["RANDOM_SEED"]:
+        if configurations.random_seed:
             seed = choice(range(1, 1000))
             logger.info("Seed: {} - randomly selected".format(seed))
         else:
-            seed = configurations["SEED"]
+            seed = configurations.seed
             logger.info("Seed: {} - specified".format(seed))
         random.seed(seed)
         logger.info(configurations)
         logger.info(self.current_hypothesis.grammar.feature_table)
-        self.step_limitation = configurations["STEPS_LIMITATION"]
+        self.step_limitation = configurations.steps_limitation
         if self.step_limitation != float("inf"):
             self.number_of_expected_steps = self.step_limitation
         else:
@@ -122,15 +120,15 @@ class SimulatedAnnealing(object):
 
         self._log_hypothesis_state()
         self.previous_interval_energy = self.current_hypothesis_energy
-        self.current_temperature = configurations["INITIAL_TEMPERATURE"]
-        self.threshold = configurations["THRESHOLD"]
-        self.cooling_parameter = configurations["COOLING_PARAMETER"]
+        self.current_temperature = configurations.initial_temp
+        self.threshold = configurations.threshold
+        self.cooling_parameter = configurations.cooling_factor
         #logger.info("distinct_words: {}".format(self.current_hypothesis.grammar.lexicon.get_number_of_distinct_words()))
 
     def _check_for_intervals(self):
-        if not self.step % configurations["DEBUG_LOGGING_INTERVAL"]:
+        if not self.step % configurations.debug_logging_interval:
             self._debug_interval()
-        if not self.step % configurations["CLEAR_MODULES_CACHING_INTERVAL"]:
+        if not self.step % configurations.clear_modules_caching_interval:
             self.clear_modules_caching()
 
     def _debug_interval(self):
@@ -159,7 +157,7 @@ class SimulatedAnnealing(object):
 
     def by_interval_time(self, time_from_last_interval):
         number_of_remaining_steps = self.number_of_expected_steps - self.step
-        number_of_remaining_intervals = int(number_of_remaining_steps/configurations["DEBUG_LOGGING_INTERVAL"])
+        number_of_remaining_intervals = int(number_of_remaining_steps/configurations.debug_logging_interval) + 1
         expected_time = number_of_remaining_intervals * time_from_last_interval
         return _pretty_runtime_str(expected_time)
 
@@ -173,7 +171,7 @@ class SimulatedAnnealing(object):
 
     def _log_hypothesis_state(self):
         logger.info("Grammar with: {}:".format(self.current_hypothesis.grammar.constraint_set))
-        if configurations["RESTRICTION_ON_ALPHABET"]:
+        if configurations.restriction_on_alphabet:
             restricted_alphabet = self.current_hypothesis.grammar.lexicon.get_distinct_segments()
             restricted_alphabet_list = [segment.symbol for segment in restricted_alphabet]
             logger.info("Alphabet: {}".format(restricted_alphabet_list))
@@ -207,10 +205,10 @@ class SimulatedAnnealing(object):
     @staticmethod
     def _calculate_num_of_steps():
         step = 0
-        temp = configurations["INITIAL_TEMPERATURE"]
-        while temp > configurations["THRESHOLD"]:
+        temp = configurations.initial_temp
+        while temp > configurations.threshold:
             step += 1
-            temp *= configurations["COOLING_PARAMETER"]
+            temp *= configurations.cooling_factor
         return step
 
     def clear_modules_caching(self):

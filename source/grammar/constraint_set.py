@@ -17,11 +17,11 @@ from source.errors import GrammarParseError, OtmlConfigurationError
 from transducer import Transducer
 from randomization_tools import get_weighted_list
 from grammar.constraint import MaxConstraint, DepConstraint, PhonotacticConstraint, IdentConstraint
-from otml_configuration_manager import OtmlConfigurationManager
 
+from source.otml_configuration import OtmlConfiguration
 
 logger = logging.getLogger(__name__)
-configurations = OtmlConfigurationManager.get_instance()
+configurations: OtmlConfiguration = OtmlConfiguration.get_instance()
 if configurations is None:
     raise OtmlConfigurationError("OtmlConfigurationManager was not initialized")
 
@@ -51,19 +51,19 @@ class ConstraintSet(UnicodeMixin, object):
         return k * (1 + sum([constraint.get_encoding_length() for constraint in self.constraints]))
 
     def make_mutation(self):
-        mutation_weights = [(self._insert_constraint, configurations["INSERT_CONSTRAINT_WEIGHT"]),
-                            (self._remove_constraint, configurations["REMOVE_CONSTRAINT_WEIGHT"]),
-                            (self._demote_constraint, configurations["DEMOTE_CONSTRAINT_WEIGHT"]),
-                            (self._insert_feature_bundle_phonotactic_constraint, configurations["INSERT_FEATURE_BUNDLE_PHONOTACTIC_CONSTRAINT_WEIGHT"]),
-                            (self._remove_feature_bundle_phonotactic_constraint, configurations["REMOVE_FEATURE_BUNDLE_PHONOTACTIC_CONSTRAINT_WEIGHT"]),
-                            (self._augment_feature_bundle, configurations["AUGMENT_FEATURE_BUNDLE_WEIGHT"])]
+        mutation_weights = [(self._insert_constraint, configurations.constraint_set_mutation_weights.insert_constraint),
+                            (self._remove_constraint, configurations.constraint_set_mutation_weights.remove_constraint),
+                            (self._demote_constraint, configurations.constraint_set_mutation_weights.demote_constraint),
+                            (self._insert_feature_bundle_phonotactic_constraint, configurations.constraint_set_mutation_weights.insert_feature_bundle_phonotactic_constraint),
+                            (self._remove_feature_bundle_phonotactic_constraint, configurations.constraint_set_mutation_weights.remove_feature_bundle_phonotactic_constraint),
+                            (self._augment_feature_bundle, configurations.constraint_set_mutation_weights.augment_feature_bundle)]
 
         weighted_mutation_function_list = get_weighted_list(mutation_weights)
         return choice(weighted_mutation_function_list)()
 
     def _remove_constraint(self):
         logger.debug("_remove_constraint")
-        if len(self.constraints) > configurations["MIN_NUMBER_OF_CONSTRAINTS_IN_CONSTRAINT_SET"]:
+        if len(self.constraints) > configurations.min_constraints_in_constraint_set:
             removable_constraints = list(filter(lambda x: x.get_constraint_name() != "Faith", self.constraints))
             self.constraints.remove(choice(removable_constraints))
             return True
@@ -133,11 +133,11 @@ class ConstraintSet(UnicodeMixin, object):
 
     def _insert_constraint(self):
         logger.debug("_insert_constraint")
-        if len(self.constraints) < configurations["MAX_NUMBER_OF_CONSTRAINTS_IN_CONSTRAINT_SET"]:
-            mutation_weights_for_insert = [(DepConstraint, configurations["DEP_WEIGHT_FOR_INSERT"]),
-                                           (MaxConstraint, configurations["MAX_WEIGHT_FOR_INSERT"]),
-                                           (IdentConstraint, configurations["IDENT_WEIGHT_FOR_INSERT"]),
-                                           (PhonotacticConstraint, configurations["PHONOTACTIC_WEIGHT_FOR_INSERT"])]
+        if len(self.constraints) < configurations.max_constraints_in_constraint_set:
+            mutation_weights_for_insert = [(DepConstraint, configurations.constraint_insertion_weights.dep),
+                                           (MaxConstraint, configurations.constraint_insertion_weights.max),
+                                           (IdentConstraint, configurations.constraint_insertion_weights.ident),
+                                           (PhonotacticConstraint, configurations.constraint_insertion_weights.phonotactic)]
 
             weighted_constraint_class_for_insert = get_weighted_list(mutation_weights_for_insert)
 
