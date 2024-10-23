@@ -1,7 +1,7 @@
-from singelton import Singleton
-from six import with_metaclass
-import logging
 import smtplib
+
+import logging
+from singelton import Singleton
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +40,7 @@ class MailManager(Singleton):
             server.login(self.user_name, self.password)
             sendmail_result = server.sendmail(self.sender, self.recipient, msg)
             server.close()
+            logger.debug(sendmail_result)
             logger.info("Email successfully sent")
         except:
             logger.info("Failed to send mail")

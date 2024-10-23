@@ -1,14 +1,11 @@
 import json
 
-from six import with_metaclass, PY3
+from six import with_metaclass
 
 from singelton import Singleton
 from source.errors import ConfigurationManagerError
 
-if PY3:
-    UNICODE_TYPE = str
-else:
-    UNICODE_TYPE = unicode
+UNICODE_TYPE = str
 
 
 class ConfigurationManager(with_metaclass(Singleton)):
