@@ -1,15 +1,10 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
-import sys
 from copy import deepcopy
 
-from tests.otml_configuration_for_testing import configurations
 from grammar.lexicon import Word, Lexicon
-from tests.stochastic_testcase import StochasticTestCase
 from tests.persistence_tools import get_feature_table_by_fixture
-
-
+from tests.stochastic_testcase import StochasticTestCase
 
 
 class TestLexicon(StochasticTestCase):
@@ -17,15 +12,16 @@ class TestLexicon(StochasticTestCase):
         self.feature_table = get_feature_table_by_fixture("feature_table.json")
         self.lexicon = Lexicon(['abb', 'bbaa'], self.feature_table)
 
-    #lexicon tests:
+    # lexicon tests:
     def test_lexicon(self):
         self.assertEqual(str(self.lexicon), "Lexicon, number of words: 2, number of segments: 7")
-        self.assertEqual(str([str(s) for s in self.lexicon[0]]), "['Segment a[+, -]', 'Segment b[-, -]', 'Segment b[-, -]']")
-
+        self.assertEqual(str([str(s) for s in self.lexicon[0]]),
+                         "['Segment a[+, -]', 'Segment b[-, -]', 'Segment b[-, -]']")
 
     def test_lexicon_make_mutation(self):
-        #print('\n'.join(sys.modules.keys()))
+        # print('\n'.join(sys.modules.keys()))
         pass
+
     #    original_lexicon = deepcopy(self.lexicon)
     #    self.lexicon.make_mutation()
     #    print(self.lexicon)
@@ -42,9 +38,8 @@ class TestLexicon(StochasticTestCase):
     #    print(self.lexicon)
     #    print(_find_out_mutation_type(original_lexicon.words, self.lexicon.words))
 
-
     def test_lexicon_change_segment(self):
-        lexicon = Lexicon(['ab', 'ba'], self.feature_table) # 12 possible results
+        lexicon = Lexicon(['ab', 'ba'], self.feature_table)  # 12 possible results
         lexicon_str1 = str(Lexicon(['ab', 'ca'], self.feature_table))
         lexicon_str2 = str(Lexicon(['ab', 'bd'], self.feature_table))
         lexicon_str3 = str(Lexicon(['db', 'ba'], self.feature_table))
@@ -54,7 +49,7 @@ class TestLexicon(StochasticTestCase):
                                               possible_result_threshold=5)
 
     def test_lexicon_insert_segment(self):
-        lexicon = Lexicon(['ab', 'ba'], self.feature_table) # 18 possible results
+        lexicon = Lexicon(['ab', 'ba'], self.feature_table)  # 18 possible results
         lexicon_str1 = str(Lexicon(['ab', 'cba'], self.feature_table))
         lexicon_str2 = str(Lexicon(['ab', 'baa'], self.feature_table))
         lexicon_str3 = str(Lexicon(['ab', 'ba', 'a'], self.feature_table))
@@ -78,8 +73,7 @@ class TestLexicon(StochasticTestCase):
         lexicon = Lexicon(['abb', 'a'], self.feature_table)
         self.assertEqual(lexicon.get_encoding_length(), 22)
 
-
-    #word tests:
+    # word tests:
     def test_word(self):
         word = Word('abb', self.feature_table)
         self.assertEqual(str(word), 'abb')
@@ -125,6 +119,7 @@ class TestLexicon(StochasticTestCase):
         self.stochastic_object_method_testing(word, "delete_segment", [word_str1, word_str2, word_str3, word_str4],
                                               num_of_tests=200, possible_result_threshold=30,
                                               all_possible_result_flag=True)
+
     def test_is_appropriate(self):
         feature_table = get_feature_table_by_fixture("yimas_tpk_aiu_feature_table.csv")
         word = Word("pit'uk", feature_table)
@@ -132,7 +127,6 @@ class TestLexicon(StochasticTestCase):
             word2 = deepcopy(word)
             word2.delete_segment()
             print(word2)
-
 
     def test_word_encoding_length(self):
         word = Word('abb', self.feature_table)

@@ -1,33 +1,32 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
-import sys
-import os
-import unittest
-import random
-
-
-import tests.log_configuration_for_testing
-from tests.log_configuration_for_testing import logger
 import logging
-from tests.otml_configuration_for_testing import configurations
-from grammar.lexicon import Lexicon
-from grammar.feature_table import FeatureTable
-from grammar.constraint_set import ConstraintSet
-from grammar.grammar import Grammar
-from traversable_grammar_hypothesis import TraversableGrammarHypothesis
+import random
+import unittest
+
 from corpus import Corpus
+from grammar.constraint_set import ConstraintSet
+from grammar.feature_table import FeatureTable
+from grammar.grammar import Grammar
+from grammar.lexicon import Lexicon
 from simulated_annealing import SimulatedAnnealing
+from tests.log_configuration_for_testing import logger
+from tests.otml_configuration_for_testing import configurations
 from tests.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
+from traversable_grammar_hypothesis import TraversableGrammarHypothesis
 
 logger.setLevel(logging.INFO)
+
+
 class TestOtmlWithAspirationAndLengtheningDemoteOnly(unittest.TestCase):
     def setUp(self):
-        self.feature_table = FeatureTable.load(get_feature_table_fixture("aspiration_and_lengthening_feature_table.json"))
+        self.feature_table = FeatureTable.load(
+            get_feature_table_fixture("aspiration_and_lengthening_feature_table.json"))
         corpus = Corpus.load(get_corpus_fixture("aspiration_and_lengthening_corpus.txt"))
-        self.constraint_set = ConstraintSet.load(get_constraint_set_fixture("aspiration_and_lengthening_demote_only_constraint_set.json"),
-                                                  self.feature_table)
+        self.constraint_set = ConstraintSet.load(
+            get_constraint_set_fixture("aspiration_and_lengthening_demote_only_constraint_set.json"),
+            self.feature_table)
         self.lexicon = Lexicon(corpus.get_words(), self.feature_table)
         self.grammar = Grammar(self.feature_table, self.constraint_set, self.lexicon)
         self.data = corpus.get_words()
@@ -40,14 +39,14 @@ class TestOtmlWithAspirationAndLengtheningDemoteOnly(unittest.TestCase):
             return "number of long vowels and aspirated consonants in lexicon: {} (long vowels = {}, " \
                    "aspirated consonants = {})".format(combined_number, number_of_long_vowels,
                                                        number_of_aspirated_consonants)
+
         self.simulated_annealing = SimulatedAnnealing(self.traversable_hypothesis,
                                                       target_lexicon_indicator_function=function,
-                                                      sample_target_lexicon= ["ad", "id", "ta", "ti"],
-                                                      sample_target_outputs= ["a:d", "i:d", "tha", "thi"])
-
-
+                                                      sample_target_lexicon=["ad", "id", "ta", "ti"],
+                                                      sample_target_outputs=["a:d", "i:d", "tha", "thi"])
 
     run_test = True
+
     @unittest.skipUnless(run_test, "long running test skipped")
     def test_run(self):
         random.seed(1)

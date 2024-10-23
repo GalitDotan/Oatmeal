@@ -1,8 +1,8 @@
-from six import with_metaclass, PY3
-from singelton import Singleton
-
 import json
 
+from six import with_metaclass, PY3
+
+from singelton import Singleton
 from source.errors import ConfigurationManagerError
 
 if PY3:

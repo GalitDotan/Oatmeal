@@ -1,80 +1,71 @@
 [
-        {
-        "type": "Dep",
-        "bundles":
-            [
-                {
-                "syll":"+"
-                }
-            ]
-    },
-     {
-        "type": "Max",
-        "bundles":
-            [
-                {
-                "syll":"+"
-                }
-            ]
-    },
-     {
-        "type": "Max",
-        "bundles":
-            [
-                {
-                "syll":"-"
-                }
-            ]
-    },{
-        "type": "Dep",
-        "bundles":
-            [
-                {
-                "long":"-"
-                }
-            ]
-    },
-     {
-        "type": "Faith",
-        "bundles":[]
-    },
-    {
-        "type": "Phonotactic",
-        "bundles":
-            [
-                {
-                    "syll":"-"
-
-                },
-                {
-                    "asp":"-"
-                }
-            ]
-    },
-    {
-        "type": "Phonotactic",
-        "bundles":
-            [
-                {
-                    "stop":"+"
-
-                },
-                {
-                    "syll":"+"
-                }
-            ]
-    },
-     {
-        "type": "Phonotactic",
-        "bundles":
-            [
-                {
-                    "syll":"+"
-
-                },
-                {
-                    "voice":"+"
-                }
-            ]
-    }
+  {
+    "type": "Dep",
+    "bundles": [
+      {
+        "syll": "+"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "syll": "+"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "syll": "-"
+      }
+    ]
+  },
+  {
+    "type": "Dep",
+    "bundles": [
+      {
+        "long": "-"
+      }
+    ]
+  },
+  {
+    "type": "Faith",
+    "bundles": []
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "syll": "-"
+      },
+      {
+        "asp": "-"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "stop": "+"
+      },
+      {
+        "syll": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "syll": "+"
+      },
+      {
+        "voice": "+"
+      }
+    ]
+  }
 ]

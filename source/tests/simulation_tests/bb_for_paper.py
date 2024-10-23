@@ -1,17 +1,14 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
-import sys
-import os
-import unittest
 import logging
-from os.path import split, join, normpath, abspath
+import os
 import platform
-
+import sys
+import unittest
+from os.path import split, join, normpath, abspath
 
 simulation_number = 1
-
 
 FILE_PATH = os.path.abspath(os.path.join(__file__, '..'))
 PROJECT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../../'))
@@ -29,7 +26,6 @@ from simulated_annealing import SimulatedAnnealing
 from tests.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
 
 
-
 class TestOtmlWithBBForPaper(unittest.TestCase):
     def setUp(self):
         self._set_up_logging()
@@ -37,7 +33,7 @@ class TestOtmlWithBBForPaper(unittest.TestCase):
         self.feature_table = FeatureTable.load(get_feature_table_fixture("a_b_and_cons_feature_table.json"))
         corpus = Corpus.load(get_corpus_fixture("bb_for_paper_corpus.txt"))
         self.constraint_set = ConstraintSet.load(get_constraint_set_fixture("faith_constraint_set.json"),
-                                                  self.feature_table)
+                                                 self.feature_table)
         self.lexicon = Lexicon(corpus.get_words(), self.feature_table)
         self.grammar = Grammar(self.feature_table, self.constraint_set, self.lexicon)
         self.data = corpus.get_words()
@@ -45,14 +41,15 @@ class TestOtmlWithBBForPaper(unittest.TestCase):
 
         def function(words):
             return "number of bab's: {}".format(sum([word.count("bab") for word in words]))
+
         self.simulated_annealing = SimulatedAnnealing(self.traversable_hypothesis,
                                                       target_lexicon_indicator_function=function,
                                                       sample_target_lexicon=["bb", "abb"],
                                                       sample_target_outputs=["bab", "abab"])
 
-
     def _set_up_logging(self):
-        unit_tests_log_file_name = "../../logging/{}_bb_INF_INF_1_DATA_ENCODING_{}.txt".format(platform.node(), simulation_number)
+        unit_tests_log_file_name = "../../logging/{}_bb_INF_INF_1_DATA_ENCODING_{}.txt".format(platform.node(),
+                                                                                               simulation_number)
 
         # if os.path.exists(unit_tests_log_file_name):
         #     raise ValueError("log name already exits")
@@ -67,11 +64,10 @@ class TestOtmlWithBBForPaper(unittest.TestCase):
         file_log_handler.setFormatter(file_log_formatter)
         logger.addHandler(file_log_handler)
 
-
     run_test = True
+
     @unittest.skipUnless(run_test, "long running test skipped")
     def test_run(self):
-
         configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"] = {
             "insert_constraint": 1,
             "remove_constraint": 1,
@@ -104,8 +100,9 @@ class TestOtmlWithBBForPaper(unittest.TestCase):
 
         number_of_steps_performed, hypothesis = self.simulated_annealing.run()
 
+
 # activate on server from otml/source/tests/simulation_tests
 if __name__ == '__main__':
     simulation_number = sys.argv[1]
-    sys.argv = sys.argv[:1] # leave only sys.argv[0] as sys.argv
+    sys.argv = sys.argv[:1]  # leave only sys.argv[0] as sys.argv
     unittest.main()

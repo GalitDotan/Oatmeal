@@ -1,28 +1,25 @@
 [
-    {
-        "type": "Phonotactic",
-        "bundles":
-            [
-                {
-                    "stop":"+"
-
-                },
-                {
-                    "cons":"-"
-                }
-            ]
-    },
-     {
-        "type": "Max",
-        "bundles":
-            [
-                {
-                "asp":"-"
-                }
-            ]
-    },
-    {
-        "type": "Faith",
-        "bundles":[]
-    }
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "stop": "+"
+      },
+      {
+        "cons": "-"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "asp": "-"
+      }
+    ]
+  },
+  {
+    "type": "Faith",
+    "bundles": []
+  }
 ]

@@ -1,12 +1,10 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
-import sys
 import os
-import unittest
-import logging
 import platform
+import sys
+import unittest
 from os.path import split, join, normpath, abspath
 
 simulation_number = 1
@@ -17,7 +15,6 @@ FILE_PATH = os.path.abspath(os.path.join(__file__, '..'))
 PROJECT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../../'))
 os.chdir(FILE_PATH)
 sys.path.append(PROJECT_PATH)
-
 
 import logging
 from tests.otml_configuration_for_testing import configurations
@@ -38,15 +35,15 @@ class TestOtmlWithFrenchDeletion(unittest.TestCase):
         self.feature_table = FeatureTable.load(get_feature_table_fixture("french_deletion_feature_table.json"))
         corpus = Corpus.load(get_corpus_fixture("french_deletion_corpus.txt"))
         self.constraint_set = ConstraintSet.load(get_constraint_set_fixture("french_deletion_constraint_set.json"),
-                                                  self.feature_table)
+                                                 self.feature_table)
         self.lexicon = Lexicon(get_corpus_fixture("french_deletion_corpus.txt"), self.feature_table)
         self.grammar = Grammar(self.feature_table, self.constraint_set, self.lexicon)
         self.data = corpus.get_words()
         self.traversable_hypothesis = TraversableGrammarHypothesis(self.grammar, self.data)
         self.simulated_annealing = SimulatedAnnealing(self.traversable_hypothesis)
 
-
     run_test = True
+
     @unittest.skipUnless(run_test, "long running test skipped")
     def test_run(self):
         configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"] = {
@@ -57,7 +54,7 @@ class TestOtmlWithFrenchDeletion(unittest.TestCase):
             "remove_feature_bundle_phonotactic_constraint": 0,
             "augment_feature_bundle": 0}
 
-        configurations["LEXICON_MUTATION_WEIGHTS"]= {
+        configurations["LEXICON_MUTATION_WEIGHTS"] = {
             "insert_segment": 1,
             "delete_segment": 1,
             "change_segment": 0}
@@ -67,7 +64,6 @@ class TestOtmlWithFrenchDeletion(unittest.TestCase):
         configurations["COOLING_PARAMETER"] = 0.9999
         configurations["RESTRICTION_ON_ALPHABET"] = False
 
-
         configurations["DEBUG_LOGGING_INTERVAL"] = 50
 
         number_of_steps_performed, hypothesis = self.simulated_annealing.run()
@@ -75,7 +71,7 @@ class TestOtmlWithFrenchDeletion(unittest.TestCase):
     def _set_up_logging(self):
         unit_tests_log_file_name = log_file_name.format(platform.node(), simulation_number)
 
-        #if os.path.exists(unit_tests_log_file_name):
+        # if os.path.exists(unit_tests_log_file_name):
         #    raise ValueError("log name already exits")
 
         logger = logging.getLogger()

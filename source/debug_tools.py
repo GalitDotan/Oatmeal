@@ -7,14 +7,14 @@ dot_files_folder_path = os.path.join(dirname, "logging/dot_files")
 
 
 def write_to_dot(transducer, file_name):
-    path = os.path.join(dot_files_folder_path, file_name+".dot")
+    path = os.path.join(dot_files_folder_path, file_name + ".dot")
     open(path, "w").write(transducer.dot_representation())
+
 
 run_times_by_function_names = defaultdict(list)
 
 
 def timeit(method):
-
     def timed(*args, **kw):
         start_time = time.time()
         result = method(*args, **kw)
@@ -25,8 +25,6 @@ def timeit(method):
         return result
 
     return timed
-
-
 
 
 def get_time_string(time):
@@ -52,7 +50,9 @@ def get_statistics():
         statistics[function_name] = get_time_string(sum(run_times_by_function_names[function_name]))
     return statistics
 
-N = (10**1)
+
+N = (10 ** 1)
+
 
 @timeit
 def function_to_time():
@@ -61,7 +61,6 @@ def function_to_time():
         x += 1
     return x
 
+
 if __name__ == "__main__":
     function_to_time()
-
-

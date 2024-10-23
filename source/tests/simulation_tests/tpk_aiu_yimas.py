@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 FILE_PATH = os.path.abspath(os.path.join(__file__, '..'))
 PROJECT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../../'))
@@ -11,21 +11,21 @@ from tests.otml_with_simualtion import run_simulation
 simulation_number = 1
 configurations_tuples = [
     ("CONSTRAINT_SET_MUTATION_WEIGHTS", {
-            "insert_constraint": 0,
-            "remove_constraint": 0,
-            "demote_constraint": 1,
-            "insert_feature_bundle_phonotactic_constraint": 0,
-            "remove_feature_bundle_phonotactic_constraint": 0,
-            "augment_feature_bundle": 0}),
+        "insert_constraint": 0,
+        "remove_constraint": 0,
+        "demote_constraint": 1,
+        "insert_feature_bundle_phonotactic_constraint": 0,
+        "remove_feature_bundle_phonotactic_constraint": 0,
+        "augment_feature_bundle": 0}),
     ("CONSTRAINT_INSERTION_WEIGHTS", {
-            "Dep": 1,
-            "Max": 1,
-            "Ident": 0,
-            "Phonotactic": 1}),
+        "Dep": 1,
+        "Max": 1,
+        "Ident": 0,
+        "Phonotactic": 1}),
     ("LEXICON_MUTATION_WEIGHTS", {
-            "insert_segment": 1,
-            "delete_segment": 1,
-            "change_segment": 0}),
+        "insert_segment": 1,
+        "delete_segment": 1,
+        "change_segment": 0}),
     ("RANDOM_SEED", True),
     ("INITIAL_TEMPERATURE", 100),
     ("COOLING_PARAMETER", 0.9997),
@@ -40,22 +40,22 @@ configurations_tuples = [
     ("LOG_LEXICON_WORDS", True)
 ]
 
-
 log_file_template = "{}_tpk_aiu_yimas_100_no_cicic_{}.txt"
 
 feature_table_file_name = "yimas_tpk_aiu_feature_table.csv"
 corpus_file_name = "yimas_tpk_aiu_no_cicic_corpus.txt"
 constraint_set_file_name = "yimas_tpk_aiu_constraint_set.txt"
 
+
 def target_lexicon_indicator_function(words):
     return "number of stress segments: {}".format(sum([word.count("'") for word in words]))
+
 
 sample_target_lexicon = ["ti", "katu"]
 sample_target_outputs = ["t'i", "k'atu"]
 
 target_constraint_set_file_name = "yimas_tpk_aiu_target_constraint_set.txt"
 target_lexicon_file_name = "yimas_tpk_aiu_no_cicic_target_lexicon.txt"
-
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

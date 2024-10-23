@@ -1,4 +1,4 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from math import ceil, log
@@ -22,12 +22,12 @@ from source.otml_configuration import OtmlConfiguration, settings
 
 logger = logging.getLogger(__name__)
 
-
 constraints_delimiter_for_printing = " >> "
 
 constraint_set_transducers = dict()
 
 demote_caching_flag = True
+
 
 class ConstraintSet(UnicodeMixin, object):
     def __init__(self, constraint_set_list, feature_table):
@@ -42,7 +42,6 @@ class ConstraintSet(UnicodeMixin, object):
             constraint_class = Constraint.get_constraint_class_by_name(constraint_name)
             self.constraints.append(constraint_class(bundles_list, feature_table))
 
-
     def get_encoding_length(self):
         k = ceil(log(get_number_of_constraints() + self.feature_table.get_number_of_features() + 2 + 1, 2))
         return k * (1 + sum([constraint.get_encoding_length() for constraint in self.constraints]))
@@ -51,9 +50,12 @@ class ConstraintSet(UnicodeMixin, object):
         mutation_weights = [(self._insert_constraint, settings.constraint_set_mutation_weights.insert_constraint),
                             (self._remove_constraint, settings.constraint_set_mutation_weights.remove_constraint),
                             (self._demote_constraint, settings.constraint_set_mutation_weights.demote_constraint),
-                            (self._insert_feature_bundle_phonotactic_constraint, settings.constraint_set_mutation_weights.insert_feature_bundle_phonotactic_constraint),
-                            (self._remove_feature_bundle_phonotactic_constraint, settings.constraint_set_mutation_weights.remove_feature_bundle_phonotactic_constraint),
-                            (self._augment_feature_bundle, settings.constraint_set_mutation_weights.augment_feature_bundle)]
+                            (self._insert_feature_bundle_phonotactic_constraint,
+                             settings.constraint_set_mutation_weights.insert_feature_bundle_phonotactic_constraint),
+                            (self._remove_feature_bundle_phonotactic_constraint,
+                             settings.constraint_set_mutation_weights.remove_feature_bundle_phonotactic_constraint),
+                            (self._augment_feature_bundle,
+                             settings.constraint_set_mutation_weights.augment_feature_bundle)]
 
         weighted_mutation_function_list = get_weighted_list(mutation_weights)
         return choice(weighted_mutation_function_list)()
@@ -114,19 +116,18 @@ class ConstraintSet(UnicodeMixin, object):
             if demote_caching_flag:
                 transducer = pickle.loads(pickle.dumps(self.get_transducer(), -1))
 
-            index_of_demotion = randrange(len(self.constraints)-1)  # index of a random constraint
-            i = index_of_demotion                                      # (which is not the lowest ranked)
-            j = index_of_demotion+1  # index of the constraint lower by 1
+            index_of_demotion = randrange(len(self.constraints) - 1)  # index of a random constraint
+            i = index_of_demotion  # (which is not the lowest ranked)
+            j = index_of_demotion + 1  # index of the constraint lower by 1
             self.constraints[i], self.constraints[j] = self.constraints[j], self.constraints[i]  # swap places
 
             if demote_caching_flag:
-                transducer.swap_weights_on_arcs(index_of_demotion, index_of_demotion+1)
+                transducer.swap_weights_on_arcs(index_of_demotion, index_of_demotion + 1)
                 constraint_set_transducers[str(self)] = transducer
 
             return True
         else:
             return False
-
 
     def _insert_constraint(self):
         logger.debug("_insert_constraint")
@@ -140,7 +141,7 @@ class ConstraintSet(UnicodeMixin, object):
 
             new_constraint_class = choice(weighted_constraint_class_for_insert)
             new_constraint = new_constraint_class.generate_random(self.feature_table)
-            index_of_insertion = randrange(len(self.constraints)+1)
+            index_of_insertion = randrange(len(self.constraints) + 1)
             if new_constraint in self.constraints:  # newly generated constraint is already in constraint_set
                 return False
             else:
@@ -148,7 +149,6 @@ class ConstraintSet(UnicodeMixin, object):
                 return True
         else:
             return False
-
 
     def get_transducer(self):
         constraint_set_key = str(self)
@@ -159,10 +159,10 @@ class ConstraintSet(UnicodeMixin, object):
             constraint_set_transducers[constraint_set_key] = transducer
             return transducer
 
-
     def _make_transducer(self):
-        if len(self.constraints) == 1:                             # if there is only on constraint in the
-            return pickle.loads(pickle.dumps(self.constraints[0].get_transducer(), -1))  # constraint set there is no need to intersect
+        if len(self.constraints) == 1:  # if there is only on constraint in the
+            return pickle.loads(
+                pickle.dumps(self.constraints[0].get_transducer(), -1))  # constraint set there is no need to intersect
         else:
             constraints_transducers = [constraint.get_transducer() for constraint in self.constraints]
             return Transducer.intersection(*constraints_transducers)
@@ -205,19 +205,19 @@ class ConstraintSet(UnicodeMixin, object):
         '''
         dict order of features in bundle in irrelevant
         '''
-        #Phonotactic[[+stop][+syll]]
+        # Phonotactic[[+stop][+syll]]
 
-        #Phonotactic[[+stop, -voice][+syll]]
-        #{"type": "Phonotactic", "bundles": [{"stop": "+", "voice": "-"}, {"syll": "+}]}
+        # Phonotactic[[+stop, -voice][+syll]]
+        # {"type": "Phonotactic", "bundles": [{"stop": "+", "voice": "-"}, {"syll": "+}]}
 
-        #Faith[] >> Phonotactic[+cons] >> Max[+cons]
+        # Faith[] >> Phonotactic[+cons] >> Max[+cons]
 
         constraint_set_list = list()
         string_constraints = constraint_set_string.split(constraints_delimiter_for_printing)
         for string_constraint in string_constraints:
             constraint_set_list.append(_parse_constraint(string_constraint))
 
-        constraint_set_json = str(constraint_set_list).replace("'", '"') # ' -> "
+        constraint_set_json = str(constraint_set_list).replace("'", '"')  # ' -> "
         return constraint_set_json
 
     def __unicode__(self):
@@ -256,9 +256,10 @@ def _parse_bundle_list(bundle_list_string):
         bundle_list.append(_parse_bundle(bundle_string))
     return bundle_list
 
+
 def _parse_constraint(constraint_string):
     constraint_dict = dict()
-    constraint_string = constraint_string.replace("[","|[",1)
+    constraint_string = constraint_string.replace("[", "|[", 1)
     split_ = constraint_string.split("|")
     constraint_name = split_[0]
     constraint_bundle_list = split_[1]
@@ -267,6 +268,3 @@ def _parse_constraint(constraint_string):
     constraint_dict["bundles"] = _parse_bundle_list(constraint_bundle_list)
 
     return constraint_dict
-
-
-

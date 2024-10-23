@@ -1,11 +1,12 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import textwrap
 
+from grammar.lexicon import Word, get_words_from_file
 from source.otml_configuration import settings
 from unicode_mixin import UnicodeMixin
-from grammar.lexicon import Word, get_words_from_file
+
 
 class Corpus(UnicodeMixin, object):
 
@@ -21,10 +22,9 @@ class Corpus(UnicodeMixin, object):
         duplication_factor_fraction = duplication_factor - int(duplication_factor)
 
         words_after_duplication = words * duplication_factor_int
-        words_after_duplication.extend(words[:int(n*duplication_factor_fraction)])
+        words_after_duplication.extend(words[:int(n * duplication_factor_fraction)])
 
         return cls(words_after_duplication)
-
 
     def __unicode__(self):
         return "Corpus with {0} words".format(len(self))
@@ -46,4 +46,3 @@ class Corpus(UnicodeMixin, object):
         lines = textwrap.wrap(" ".join([word for word in self.words]), width=80)
         for line in lines:
             print(line)
-

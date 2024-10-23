@@ -1,46 +1,42 @@
 [
-    {
-        "type": "Phonotactic",
-        "bundles":
-            [
-                {
-                    "cons":"+",
-                    "labial":"+"
-                },
-                {
-                    "cons":"+"
-                },
-                {
-                    "cons":"+"
-                }
-            ]
-    },
-    {
-        "type": "Ident",
-        "bundles":
-            [
-                {
-                "syll":"-"
-                }
-            ]
-    },
-    {
-        "type": "Dep",
-        "bundles":
-            [
-                {
-                "cons":"+"
-                }
-            ]
-    },
-    {
-        "type": "Max",
-        "bundles":
-            [
-                {
-                "cons":"-",
-                "syll":"-"
-                }
-            ]
-    }
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "cons": "+",
+        "labial": "+"
+      },
+      {
+        "cons": "+"
+      },
+      {
+        "cons": "+"
+      }
+    ]
+  },
+  {
+    "type": "Ident",
+    "bundles": [
+      {
+        "syll": "-"
+      }
+    ]
+  },
+  {
+    "type": "Dep",
+    "bundles": [
+      {
+        "cons": "+"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "cons": "-",
+        "syll": "-"
+      }
+    ]
+  }
 ]

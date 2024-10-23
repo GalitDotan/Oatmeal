@@ -1,15 +1,23 @@
 {
-    "feature":
-    [
-        {
-            "label": "cons",
-            "values": ["-","+","0"]
-        }
-    ],
-    "feature_table":
+  "feature": [
     {
-        "a": ["-"],
-        "b": ["+"],
-        "S": ["0"]
-}
+      "label": "cons",
+      "values": [
+        "-",
+        "+",
+        "0"
+      ]
+    }
+  ],
+  "feature_table": {
+    "a": [
+      "-"
+    ],
+    "b": [
+      "+"
+    ],
+    "S": [
+      "0"
+    ]
+  }
 }

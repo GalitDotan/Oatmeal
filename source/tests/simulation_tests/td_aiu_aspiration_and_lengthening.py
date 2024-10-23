@@ -1,25 +1,25 @@
 import sys
-from tests.otml_with_simualtion import run_simulation
 
+from tests.otml_with_simualtion import run_simulation
 
 simulation_number = 1
 configurations_tuples = [
     ("CONSTRAINT_SET_MUTATION_WEIGHTS", {
-            "insert_constraint": 1,
-            "remove_constraint": 1,
-            "demote_constraint": 1,
-            "insert_feature_bundle_phonotactic_constraint": 1,
-            "remove_feature_bundle_phonotactic_constraint": 1,
-            "augment_feature_bundle": 0}),
+        "insert_constraint": 1,
+        "remove_constraint": 1,
+        "demote_constraint": 1,
+        "insert_feature_bundle_phonotactic_constraint": 1,
+        "remove_feature_bundle_phonotactic_constraint": 1,
+        "augment_feature_bundle": 0}),
     ("CONSTRAINT_INSERTION_WEIGHTS", {
-            "Dep": 1,
-            "Max": 1,
-            "Ident": 0,
-            "Phonotactic": 1}),
+        "Dep": 1,
+        "Max": 1,
+        "Ident": 0,
+        "Phonotactic": 1}),
     ("LEXICON_MUTATION_WEIGHTS", {
-            "insert_segment": 1,
-            "delete_segment": 1,
-            "change_segment": 0}),
+        "insert_segment": 1,
+        "delete_segment": 1,
+        "change_segment": 0}),
     ("RANDOM_SEED", True),
     ("INITIAL_TEMPERATURE", 100),
     ("COOLING_PARAMETER", 0.999985),
@@ -47,16 +47,17 @@ def target_lexicon_indicator_function(words):
            "aspirated consonants = {})".format(combined_number, number_of_long_vowels,
                                                number_of_aspirated_consonants)
 
-sample_target_lexicon=["ti", "ta", "id", "ad", "tu"]
-sample_target_outputs=["thi", "tha", "i:d", "a:d", "thu"]
+
+sample_target_lexicon = ["ti", "ta", "id", "ad", "tu"]
+sample_target_outputs = ["thi", "tha", "i:d", "a:d", "thu"]
 
 
-#target
+# target
 def convert_corpus_word_to_target_word_function(word):
     return word.replace('h', '').replace(':', '')
 
-target_constraint_set_file_name = "td_kg_ai_aspiration_and_lengthening_target_constraint_set.json"
 
+target_constraint_set_file_name = "td_kg_ai_aspiration_and_lengthening_target_constraint_set.json"
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

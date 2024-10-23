@@ -1,19 +1,19 @@
+import re
+from collections import namedtuple
+from random import choice, shuffle
 
 from misc.corpus_generator import CorpusGenerator
-import itertools
-from random import choice, shuffle
-from collections import namedtuple
-import re
+
+SyllablesTypeBase = namedtuple('SyllableType',
+                               ['aspiration_and_lengthening', 'aspiration_only', 'lengthening_only', 'nothing'])
 
 
-
-SyllablesTypeBase = namedtuple('SyllableType', ['aspiration_and_lengthening', 'aspiration_only', 'lengthening_only', 'nothing'])
 class SyllablesType(SyllablesTypeBase):
     def __add__(self, other):
-        return SyllablesType(self.aspiration_and_lengthening+other.aspiration_and_lengthening,
-                             self.aspiration_only+other.aspiration_only,
-                             self.lengthening_only+other.lengthening_only,
-                             self.nothing+other.nothing)
+        return SyllablesType(self.aspiration_and_lengthening + other.aspiration_and_lengthening,
+                             self.aspiration_only + other.aspiration_only,
+                             self.lengthening_only + other.lengthening_only,
+                             self.nothing + other.nothing)
 
     def get_a_minimal_property(self):
         min_index = 0
@@ -30,7 +30,7 @@ class SyllablesType(SyllablesTypeBase):
         return max_index
 
 
-consonants = ['t', 'd']#, 'k', 'g']
+consonants = ['t', 'd']  # , 'k', 'g']
 vowels = ['i', 'a', 'u']
 
 alternations_list = [('ad', 'a:d'), ('id', 'i:d'), ('ud', 'u:d'), ('ed', 'e:d'), ('od', 'o:d'),
@@ -41,10 +41,10 @@ alternations_list = [('ad', 'a:d'), ('id', 'i:d'), ('ud', 'u:d'), ('ed', 'e:d'),
                      ('pa', 'pha'), ('pi', 'phi'), ('pu', 'phu'), ('pe', 'phe'), ('po', 'pho'),
                      ('ka', 'kha'), ('ki', 'khi'), ('ku', 'khu'), ('ke', 'khe'), ('ko', 'kho')]
 
-#english syllable structure:  (C)(C)(C)V(C)(C)(C)(C)
+# english syllable structure:  (C)(C)(C)V(C)(C)(C)(C)
 one_syllable = ["CV", "VC", "CVC"]
-two_syllables = ["CVCV","VCVC","CVCCV","CVCVC","VCCVC"]
-#three__syllable = ["CVCVCV", "VCVCVC", "CVCVCCV","VCVCVC"]
+two_syllables = ["CVCV", "VCVC", "CVCCV", "CVCVC", "VCCVC"]
+# three__syllable = ["CVCVCV", "VCVCVC", "CVCVCCV","VCVCVC"]
 syllables = one_syllable + two_syllables
 
 
@@ -60,15 +60,17 @@ def get_word_syllables_type(word, vowels_list=vowels):
     nothing_pattern = "[^h]{}[^:]"
 
     for vowel in vowels_list:
-        aspiration_and_lengthening_num += len(re.findall(aspiration_and_lengthening_pattern.format(vowel), " {} ".format(word)))
+        aspiration_and_lengthening_num += len(
+            re.findall(aspiration_and_lengthening_pattern.format(vowel), " {} ".format(word)))
         aspiration_only_num += len(re.findall(aspiration_only_pattern.format(vowel), " {} ".format(word)))
         lengthening_only_num += len(re.findall(lengthening_only_pattern.format(vowel), " {} ".format(word)))
         nothing_num += len(re.findall(nothing_pattern.format(vowel), " {} ".format(word)))
 
-    return(SyllablesType(aspiration_and_lengthening_num, aspiration_only_num, lengthening_only_num, nothing_num))
+    return (SyllablesType(aspiration_and_lengthening_num, aspiration_only_num, lengthening_only_num, nothing_num))
 
 
-assert get_word_syllables_type("tha:dtadthadta:d") == SyllablesType(aspiration_and_lengthening=1, aspiration_only=1, lengthening_only=1, nothing=1)
+assert get_word_syllables_type("tha:dtadthadta:d") == SyllablesType(aspiration_and_lengthening=1, aspiration_only=1,
+                                                                    lengthening_only=1, nothing=1)
 
 
 def generate_words(num_of_words=0):
@@ -103,18 +105,14 @@ def create_even_corpus():
     while len(selected_words) < 200:
         candidate_word = choice(alternated_words)
         if get_word_syllables_type(candidate_word)[3] > 1:
-           continue
+            continue
         selected_words.append(candidate_word)
         alternated_words.remove(candidate_word)
         st_sum += get_word_syllables_type(candidate_word)
-
-
 
     print(selected_words)
     print(st_sum)
 
 
-
 if __name__ == '__main__':
     create_even_corpus()
-

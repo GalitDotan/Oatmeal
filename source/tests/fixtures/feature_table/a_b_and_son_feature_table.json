@@ -1,14 +1,19 @@
 {
-    "feature":
-    [
-        {
-            "label": "son",
-            "values": ["-","+"]
-        }
-    ],
-    "feature_table":
+  "feature": [
     {
-        "a": ["+"],
-        "b": ["-"]
-}
+      "label": "son",
+      "values": [
+        "-",
+        "+"
+      ]
+    }
+  ],
+  "feature_table": {
+    "a": [
+      "+"
+    ],
+    "b": [
+      "-"
+    ]
+  }
 }

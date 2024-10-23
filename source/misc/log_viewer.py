@@ -11,10 +11,10 @@ os.chdir(LOG_FOLDER)
 
 simulation_name = "td_kg_aiu_aspiration_and_lengthening"
 
-
 desired_grammar_line = 13
 parse_line = 9
 constraint_set_line = 6
+
 
 def get_tail(log_name):
     print(log_name)
@@ -24,6 +24,7 @@ def get_tail(log_name):
     else:
         for line in block_lines:
             print(line)
+
 
 def find_log_files():
     find_pattern = 'find * -name "*{}*"'.format(simulation_name)

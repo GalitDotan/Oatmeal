@@ -8,7 +8,6 @@ class Singleton:
         else:
             return cls.instance
 
-
     @classmethod
     def get_instance(cls):
         if cls.instance:

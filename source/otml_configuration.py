@@ -17,6 +17,7 @@ DATA_FILES = {
     "corpus_file": "corpus.txt",
 }
 
+
 class Model(BaseModel):
     model_config = ConfigDict(
         extra="forbid",  # disallow extra fields
@@ -178,9 +179,9 @@ class OtmlConfiguration(Model, Singleton):
     @model_validator(mode="after")
     def _validate_not_implemented_features(self):
         for value in (
-            self.constraint_set_mutation_weights.augment_feature_bundle,
-            self.lexicon_mutation_weights.change_segment,
-            self.allow_candidates_with_changed_segments,
+                self.constraint_set_mutation_weights.augment_feature_bundle,
+                self.lexicon_mutation_weights.change_segment,
+                self.allow_candidates_with_changed_segments,
         ):
             if value:
                 raise NotImplementedError
@@ -210,10 +211,12 @@ class OtmlConfiguration(Model, Singleton):
 
 _settings: OtmlConfiguration | None = None
 
+
 class LazySettings:
     def __getattr__(self, item):
         if _settings is None:
             raise OtmlConfigurationError("Settings have not been initialized. Call 'OtmlConfiguration.load' first.")
         return getattr(_settings, item)
+
 
 settings: OtmlConfiguration = LazySettings()

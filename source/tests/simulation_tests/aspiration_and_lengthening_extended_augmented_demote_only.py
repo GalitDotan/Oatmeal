@@ -1,21 +1,19 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
-import sys
-import os
-import unittest
-import random
 import logging
-from os.path import split, join, normpath, abspath
+import os
 import platform
+import sys
+import unittest
+from os.path import split, join, normpath, abspath
 
 IT = 50
 CF = 0.999984
 
 unit_tests_log_file_name = "../../logging/{}_extended_augmented_demote_only_{}_{}.txt".format(platform.node(), IT, CF)
 
-#if os.path.exists(unit_tests_log_file_name):
+# if os.path.exists(unit_tests_log_file_name):
 #    raise ValueError("log name already exits")
 
 logger = logging.getLogger()
@@ -43,13 +41,16 @@ from corpus import Corpus
 from simulated_annealing import SimulatedAnnealing
 from tests.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
 
+
 class TestOtmlWithAspirationAndLengtheningExtendedDemoteOnly(unittest.TestCase):
     def setUp(self):
         configurations["CORPUS_DUPLICATION_FACTOR"] = 2
-        self.feature_table = FeatureTable.load(get_feature_table_fixture("aspiration_and_lengthening_extended_augmented_feature_table.json"))
+        self.feature_table = FeatureTable.load(
+            get_feature_table_fixture("aspiration_and_lengthening_extended_augmented_feature_table.json"))
         corpus = Corpus.load(get_corpus_fixture("aspiration_and_lengthening_extended_demote_only_250_corpus.txt"))
-        self.constraint_set = ConstraintSet.load(get_constraint_set_fixture("aspiration_and_lengthening_augmented_demote_only_constraint_set.json"),
-                                                  self.feature_table)
+        self.constraint_set = ConstraintSet.load(
+            get_constraint_set_fixture("aspiration_and_lengthening_augmented_demote_only_constraint_set.json"),
+            self.feature_table)
         self.lexicon = Lexicon(corpus.get_words(), self.feature_table)
         self.grammar = Grammar(self.feature_table, self.constraint_set, self.lexicon)
         self.data = corpus.get_words()
@@ -62,15 +63,17 @@ class TestOtmlWithAspirationAndLengtheningExtendedDemoteOnly(unittest.TestCase):
             return "number of long vowels and aspirated consonants in lexicon: {} (long vowels = {}, " \
                    "aspirated consonants = {})".format(combined_number, number_of_long_vowels,
                                                        number_of_aspirated_consonants)
+
         self.simulated_annealing = SimulatedAnnealing(self.traversable_hypothesis,
                                                       target_lexicon_indicator_function=function,
                                                       sample_target_lexicon=["dati", "pitip", "batag"],
                                                       sample_target_outputs=["dathi", "phithip", "batha:g"])
 
     run_test = True
+
     @unittest.skipUnless(run_test, "long running test skipped")
     def test_run(self):
-        #random.seed(1)
+        # random.seed(1)
         configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"] = {
             "insert_constraint": 0,
             "remove_constraint": 0,
@@ -101,8 +104,6 @@ class TestOtmlWithAspirationAndLengtheningExtendedDemoteOnly(unittest.TestCase):
         configurations["DEBUG_LOGGING_INTERVAL"] = 50
         configurations["RANDOM_SEED"] = False
         configurations["SEED"] = 76
-
-
 
         number_of_steps_performed, hypothesis = self.simulated_annealing.run()
 

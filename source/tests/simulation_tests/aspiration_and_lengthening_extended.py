@@ -1,20 +1,18 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-
-import sys
-import os
-import unittest
 import logging
-from os.path import split, join, normpath, abspath
+import os
 import platform
-
+import sys
+import unittest
+from os.path import split, join, normpath, abspath
 
 simulation_number = 1
 
 unit_tests_log_file_name = "../../logging/{}_extended_faith_{}.txt".format(platform.node(), simulation_number)
 
-#if os.path.exists(unit_tests_log_file_name):
+# if os.path.exists(unit_tests_log_file_name):
 #    raise ValueError("log name already exits")
 
 
@@ -28,8 +26,7 @@ file_log_handler = logging.FileHandler(unit_tests_log_path, mode='w')
 file_log_handler.setFormatter(file_log_formatter)
 logger.addHandler(file_log_handler)
 
-
-#This lines are for running test_otml outside pycharm
+# This lines are for running test_otml outside pycharm
 FILE_PATH = os.path.abspath(os.path.join(__file__, '..'))
 PROJECT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../../'))
 os.chdir(FILE_PATH)
@@ -45,13 +42,15 @@ from corpus import Corpus
 from simulated_annealing import SimulatedAnnealing
 from tests.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
 
+
 class TestOtmlWithAspirationAndLengtheningExtended(unittest.TestCase):
     def setUp(self):
         configurations["CORPUS_DUPLICATION_FACTOR"] = 2
-        self.feature_table = FeatureTable.load(get_feature_table_fixture("aspiration_and_lengthening_extended_feature_table.json"))
+        self.feature_table = FeatureTable.load(
+            get_feature_table_fixture("aspiration_and_lengthening_extended_feature_table.json"))
         corpus = Corpus.load(get_corpus_fixture("aspiration_and_lengthening_extended_260_corpus.txt"))
         self.constraint_set = ConstraintSet.load(get_constraint_set_fixture("faith_constraint_set.json"),
-                                                  self.feature_table)
+                                                 self.feature_table)
         self.lexicon = Lexicon(corpus.get_words(), self.feature_table)
         self.grammar = Grammar(self.feature_table, self.constraint_set, self.lexicon)
         self.data = corpus.get_words()
@@ -64,11 +63,12 @@ class TestOtmlWithAspirationAndLengtheningExtended(unittest.TestCase):
             return "number of long vowels and aspirated consonants in lexicon: {} (long vowels = {}, " \
                    "aspirated consonants = {})".format(combined_number, number_of_long_vowels,
                                                        number_of_aspirated_consonants)
+
         self.simulated_annealing = SimulatedAnnealing(self.traversable_hypothesis,
                                                       target_lexicon_indicator_function=function)
 
-
     run_test = True
+
     @unittest.skipUnless(run_test, "long running test skipped")
     def test_run(self):
         configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"] = {
@@ -99,8 +99,6 @@ class TestOtmlWithAspirationAndLengtheningExtended(unittest.TestCase):
 
         configurations["DEBUG_LOGGING_INTERVAL"] = 50
         configurations["RANDOM_SEED"] = True
-
-
 
         number_of_steps_performed, hypothesis = self.simulated_annealing.run()
 

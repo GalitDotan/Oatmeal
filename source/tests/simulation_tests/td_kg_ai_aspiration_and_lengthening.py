@@ -1,18 +1,16 @@
-import sys
-import os
-import unittest
 import logging
+import os
 import platform
+import sys
+import unittest
 from os.path import split, join, normpath, abspath
 
 simulation_number = 1
-
 
 FILE_PATH = os.path.abspath(os.path.join(__file__, '..'))
 PROJECT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../../'))
 os.chdir(FILE_PATH)
 sys.path.append(PROJECT_PATH)
-
 
 from tests.otml_configuration_for_testing import configurations
 from grammar.lexicon import Lexicon
@@ -29,14 +27,16 @@ class TestOtmlWithTAspiration(unittest.TestCase):
     def setUp(self):
         self._set_up_logging()
         configurations["CORPUS_DUPLICATION_FACTOR"] = 1
-        self.feature_table = FeatureTable.load(get_feature_table_fixture("td_kg_ai_aspiration_and_lengthening_feature_table.json"))
+        self.feature_table = FeatureTable.load(
+            get_feature_table_fixture("td_kg_ai_aspiration_and_lengthening_feature_table.json"))
         corpus = Corpus.load(get_corpus_fixture("td_kg_ai_aspiration_and_lengthening_400_enhanced_corpus.txt"))
         self.constraint_set = ConstraintSet.load(get_constraint_set_fixture("faith_constraint_set.json"),
-                                                  self.feature_table)
+                                                 self.feature_table)
         self.lexicon = Lexicon(corpus.get_words(), self.feature_table)
         self.grammar = Grammar(self.feature_table, self.constraint_set, self.lexicon)
         self.data = corpus.get_words()
         self.traversable_hypothesis = TraversableGrammarHypothesis(self.grammar, self.data)
+
         def desired_lexicon_indicator_function(words):
             number_of_long_vowels = sum([word.count(":") for word in words])
             number_of_aspirated_consonants = sum([word.count("h") for word in words])
@@ -44,14 +44,17 @@ class TestOtmlWithTAspiration(unittest.TestCase):
             return "number of long vowels and aspirated consonants in lexicon: {} (long vowels = {}, " \
                    "aspirated consonants = {})".format(combined_number, number_of_long_vowels,
                                                        number_of_aspirated_consonants)
+
         self.simulated_annealing = SimulatedAnnealing(self.traversable_hypothesis,
                                                       target_lexicon_indicator_function=desired_lexicon_indicator_function,
-                                                      sample_target_lexicon=["ti", "ta", "ki", "ka", "id", "ad", "ig", "ag"],
-                                                      sample_target_outputs=["thi", "tha", "khi", "kha", "i:d", "a:d", "i:g", "a:g"],
+                                                      sample_target_lexicon=["ti", "ta", "ki", "ka", "id", "ad", "ig",
+                                                                             "ag"],
+                                                      sample_target_outputs=["thi", "tha", "khi", "kha", "i:d", "a:d",
+                                                                             "i:g", "a:g"],
                                                       target_energy=3333)
 
-
     run_test = True
+
     @unittest.skipUnless(run_test, "long running test skipped")
     def test_run(self):
         configurations["CONSTRAINT_SET_MUTATION_WEIGHTS"] = {
@@ -73,7 +76,6 @@ class TestOtmlWithTAspiration(unittest.TestCase):
             "delete_segment": 1,
             "change_segment": 0}
 
-
         configurations["INITIAL_TEMPERATURE"] = 100
         configurations["COOLING_PARAMETER"] = 0.999985
         configurations["INITIAL_NUMBER_OF_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] = 1
@@ -88,7 +90,8 @@ class TestOtmlWithTAspiration(unittest.TestCase):
         number_of_steps_performed, hypothesis = self.simulated_annealing.run()
 
     def _set_up_logging(self):
-        unit_tests_log_file_name = "../../logging/{}_td_kg_ai_aspiration_and_lengthening_400_enhanced_INF_INF_{}.txt".format(platform.node(), simulation_number)
+        unit_tests_log_file_name = "../../logging/{}_td_kg_ai_aspiration_and_lengthening_400_enhanced_INF_INF_{}.txt".format(
+            platform.node(), simulation_number)
 
         if os.path.exists(unit_tests_log_file_name):
             raise ValueError("log name already exits")
@@ -106,5 +109,5 @@ class TestOtmlWithTAspiration(unittest.TestCase):
 
 if __name__ == '__main__':
     simulation_number = sys.argv[1]
-    sys.argv = sys.argv[:1] # leave only sys.argv[0] as sys.argv
+    sys.argv = sys.argv[:1]  # leave only sys.argv[0] as sys.argv
     unittest.main()

@@ -1,11 +1,10 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-import unittest
-import os
 
-from tests.otml_configuration_for_testing import configurations
+import unittest
+
 from corpus import Corpus
-from grammar.feature_table import FeatureTable
 from grammar.constraint_set import ConstraintSet, GrammarParseError
+from grammar.feature_table import FeatureTable
 from tests.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
 
 
@@ -20,7 +19,8 @@ class TestGrammarAndFeature(unittest.TestCase):
     def test_validity_of_segments(self):
         for word_string in self.corpus.words:
             for segment in word_string:
-                self.assertTrue(self.feature_table.is_valid_symbol(segment), "The word {} contains the illegal segment {}".format(word_string, segment))
+                self.assertTrue(self.feature_table.is_valid_symbol(segment),
+                                "The word {} contains the illegal segment {}".format(word_string, segment))
 
     def test_grammar_with_feature_validity_missing_feature(self):
         with self.assertRaises(GrammarParseError):
@@ -28,6 +28,6 @@ class TestGrammarAndFeature(unittest.TestCase):
 
     def test_grammar_with_feature_validity_ok(self):
         grammar = ConstraintSet.load(self.correct_constraint_set_filename,
-                                          self.full_feature_table_for_grammar)
+                                     self.full_feature_table_for_grammar)
         self.assertEqual(str(grammar), "Constraint Set: Phonotactic[[+cons, +labial][+cons][+cons]] "
-                                          ">> Ident[-syll] >> Dep[+cons] >> Max[-cons, -syll]")
+                                       ">> Ident[-syll] >> Dep[+cons] >> Max[-cons, -syll]")

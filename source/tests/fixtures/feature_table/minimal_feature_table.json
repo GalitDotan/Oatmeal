@@ -1,18 +1,28 @@
 {
-    "feature":
-    [
-        {
-            "label": "syll",
-            "values": ["-","+"]
-        },
-        {
-            "label": "son",
-            "values": ["-","+"]
-        }
-    ],
-    "feature_table":
+  "feature": [
     {
-        "a": ["+", "-"],
-        "b": ["-", "-"]
+      "label": "syll",
+      "values": [
+        "-",
+        "+"
+      ]
+    },
+    {
+      "label": "son",
+      "values": [
+        "-",
+        "+"
+      ]
     }
+  ],
+  "feature_table": {
+    "a": [
+      "+",
+      "-"
+    ],
+    "b": [
+      "-",
+      "-"
+    ]
+  }
 }

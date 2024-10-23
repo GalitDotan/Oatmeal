@@ -1,13 +1,13 @@
 import os
-from source.otml_configuration import OtmlConfiguration, settings
 
-from grammar.lexicon import Lexicon
-from grammar.feature_table import FeatureTable
-from grammar.constraint_set import ConstraintSet
-from grammar.grammar import Grammar
-from traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from corpus import Corpus
+from grammar.constraint_set import ConstraintSet
+from grammar.feature_table import FeatureTable
+from grammar.grammar import Grammar
+from grammar.lexicon import Lexicon
 from simulated_annealing import SimulatedAnnealing
+from source.otml_configuration import OtmlConfiguration, settings
+from traversable_grammar_hypothesis import TraversableGrammarHypothesis
 
 CURRENT_PATH = os.path.split(os.path.abspath(__file__))[0]
 FIXTURES_PATH = os.path.join(CURRENT_PATH, "tests/fixtures")

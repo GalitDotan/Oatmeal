@@ -1,26 +1,23 @@
+from random import choice
 
 from misc.corpus_generator import CorpusGenerator
-import itertools
-from random import choice
 
 
 def main():
-    #english syllable structure:  (C)(C)(C)V(C)(C)(C)(C)
+    # english syllable structure:  (C)(C)(C)V(C)(C)(C)(C)
 
-    consonants = ['t','p','k']
-    vowels = ['i','a','u']
+    consonants = ['t', 'p', 'k']
+    vowels = ['i', 'a', 'u']
 
-
-    #consonants = ['d','t']
-    #vowels = ['i','a']
-
+    # consonants = ['d','t']
+    # vowels = ['i','a']
 
     corpus_generator = CorpusGenerator()
 
     one_syllable = ["CV", "VC", "CVC"]
-    #two_syllables = [x+y for x, y in itertools.product(one_syllable,one_syllable)]
-    two_syllables = ["CVCV","VCVC","CVCCV","CVCVC","CVVC"]
-    #three__syllable = ["CVCVCV", "VCVCVC", "CVCVCCV","VCVCVC"]
+    # two_syllables = [x+y for x, y in itertools.product(one_syllable,one_syllable)]
+    two_syllables = ["CVCV", "VCVC", "CVCCV", "CVCVC", "CVVC"]
+    # three__syllable = ["CVCVCV", "VCVCVC", "CVCVCCV","VCVCVC"]
     syllables = one_syllable + two_syllables
 
     corpus_generator.add_syllables(consonants, vowels, syllables)
@@ -31,7 +28,6 @@ def main():
 
     print(len(corpus_generator.words))
     string = corpus_generator.get_words_as_string()
-
 
     alternations_list = [('ad', 'a:d'), ('id', 'i:d'), ('ud', 'u:d'),
                          ('ab', 'a:b'), ('ib', 'i:b'), ('ub', 'u:b'),
@@ -63,4 +59,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

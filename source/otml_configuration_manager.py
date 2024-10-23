@@ -1,9 +1,9 @@
 # Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from configuration_manager import ConfigurationManager
 from copy import deepcopy
 
+from configuration_manager import ConfigurationManager
 from source.otml_configuration import OtmlConfiguration
 from unicode_mixin import UnicodeMixin
 

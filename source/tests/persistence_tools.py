@@ -1,19 +1,16 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from os.path import split, abspath, join
-from os import listdir, remove
-
-from grammar.feature_table import FeatureTable
-from grammar.constraint_set import ConstraintSet
-from corpus import Corpus
-
 
 import pickle
+from os import listdir, remove
+from os.path import split, abspath, join
 
+from corpus import Corpus
+from grammar.feature_table import FeatureTable
 from six import PY3, StringIO
 
 tests_dir_path, filename = split(abspath(__file__))
 
-#dot
+# dot
 dot_files_folder_path = join(tests_dir_path, "dot_files")
 
 
@@ -22,10 +19,12 @@ def clear_dot_folder():
     for dot_file_name in dot_files:
         remove(join(dot_files_folder_path, dot_file_name))
 
-def write_to_dot_to_file(transducer, file_name):
-            open(join(dot_files_folder_path, file_name+".dot"), "w").write(transducer.dot_representation())
 
-#pickle
+def write_to_dot_to_file(transducer, file_name):
+    open(join(dot_files_folder_path, file_name + ".dot"), "w").write(transducer.dot_representation())
+
+
+# pickle
 
 pickled_results_folder_path = join(tests_dir_path, "pickled_results")
 
@@ -33,6 +32,7 @@ if PY3:
     pickled_results_folder_path = join(pickled_results_folder_path, "py3.3")
 else:
     pickled_results_folder_path = join(pickled_results_folder_path, "py2.7")
+
 
 def write_pickle(obj, file_name):
     file = open(_get_pickle_full_path(file_name), "wb")
@@ -48,10 +48,10 @@ def get_pickle(file_name):
 
 
 def _get_pickle_full_path(file_name):
-    return join(pickled_results_folder_path, file_name+".pkl")
+    return join(pickled_results_folder_path, file_name + ".pkl")
 
 
-#fixtures
+# fixtures
 
 fixtures_dir_path = join(tests_dir_path, "fixtures")
 
@@ -80,14 +80,10 @@ def get_corpus_by_fixture(corpus_file_name):
     return Corpus.load(get_corpus_fixture(corpus_file_name))
 
 
-
 def clear_modules_caching():
     """ clears caching dictionaries of modules in order to allow testing of
         different hypothesis
     """
-    import grammar.lexicon
-    import grammar.constraint
-    import grammar.constraint_set
     import grammar.grammar
 
     del grammar.lexicon.word_transducers
@@ -102,9 +98,6 @@ def clear_modules_caching():
 
 
 def get_module_caching_status():
-    import grammar.lexicon
-    import grammar.constraint
-    import grammar.constraint_set
     import grammar.grammar
 
     values_str_io = StringIO()
@@ -112,11 +105,10 @@ def get_module_caching_status():
     print("Module caching status:", end="\n", file=values_str_io)
 
     print("word_transducers: {}".format(len(grammar.lexicon.word_transducers)), end="\n", file=values_str_io)
-    print("constraint_transducers: {}".format(len(grammar.constraint.constraint_transducers)), end="\n", file=values_str_io)
-    print("constraint_set_transducers: {}".format(len(grammar.constraint_set.constraint_set_transducers)), end="\n", file=values_str_io)
+    print("constraint_transducers: {}".format(len(grammar.constraint.constraint_transducers)), end="\n",
+          file=values_str_io)
+    print("constraint_set_transducers: {}".format(len(grammar.constraint_set.constraint_set_transducers)), end="\n",
+          file=values_str_io)
     print("grammar_transducers: {}".format(len(grammar.grammar.grammar_transducers)), end="\n", file=values_str_io)
 
     return values_str_io.getvalue()
-
-
-

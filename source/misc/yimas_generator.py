@@ -1,17 +1,15 @@
-from random import choice
 from functools import reduce
-
+from random import choice
 
 
 def main():
-    #english syllable structure:  (C)(C)(C)V(C)(C)(C)(C)
-    consonants = ['p','t','k']
-    vowels = ['i','a','u']
+    # english syllable structure:  (C)(C)(C)V(C)(C)(C)(C)
+    consonants = ['p', 't', 'k']
+    vowels = ['i', 'a', 'u']
 
     corpus_generator = CorpusGenerator()
 
-
-    #syllables = ["C'V", "C'VC", "CVC'V", "C'VCV","CVC'VC", "C'VCVC","C'VVC"]
+    # syllables = ["C'V", "C'VC", "CVC'V", "C'VCV","CVC'VC", "C'VCVC","C'VVC"]
 
     syllables = "CV CVC CCV CVCV CCVC CVCVC CVVC".split()
 
@@ -23,7 +21,6 @@ def main():
 
     print(len(corpus_generator.words))
     string = corpus_generator.get_words_as_string()
-
 
     print(string)
 
@@ -45,22 +42,21 @@ class CorpusGenerator:
 
     def add_syllables(self, consonants, vowels, list_of_syllables):
         def binary_concatenation(A, B):
-            return [a+b for a in A for b in B]
+            return [a + b for a in A for b in B]
+
         def concatenate(sets):
             return reduce(binary_concatenation, sets)
 
         words_form_syllables = []
 
         mapping = {'C': consonants,
-                   'V': vowels, "'":["'"]}
+                   'V': vowels, "'": ["'"]}
 
         for syllable in list_of_syllables:
             words_form_syllables += concatenate([mapping[i] for i in syllable])
 
         self.words += words_form_syllables
         return words_form_syllables
-
-
 
     def remove_duplicates(self):
         set_of_words = set(self.words)
@@ -72,4 +68,3 @@ class CorpusGenerator:
 
 if __name__ == '__main__':
     main()
-

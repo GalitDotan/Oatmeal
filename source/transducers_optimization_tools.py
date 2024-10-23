@@ -1,33 +1,32 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
 import itertools
-from functools import reduce
 import pickle
+import random
+from functools import reduce
 
+import logging
+from grammar.lexicon import Word
 from source.errors import TransducerOptimizationError
 from transducer import Transducer, CostVector, Arc
-from grammar.lexicon import Word
-import random
-
 
 logger = logging.getLogger(__name__)
 
 
 def get_cheapest_state(list_of_states, cost_by_state_dict):
-
     most_harmonic_state = random.choice(list_of_states)
-    try:   #TODO for debug prints
+    try:  # TODO for debug prints
         most_harmonic_cost_vector = cost_by_state_dict[most_harmonic_state]
     except KeyError as ex:
-        #print(cost_by_state_dict)
+        # print(cost_by_state_dict)
         raise ex
     for state in list_of_states:
         if cost_by_state_dict[state] > most_harmonic_cost_vector:
             most_harmonic_cost_vector = cost_by_state_dict[state]
             most_harmonic_state = state
     return most_harmonic_state
+
 
 def remove_suboptimal_paths(transducer):
     active_states = set(transducer.states)
@@ -40,11 +39,11 @@ def remove_suboptimal_paths(transducer):
         for state in active_states:
             for arc in transducer.get_arcs_by_origin_and_terminal_state(cheapest_state, state):
                 costs[state] = max(costs[state], costs[cheapest_state] + arc.cost_vector)
-    try:    #TODO for debug prints
+    try:  # TODO for debug prints
         most_harmonic_final = get_cheapest_state(transducer.get_final_states(), costs)
     except KeyError as ex:
-        #print(transducer.get_final_states())
-        #print(transducer.dot_representation())
+        # print(transducer.get_final_states())
+        # print(transducer.dot_representation())
         raise ex
     transducer.set_final_state(most_harmonic_final)
 
@@ -54,12 +53,12 @@ def remove_suboptimal_paths(transducer):
             new_arcs.append(arc)
     transducer.set_arcs(new_arcs)
 
-    #logger.debug("remove_suboptimal_paths: transducer output: %s", transducer)
+    # logger.debug("remove_suboptimal_paths: transducer output: %s", transducer)
     return transducer
 
 
 def _get_path_cost(transducer):
-    #logger.debug("_get_path_cost: transducer input: %s", transducer)
+    # logger.debug("_get_path_cost: transducer input: %s", transducer)
     current_state = transducer.get_a_final_state()
     path_cost = CostVector.get_vector(transducer.get_length_of_cost_vectors(), 0)
     initial_state = transducer.initial_state
@@ -97,14 +96,14 @@ def make_optimal_paths(transducer_input, feature_table):
             if final_state in temp_transducer.get_final_states():  # otherwise no path.
                 try:
                     temp_transducer = remove_suboptimal_paths(temp_transducer)
-                    #write_to_dot(temp_transducer, "temp_transducer")
+                    # write_to_dot(temp_transducer, "temp_transducer")
                     range = temp_transducer.get_range()
                     arc = Arc(state1, segment, range, _get_path_cost(temp_transducer), state2)
                     new_arcs.append(arc)
                 except KeyError:
                     pass
-                #print("****")
-                #print(temp_transducer.dot_representation())
+                # print("****")
+                # print(temp_transducer.dot_representation())
 
     transducer.set_arcs(new_arcs)
     return transducer
@@ -121,10 +120,11 @@ def _best_arcs(arcs_from_current_index, state_costs):
                 state_costs[arc.terminal_state] = current_cost
             elif current_cost == terminus_cost:
                 best_arcs_by_state[arc.terminal_state].append(arc)
-        else: # arc.terminus is newly introduced
+        else:  # arc.terminus is newly introduced
             best_arcs_by_state[arc.terminal_state] = [arc]
             state_costs[arc.terminal_state] = current_cost
-    return reduce(lambda a, b: a+b, best_arcs_by_state.values())
+    return reduce(lambda a, b: a + b, best_arcs_by_state.values())
+
 
 def optimize_transducer_grammar_for_word(word, eval):
     states_by_index = {}
@@ -167,8 +167,6 @@ def optimize_transducer_grammar_for_word(word, eval):
     for state in new_final_states:
         new_transducer.add_final_state(state)
 
-    #new_transducer.clear_dead_states(with_impasse_states=True) #TODO give it a try
+    # new_transducer.clear_dead_states(with_impasse_states=True) #TODO give it a try
 
     return new_transducer
-
-

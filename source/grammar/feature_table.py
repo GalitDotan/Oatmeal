@@ -259,6 +259,7 @@ class Segment(UnicodeMixin, object):
 NULL_SEGMENT = Segment("-")
 JOKER_SEGMENT = Segment("*")
 
+
 # ----------------------
 
 

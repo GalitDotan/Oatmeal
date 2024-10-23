@@ -1,23 +1,25 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from copy import deepcopy
 import functools
 import itertools
-import logging
 from collections import defaultdict
+from copy import deepcopy
 
 from six import PY3, StringIO, itervalues
 
+import logging
+from grammar.feature_table import NULL_SEGMENT, JOKER_SEGMENT, Segment
 from source.errors import CostVectorOperationError
 from unicode_mixin import UnicodeMixin
-from grammar.feature_table import NULL_SEGMENT, JOKER_SEGMENT, Segment
 
 logger = logging.getLogger(__name__)
 
 
 class Transducer(UnicodeMixin, object):
-    __slots__ = ["name", "states", "alphabet", "_arcs", "initial_state", "final_states", "arcs_by_state_dict", "length_of_cost_vectors"]
+    __slots__ = ["name", "states", "alphabet", "_arcs", "initial_state", "final_states", "arcs_by_state_dict",
+                 "length_of_cost_vectors"]
+
     def __init__(self, alphabet, name=None, length_of_cost_vectors=1):
         self.name = name
         self.states = list()
@@ -71,19 +73,19 @@ class Transducer(UnicodeMixin, object):
 
         self._arcs.append(arc)
 
-    def clear_dead_states(self, with_impasse_states = False):
+    def clear_dead_states(self, with_impasse_states=False):
         """
         Dead state:
         a state that cannot be reached from the initial state by following any path  (unreachable state)
         or
         a state that cannot reach a final state by following any path (impasse state)
         """
-        #logger.debug("clear_dead_states: transducer before: %s", self)
-        #clear unreachable states:
+        # logger.debug("clear_dead_states: transducer before: %s", self)
+        # clear unreachable states:
         state_unreachable_dict = {state: True for state in self.states}  # all states are unreachable at first
-        state_unreachable_dict[self.initial_state] = False               # except for initial state
+        state_unreachable_dict[self.initial_state] = False  # except for initial state
 
-        while True:    # "do while" loop
+        while True:  # "do while" loop
             change_in_dict = False
             for arc in self._arcs:
                 if not state_unreachable_dict[arc.origin_state] and state_unreachable_dict[arc.terminal_state]:
@@ -95,31 +97,29 @@ class Transducer(UnicodeMixin, object):
 
         unreachable_states = [state for state in state_unreachable_dict if state_unreachable_dict[state]]
 
-
         # remove arcs from arcs_by_state_dict
         for state in unreachable_states:
-             self.arcs_by_state_dict.pop(state, None)  #TODO add None for Yimas
+            self.arcs_by_state_dict.pop(state, None)  # TODO add None for Yimas
 
-        for origin_state in self.arcs_by_state_dict.keys():  #TODO maybe we don't need this due to the nature of cliques
+        for origin_state in self.arcs_by_state_dict.keys():  # TODO maybe we don't need this due to the nature of cliques
             for state in unreachable_states:
                 self.arcs_by_state_dict[origin_state].pop(state, None)
 
-        #remove arcs for _arcs
+        # remove arcs for _arcs
         self._arcs[:] = [arc for arc in self._arcs if ((arc.origin_state not in unreachable_states) and
-                                                        (arc.terminal_state not in unreachable_states))]
+                                                       (arc.terminal_state not in unreachable_states))]
 
-        #remove states
+        # remove states
         self.states[:] = [state for state in self.states if state not in unreachable_states]
         self.final_states[:] = [state for state in self.final_states if state not in unreachable_states]
 
-
         if with_impasse_states:
-            #clear impasse states:
+            # clear impasse states:
             state_impasse_dict = {state: True for state in self.states}  # all states are impasse at first
-            for final_state in self.final_states:                         # except for the final states
+            for final_state in self.final_states:  # except for the final states
                 state_impasse_dict[final_state] = False
 
-            while True:    # "do while" loop
+            while True:  # "do while" loop
                 change_in_dict = False
                 for arc in self._arcs:
                     if not state_impasse_dict[arc.terminal_state] and state_impasse_dict[arc.origin_state]:
@@ -133,40 +133,37 @@ class Transducer(UnicodeMixin, object):
 
             # remove arcs from arcs_by_state_dict
             for state in impasse_states:
-                 self.arcs_by_state_dict.pop(state, None)
+                self.arcs_by_state_dict.pop(state, None)
 
             for origin_state in self.arcs_by_state_dict.keys():
                 for state in impasse_states:
                     self.arcs_by_state_dict[origin_state].pop(state, None)
 
-            #remove arcs for _arcs
+            # remove arcs for _arcs
             self._arcs[:] = [arc for arc in self._arcs if ((arc.origin_state not in impasse_states) and
-                                                            (arc.terminal_state not in impasse_states))]
+                                                           (arc.terminal_state not in impasse_states))]
 
-            #remove states
+            # remove states
             self.states[:] = [state for state in self.states if state not in impasse_states]
             self.final_states[:] = [state for state in self.final_states if state not in impasse_states]
 
-            #logger.debug("clear_dead_states: transducer after: %s", self)
-
+            # logger.debug("clear_dead_states: transducer after: %s", self)
 
     def get_length_of_cost_vectors(self):
         return self.length_of_cost_vectors
 
-
     def set_final_states(self, list_of_final_states):
         self.final_states = list_of_final_states
 
-    def set_arcs(self, list_of_arcs):   # TODO Maybe optimization is needed - looping on arcs is costly
+    def set_arcs(self, list_of_arcs):  # TODO Maybe optimization is needed - looping on arcs is costly
         self.arcs_by_state_dict = dict()
         self._arcs = list()
         for arc in list_of_arcs:
             self.add_arc(arc)
 
     def swap_weights_on_arcs(self, i, j):
-       for arc in self._arcs:
-           arc.swap_weights(i, j)
-
+        for arc in self._arcs:
+            arc.swap_weights(i, j)
 
     def get_range(self):
         """
@@ -240,11 +237,12 @@ class Transducer(UnicodeMixin, object):
             if PY3:
                 return str(set_)
             else:
-                return str(set_)   #TODO fix from  set([u'ab']) to {'ab'}
+                return str(set_)  # TODO fix from  set([u'ab']) to {'ab'}
+
         def get_output_str(output):
-             if isinstance(output, set):
+            if isinstance(output, set):
                 return get_pretty_set_string(output)
-             else:
+            else:
                 return output.get_symbol()
 
         str_io = StringIO()
@@ -253,38 +251,40 @@ class Transducer(UnicodeMixin, object):
         multiple_arcs_state_tuple = defaultdict(list)
         for arc in arcs:
             if arc.origin_state == arc.terminal_state:
-                    loop_arcs_by_state[arc.origin_state].append(arc)
+                loop_arcs_by_state[arc.origin_state].append(arc)
             elif len(self.arcs_by_state_dict[arc.origin_state][arc.terminal_state]) > 1:
                 multiple_arcs_state_tuple[(arc.origin_state, arc.terminal_state)].append(arc)
-            else:    # singular arc
+            else:  # singular arc
                 print("\"{0}\" -> \"{1}\" [label=\"{2} : {3} {4}\\n\"];".format(
-                    arc.origin_state, arc.terminal_state, arc.input.get_symbol(), get_output_str(arc.output), arc.cost_vector), file=str_io, end="\n")
+                    arc.origin_state, arc.terminal_state, arc.input.get_symbol(), get_output_str(arc.output),
+                    arc.cost_vector), file=str_io, end="\n")
 
         for state in loop_arcs_by_state:
             arcs_list = loop_arcs_by_state[state]
             combined_label = ""
             for arc in arcs_list:
-                combined_label += "{0} : {1} {2}\\n".format(arc.input.get_symbol(), get_output_str(arc.output), arc.cost_vector)
+                combined_label += "{0} : {1} {2}\\n".format(arc.input.get_symbol(), get_output_str(arc.output),
+                                                            arc.cost_vector)
 
             combined_label += "\\n" * len(arcs_list)
 
             print("\"{0}\" -> \"{1}\" [label=\"{2}\"];".format(
-                     state, state, combined_label), file=str_io, end="\n")
+                state, state, combined_label), file=str_io, end="\n")
 
         for states_tuple in multiple_arcs_state_tuple:
             arcs_list = multiple_arcs_state_tuple[states_tuple]
             state1, state2 = states_tuple
             combined_label = ""
             for arc in arcs_list:
-                combined_label += "{0} : {1} {2}\\n".format(arc.input.get_symbol(), get_output_str(arc.output), arc.cost_vector)
+                combined_label += "{0} : {1} {2}\\n".format(arc.input.get_symbol(), get_output_str(arc.output),
+                                                            arc.cost_vector)
 
             combined_label += "\\n" * len(arcs_list)
 
             print("\"{0}\" -> \"{1}\" [label=\"{2}\"];".format(
-                     state1, state2, combined_label), file=str_io, end="\n")
+                state1, state2, combined_label), file=str_io, end="\n")
 
         return str_io.getvalue()
-
 
     def dot_representation(self):
         str_io = StringIO()
@@ -338,7 +338,6 @@ class Transducer(UnicodeMixin, object):
 
         return transducer
 
-
     @classmethod
     def intersection(cls, *transducers):
         intersected_transducer = functools.reduce(Transducer._binary_intersection, transducers)
@@ -359,7 +358,7 @@ class Transducer(UnicodeMixin, object):
         print("arcs_by_state_dict:", file=str_io, end="\n")
         for state1 in self.arcs_by_state_dict:
             for state2 in self.arcs_by_state_dict[state1]:
-                print(str(state1)+" "+str(state2), file=str_io, end=": ")
+                print(str(state1) + " " + str(state2), file=str_io, end=": ")
                 for arc in self.arcs_by_state_dict[state1][state2]:
                     print(arc, file=str_io, end=" ")
                 print("", file=str_io, end="\n")
@@ -369,9 +368,8 @@ class Transducer(UnicodeMixin, object):
     def get_info(self):
         return "the transducer has {} arcs and {} states".format(len(self._arcs), len(self.states))
 
-
     def __eq__(self, other):
-        def get_set_of_strings_from_list(list_):   #Work around for problem in PY3 concerning Unicode
+        def get_set_of_strings_from_list(list_):  # Work around for problem in PY3 concerning Unicode
             return set([str(item) for item in list_])
 
         result = True
@@ -390,6 +388,7 @@ class Transducer(UnicodeMixin, object):
 
 class State(UnicodeMixin, object):
     __slots__ = ["label", "index", "hash"]
+
     def __init__(self, label, index=0):
         self.label = label
         self.index = index
@@ -422,6 +421,7 @@ class State(UnicodeMixin, object):
 
 class Arc(UnicodeMixin, object):
     __slots__ = ["origin_state", "input", "output", "cost_vector", "terminal_state", "hash"]
+
     def __init__(self, origin_state, input, output, cost_vector, terminal_state):
 
         self.origin_state = origin_state
@@ -452,9 +452,9 @@ class Arc(UnicodeMixin, object):
 
     def __eq__(self, other):
         return self.origin_state == other.origin_state and \
-               self.input == other.input and \
-               self.output == other.output and \
-               self.terminal_state == other.terminal_state
+            self.input == other.input and \
+            self.output == other.output and \
+            self.terminal_state == other.terminal_state
 
     def __hash__(self):
         return self.hash
@@ -476,7 +476,7 @@ class CostVector(UnicodeMixin, object):
 
     def _verify_equal_length(self, other):
         if len(self.vector) != len(other.vector):
-                raise CostVectorOperationError
+            raise CostVectorOperationError
 
     def swap_weights(self, i, j):
         self.vector[i], self.vector[j] = self.vector[j], self.vector[i]
@@ -485,12 +485,12 @@ class CostVector(UnicodeMixin, object):
     def __add__(self, other):
         """Vector pointwise addition - must have the same length"""
         self._verify_equal_length(other)
-        return CostVector([a+b for a, b in zip(self.vector, other.vector)])
+        return CostVector([a + b for a, b in zip(self.vector, other.vector)])
 
     def __sub__(self, other):
         """Vector pointwise subtraction - must have the same length"""
         self._verify_equal_length(other)
-        return CostVector([a-b for a, b in zip(self.vector, other.vector)])
+        return CostVector([a - b for a, b in zip(self.vector, other.vector)])
 
     def __mul__(self, other):
         """Vector concatenation"""
@@ -529,9 +529,10 @@ class CostVector(UnicodeMixin, object):
                     return True
                 else:
                     return False
+
     @staticmethod
     def get_inf_vector():
-        return CostVector(float("inf"))  #TODO create static variable
+        return CostVector(float("inf"))  # TODO create static variable
 
     @staticmethod
     def get_empty_vector():

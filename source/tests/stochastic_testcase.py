@@ -1,4 +1,4 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from copy import deepcopy
@@ -6,7 +6,8 @@ from unittest import TestCase
 
 
 class StochasticTestCase(TestCase):
-    def stochastic_object_method_testing(self, object_, method_name, possible_results, num_of_tests, possible_result_threshold,
+    def stochastic_object_method_testing(self, object_, method_name, possible_results, num_of_tests,
+                                         possible_result_threshold,
                                          all_possible_result_flag=False, method_args=()):
         results = []
         for i in range(num_of_tests):
@@ -18,7 +19,8 @@ class StochasticTestCase(TestCase):
             results.append(str(copy_of_Object))
         self.__result_checker(results, possible_results, possible_result_threshold, all_possible_result_flag)
 
-    def stochastic_class_generate_random_testing(self, class_, possible_results, num_of_tests, possible_result_threshold,
+    def stochastic_class_generate_random_testing(self, class_, possible_results, num_of_tests,
+                                                 possible_result_threshold,
                                                  all_possible_result_flag=False):
 
         results = []
@@ -27,7 +29,7 @@ class StochasticTestCase(TestCase):
         self.__result_checker(results, possible_results, possible_result_threshold, all_possible_result_flag)
 
     def __result_checker(self, results, possible_results, possible_result_threshold, all_possible_result_flag):
-        if all_possible_result_flag:     # checks if there are no unexpected results
+        if all_possible_result_flag:  # checks if there are no unexpected results
             for result in results:
                 self.assertIn(result, possible_results)
 
@@ -42,12 +44,7 @@ class StochasticTestCase(TestCase):
         results = set()
         for i in range(number_of_runs):
             copy_of_object = deepcopy(object_)
-            getattr(copy_of_object, method_name)()   # getting the method and invoking it
+            getattr(copy_of_object, method_name)()  # getting the method and invoking it
             results.add(str(copy_of_object))
         print(results)
         return len(results)
-
-
-
-
-

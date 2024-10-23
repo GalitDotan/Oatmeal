@@ -7,7 +7,6 @@ import logging
 
 from six import StringIO, with_metaclass
 
-
 from unicode_mixin import UnicodeMixin
 from grammar.feature_bundle import FeatureBundle
 from source.errors import GrammarParseError
@@ -191,9 +190,11 @@ class IdentConstraint(Constraint):
             if input_segment.has_feature_bundle(self.feature_bundle):
                 for output_segment in segments:
                     if output_segment.has_feature_bundle(self.feature_bundle):
-                        transducer.add_arc(Arc(state, input_segment, output_segment, CostVector.get_vector(1, 0), state))
+                        transducer.add_arc(
+                            Arc(state, input_segment, output_segment, CostVector.get_vector(1, 0), state))
                     else:
-                        transducer.add_arc(Arc(state, input_segment, output_segment, CostVector.get_vector(1, 1), state))
+                        transducer.add_arc(
+                            Arc(state, input_segment, output_segment, CostVector.get_vector(1, 1), state))
             else:
                 for output_segment in segments:
                     transducer.add_arc(Arc(state, input_segment, output_segment, CostVector.get_vector(1, 0), state))
@@ -275,7 +276,9 @@ class PhonotacticConstraint(Constraint):
         segments = self.feature_table.get_segments()
         transducer = Transducer(segments, name=str(self))
 
-        symbol_bundle_characteristic_matrix = {segment: [segment.has_feature_bundle(self.feature_bundles[i]) for i in range(n + 1)] for segment in segments}
+        symbol_bundle_characteristic_matrix = {
+            segment: [segment.has_feature_bundle(self.feature_bundles[i]) for i in range(n + 1)] for segment in
+            segments}
 
         states = {i: {j: 0 for j in range(i)} for i in range(n + 1)}
 
@@ -286,7 +289,9 @@ class PhonotacticConstraint(Constraint):
 
         if not n:
             for segment in segments:
-                transducer.add_arc(Arc(states[0][0], JOKER_SEGMENT, segment, CostVector([int(symbol_bundle_characteristic_matrix[segment][0])]), states[0][0]))
+                transducer.add_arc(Arc(states[0][0], JOKER_SEGMENT, segment,
+                                       CostVector([int(symbol_bundle_characteristic_matrix[segment][0])]),
+                                       states[0][0]))
             transducer.add_arc(Arc(states[0][0], JOKER_SEGMENT, NULL_SEGMENT, CostVector([0]), states[0][0]))
 
         else:
@@ -295,9 +300,11 @@ class PhonotacticConstraint(Constraint):
                     state = State("q{0}|{1}".format(i, j))
                     states[i][j] = state
                     transducer.add_state(state)
-            max_num_of_satisfied_bundle_by_segment = {segment: compute_num_of_max_satisfied_bundle(segment) for segment in segments}
+            max_num_of_satisfied_bundle_by_segment = {segment: compute_num_of_max_satisfied_bundle(segment) for segment
+                                                      in segments}
             for segment in segments:
-                transducer.add_arc(Arc(states[0][0], JOKER_SEGMENT, segment, CostVector([0]), states[symbol_bundle_characteristic_matrix[segment][0]][0]))
+                transducer.add_arc(Arc(states[0][0], JOKER_SEGMENT, segment, CostVector([0]),
+                                       states[symbol_bundle_characteristic_matrix[segment][0]][0]))
             for i in range(n + 1):
                 for j in range(i):
                     state = states[i][j]
@@ -309,15 +316,19 @@ class PhonotacticConstraint(Constraint):
                                 new_state_mem = min([j + 1, max_num_of_satisfied_bundle_by_segment[segment]])
                             else:
                                 new_state_level = compute_highest_num_of_satisfied_bundle(segment, j)
-                                new_state_mem = min([max_num_of_satisfied_bundle_by_segment[segment], abs(new_state_level - 1)])
+                                new_state_mem = min(
+                                    [max_num_of_satisfied_bundle_by_segment[segment], abs(new_state_level - 1)])
                             new_terminus = states[new_state_level][new_state_mem]
                             transducer.add_arc(Arc(state, JOKER_SEGMENT, segment, CostVector([0]), new_terminus))
                     else:  # i = n
                         for segment in segments:
                             new_state_level = compute_highest_num_of_satisfied_bundle(segment, j)
-                            new_state_mem = min([max_num_of_satisfied_bundle_by_segment[segment], abs(new_state_level - 1)])
+                            new_state_mem = min(
+                                [max_num_of_satisfied_bundle_by_segment[segment], abs(new_state_level - 1)])
                             new_terminus = states[new_state_level][new_state_mem]
-                            transducer.add_arc(Arc(state, JOKER_SEGMENT, segment, CostVector([int(symbol_bundle_characteristic_matrix[segment][i])]), new_terminus))
+                            transducer.add_arc(Arc(state, JOKER_SEGMENT, segment,
+                                                   CostVector([int(symbol_bundle_characteristic_matrix[segment][i])]),
+                                                   new_terminus))
 
         transducer.clear_dead_states()
         for state in transducer.states:
@@ -330,7 +341,8 @@ class PhonotacticConstraint(Constraint):
         return "Phonotactic"
 
     def get_encoding_length(self):
-        return 1 + sum([featureBundle.get_encoding_length() for featureBundle in self.feature_bundles]) + len(self.feature_bundles) + 1
+        return 1 + sum([featureBundle.get_encoding_length() for featureBundle in self.feature_bundles]) + len(
+            self.feature_bundles) + 1
 
     @classmethod
     def generate_random(cls, feature_table):

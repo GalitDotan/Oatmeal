@@ -1,13 +1,10 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
-import codecs
 
-
-from tests.otml_configuration_for_testing import configurations
-from grammar.feature_table import FeatureTable, FeatureParseError, Segment, FeatureType
 from grammar.feature_bundle import FeatureBundle
-from tests.stochastic_testcase import StochasticTestCase
+from grammar.feature_table import FeatureTable, FeatureParseError, Segment, FeatureType
 from tests.persistence_tools import get_feature_table_fixture, get_feature_table_by_fixture
+from tests.stochastic_testcase import StochasticTestCase
 
 
 class TestFeatureTable(StochasticTestCase):
@@ -15,9 +12,9 @@ class TestFeatureTable(StochasticTestCase):
     def setUp(self):
         self.correct_set_filename = get_feature_table_fixture("feature_table.json")
         self.illegal_feature_value_filename = get_feature_table_fixture("illegal_feature_table_illegal_"
-                                                                    "feature_value.json")
+                                                                        "feature_value.json")
         self.mismatch_in_number_of_features_filename = get_feature_table_fixture("illegal_feature_table_"
-                                                                             "mismatch_in_number_of_features.json")
+                                                                                 "mismatch_in_number_of_features.json")
         self.feature_table = FeatureTable.load(self.correct_set_filename)
 
     def test_get_item_with_feature_label(self):
@@ -40,7 +37,6 @@ class TestFeatureTable(StochasticTestCase):
         with self.assertRaises(Exception):
             res = self.feature_table[5]
 
-
     def test_illegal_set_illegal_feature_value(self):
         with self.assertRaises(FeatureParseError):
             ft = FeatureTable.load(self.illegal_feature_value_filename)
@@ -53,8 +49,7 @@ class TestFeatureTable(StochasticTestCase):
         feature_table = self.correct_set_filename = get_feature_table_by_fixture("a_b_and_son_feature_table.csv")
         self.assertEqual(feature_table['a', "cons"], '-')
 
-
-    #segment tests:
+    # segment tests:
     def test_segment(self):
         segment = Segment('a', self.feature_table)
         self.assertEqual(str(segment), "Segment a[+, -]")
@@ -72,10 +67,9 @@ class TestFeatureTable(StochasticTestCase):
         self.assertFalse(segment.has_feature_bundle(FeatureBundle({'son': '+'}, self.feature_table)))
         self.assertFalse(segment.has_feature_bundle(FeatureBundle({'syll': '+', 'son': '+'}, self.feature_table)))
 
-    #featureType tests:
+    # featureType tests:
     def test_feature_type(self):
         feature = FeatureType('syll', ['+', '-'])
         self.assertEqual(str(feature), "FeatureType syll with possible values: [+, -]")
         self.assertEqual('+' in feature, True)
         self.assertEqual('?' in feature, False)
-

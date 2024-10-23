@@ -1,4 +1,4 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
@@ -14,8 +14,10 @@ from source.otml_configuration import settings
 
 logger = logging.getLogger(__name__)
 
+
 class FeatureBundle(UnicodeMixin, object):
     __slots__ = ["feature_dict", "feature_table"]
+
     def __init__(self, feature_dict, feature_table):
         for feature in feature_dict.keys():
             if not feature_table.is_valid_feature(feature):

@@ -1,16 +1,13 @@
-#Python2 and Python 3 compatibility:
+# Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
-
-from tests.otml_configuration_for_testing import configurations
-from grammar.feature_table import FeatureTable
 from grammar.constraint import MaxConstraint, IdentConstraint, PhonotacticConstraint, DepConstraint
 from grammar.constraint_set import ConstraintSet
+from grammar.feature_table import FeatureTable
 from grammar.grammar import GrammarParseError
-from tests.stochastic_testcase import StochasticTestCase
+from tests.otml_configuration_for_testing import configurations
 from tests.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture
-
+from tests.stochastic_testcase import StochasticTestCase
 
 
 class TestConstraint(StochasticTestCase):
@@ -43,8 +40,9 @@ class TestConstraint(StochasticTestCase):
         self.stochastic_class_generate_random_testing(IdentConstraint, possible_results, num_of_tests=200,
                                                       possible_result_threshold=10, all_possible_result_flag=True)
 
-        if configurations["INITIAL_NUMBER_OF_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"]is 1:
-            possible_results = ['Phonotactic[-syll]', 'Phonotactic[+syll]', 'Phonotactic[-cons]', 'Phonotactic[+cons]', 'Phonotactic[-labial]',
+        if configurations["INITIAL_NUMBER_OF_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] is 1:
+            possible_results = ['Phonotactic[-syll]', 'Phonotactic[+syll]', 'Phonotactic[-cons]', 'Phonotactic[+cons]',
+                                'Phonotactic[-labial]',
                                 'Phonotactic[+labial]']
             self.stochastic_class_generate_random_testing(PhonotacticConstraint, possible_results, num_of_tests=200,
                                                           possible_result_threshold=10, all_possible_result_flag=True)
@@ -88,7 +86,8 @@ class TestConstraint(StochasticTestCase):
 
     def test_phonotactic_constraint_remove_feature_bundle(self):
         # 3 possible results
-        phonotactic_constraint = PhonotacticConstraint([{'syll': '+'}, {'labial': '+'}, {'cons': '-'}], self.feature_table)
+        phonotactic_constraint = PhonotacticConstraint([{'syll': '+'}, {'labial': '+'}, {'cons': '-'}],
+                                                       self.feature_table)
 
         constraint_str1 = "Phonotactic[[+syll][-cons]]"
         constraint_str2 = "Phonotactic[[+labial][-cons]]"
@@ -98,13 +97,3 @@ class TestConstraint(StochasticTestCase):
         self.stochastic_object_method_testing(phonotactic_constraint, "remove_feature_bundle", possible_results,
                                               num_of_tests=100, possible_result_threshold=20,
                                               all_possible_result_flag=True)
-
-
-
-
-
-
-
-
-
-
