@@ -15,6 +15,7 @@ from src.grammar.constraint import Constraint
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Word
+from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.otml_configuration import settings
 from src.utils.mail import MailManager
 
@@ -25,8 +26,11 @@ process_id = os.getpid()
 
 class SimulatedAnnealing(object):
 
-    def __init__(self, traversable_hypothesis, target_lexicon_indicator_function=None, sample_target_lexicon=None,
-                 sample_target_outputs=None, target_energy=None):
+    def __init__(self, traversable_hypothesis: TraversableGrammarHypothesis,
+                 target_lexicon_indicator_function=None,
+                 sample_target_lexicon=None,
+                 sample_target_outputs=None,
+                 target_energy=None):
         self.current_hypothesis = traversable_hypothesis
         self.target_lexicon_indicator_function = target_lexicon_indicator_function
         self.target_energy = target_energy
@@ -51,7 +55,7 @@ class SimulatedAnnealing(object):
         self.previous_interval_energy = None
         self.mail_manager = MailManager()
 
-    def run(self):
+    def run(self) -> tuple[int, TraversableGrammarHypothesis]:
         """
         staring simulated annealing
         """
