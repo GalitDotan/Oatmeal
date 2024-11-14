@@ -3,11 +3,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import cProfile
 import unittest
 
-from src.models.corpus import Corpus
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
+from src.models.corpus import Corpus
 from src.tests.otml_configuration_for_testing import configurations
 from src.tests.persistence_tools import get_feature_table_fixture, get_corpus_fixture, get_feature_table_by_fixture
 

@@ -7,10 +7,10 @@ import logging
 from collections import defaultdict
 from copy import deepcopy
 
-from src.grammar.feature_table import NULL_SEGMENT, JOKER_SEGMENT, Segment
 from six import PY3, StringIO, itervalues
 
 from src.exceptions import CostVectorOperationError
+from src.grammar.feature_table import NULL_SEGMENT, JOKER_SEGMENT, Segment
 from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)

@@ -9,13 +9,13 @@ from math import ceil, log
 from random import choice, randrange
 
 from six import StringIO, PY3
-from src.utils.randomization_tools import get_weighted_list
 
 from src.exceptions import GrammarParseError
 from src.grammar.constraint import Constraint, get_number_of_constraints
 from src.grammar.constraint import MaxConstraint, DepConstraint, PhonotacticConstraint, IdentConstraint
 from src.models.transducer import Transducer
 from src.otml_configuration import settings
+from src.utils.randomization_tools import get_weighted_list
 from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)

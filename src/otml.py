@@ -13,10 +13,10 @@ from src.grammar.constraint_set import ConstraintSet
 from src.grammar.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
-from src.simulated_annealing import SimulatedAnnealing
 from src.models.corpus import Corpus
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.otml_configuration import OtmlConfiguration, settings
+from src.simulated_annealing import SimulatedAnnealing
 
 
 # --configuration simulations/bb/bb_configuration.json

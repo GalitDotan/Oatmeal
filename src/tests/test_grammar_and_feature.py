@@ -2,9 +2,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
-from src.models.corpus import Corpus
 from src.grammar.constraint_set import ConstraintSet, GrammarParseError
 from src.grammar.feature_table import FeatureTable
+from src.models.corpus import Corpus
 from src.tests.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
 
 
