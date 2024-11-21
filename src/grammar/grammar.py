@@ -4,7 +4,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 from random import choice
 
-from src.grammar.lexicon import Word
+from src.grammar.constraint_set import ConstraintSet
+from src.grammar.feature_table import FeatureTable
+from src.grammar.lexicon import Word, Lexicon
 from src.models.transducer import Transducer
 from src.otml_configuration import settings
 from src.utils.debug_tools import write_to_dot
@@ -22,15 +24,17 @@ grammar_transducers = dict()
 class Grammar(UnicodeMixin, object):
     """This class represents an Optimality Theory grammar."""
 
-    def __init__(self, feature_table, constraint_set, lexicon):
-        self.feature_table = feature_table
-        self.constraint_set = constraint_set
-        self.lexicon = lexicon
+    def __init__(self, feature_table: FeatureTable, constraint_set: ConstraintSet, lexicon: Lexicon):
+        self.feature_table: FeatureTable = feature_table
+        self.constraint_set: ConstraintSet = constraint_set
+        self.lexicon: Lexicon = lexicon  # all the words (probably UR) # TODO: verify if this is UR or SR
 
     def get_encoding_length(self):
+        """G + D:G"""
         return self.constraint_set.get_encoding_length() + self.lexicon.get_encoding_length()
 
     def make_mutation(self):
+        """Mutate either the lexicon or the constraint set"""
         mutation_weights = [(self.lexicon, settings.lexicon_mutation_weights.sum),
                             (self.constraint_set, settings.constraint_set_mutation_weights.sum), ]
 

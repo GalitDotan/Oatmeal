@@ -76,8 +76,7 @@ class TestOtmlWithDLengthening(SimulationTestCase):
         self.simulated_annealing = SimulatedAnnealing(self.traversable_hypothesis,
                                                       target_lexicon_indicator_function=desired_lexicon_indicator_function,
                                                       sample_target_lexicon=["id", "ad"],
-                                                      sample_target_outputs=["i:d", "a:d"],
-                                                      target_energy=target_energy)
+                                                      sample_target_outputs=["i:d", "a:d"], target_energy=target_energy)
 
     def test_run(self):
         self.simulated_annealing.run()

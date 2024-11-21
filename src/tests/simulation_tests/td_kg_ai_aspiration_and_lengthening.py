@@ -50,8 +50,7 @@ class TestOtmlWithTAspiration(unittest.TestCase):
                                                       sample_target_lexicon=["ti", "ta", "ki", "ka", "id", "ad", "ig",
                                                                              "ag"],
                                                       sample_target_outputs=["thi", "tha", "khi", "kha", "i:d", "a:d",
-                                                                             "i:g", "a:g"],
-                                                      target_energy=3333)
+                                                                             "i:g", "a:g"], target_energy=3333)
 
     run_test = True
 

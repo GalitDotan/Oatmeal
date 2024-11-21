@@ -20,11 +20,17 @@ feature_table = FeatureTable.load(settings.features_file)
 corpus = Corpus.load(settings.corpus_file)
 constraint_set = ConstraintSet.load(settings.constraints_file, feature_table)
 lexicon = Lexicon(corpus.get_words(), feature_table)
-grammar = Grammar(feature_table, constraint_set, lexicon)
-data = corpus.get_words()
-traversable_hypothesis = TraversableGrammarHypothesis(grammar, data)
-simulated_annealing = SimulatedAnnealing(traversable_hypothesis)
-step, hypothesis = simulated_annealing.run()
-print(f'Ran {step} steps. Final hypothesis: {hypothesis}')
 
-print("🥳️")
+initial_hypothesis = TraversableGrammarHypothesis(grammar=Grammar(feature_table, constraint_set, lexicon),
+                                                  data=corpus.get_words())
+simulated_annealing = SimulatedAnnealing(initial_hypothesis)
+
+print("Starting optimization")
+step, hypothesis = simulated_annealing.run()
+
+print(f'Ran {step} steps.')
+
+print(f'Initial hypothesis: {simulated_annealing.initial_hypothesis}')
+print(f'Final hypothesis: {simulated_annealing.current_hypothesis}')
+
+print("Done")

@@ -27,12 +27,14 @@ process_id = os.getpid()
 
 class SimulatedAnnealing(object):
 
-    def __init__(self, traversable_hypothesis: TraversableGrammarHypothesis,
+    def __init__(self, initial_hypothesis: TraversableGrammarHypothesis,
                  target_lexicon_indicator_function=None,
                  sample_target_lexicon=None,
                  sample_target_outputs=None,
                  target_energy=None):
-        self.current_hypothesis = traversable_hypothesis
+
+        self.initial_hypothesis = initial_hypothesis
+        self.current_hypothesis = initial_hypothesis
         self.target_lexicon_indicator_function = target_lexicon_indicator_function
         self.target_energy = target_energy
 
@@ -214,7 +216,6 @@ class SimulatedAnnealing(object):
         return step
 
     def clear_modules_caching(self):
-
         if True:
             Grammar.clear_caching()
             ConstraintSet.clear_caching()
