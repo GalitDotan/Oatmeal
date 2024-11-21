@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from io import StringIO
 from typing import Any, Self
 
@@ -132,7 +133,7 @@ class OtmlConfiguration(Model, Singleton):
             return raw
         try:
             if raw.casefold() == "inf":
-                return float("inf")
+                return sys.maxsize
             if "**" in raw:
                 x, y = raw.split("**")
                 return float(x) ** int(y)

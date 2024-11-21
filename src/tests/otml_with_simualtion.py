@@ -87,4 +87,4 @@ def get_target_hypothesis_energy(feature_table, target_constraint_set_file_name,
         lexicon = Lexicon(lexicon_words, feature_table)
     grammar = Grammar(feature_table, constraint_set, lexicon)
     traversable_hypothesis = TraversableGrammarHypothesis(grammar, corpus)
-    return traversable_hypothesis.get_energy()
+    return traversable_hypothesis.update_energy()

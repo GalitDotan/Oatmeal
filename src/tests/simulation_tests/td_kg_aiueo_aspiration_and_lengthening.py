@@ -21,7 +21,6 @@ from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothes
 from src.models.corpus import Corpus
 from src.simulated_annealing import SimulatedAnnealing
 from src.tests.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
-from src.tests.simulation_test_case import SimulationTestCase
 
 
 class TestOtmlWithTAspiration(SimulationTestCase):
@@ -49,9 +48,9 @@ class TestOtmlWithTAspiration(SimulationTestCase):
         configurations["COOLING_PARAMETER"] = 0.999985
         configurations["INITIAL_NUMBER_OF_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] = 1
         configurations["MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] = 1
-        configurations["MAX_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] = float("INF")
+        configurations["MAX_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] = sys.maxsize
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 100
-        configurations["MAX_NUMBER_OF_CONSTRAINTS_IN_CONSTRAINT_SET"] = float("INF")
+        configurations["MAX_NUMBER_OF_CONSTRAINTS_IN_CONSTRAINT_SET"] = sys.maxsize
         configurations["RESTRICTION_ON_ALPHABET"] = True
 
         configurations["DEBUG_LOGGING_INTERVAL"] = 50

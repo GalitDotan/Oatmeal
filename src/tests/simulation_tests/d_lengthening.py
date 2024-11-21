@@ -45,8 +45,8 @@ class TestOtmlWithDLengthening(SimulationTestCase):
         configurations["MIN_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] = 1
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 100
         configurations["RESTRICTION_ON_ALPHABET"] = True
-        configurations["MAX_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] = float("INF")
-        configurations["MAX_NUMBER_OF_CONSTRAINTS_IN_CONSTRAINT_SET"] = float("INF")
+        configurations["MAX_FEATURE_BUNDLES_IN_PHONOTACTIC_CONSTRAINT"] = sys.maxsize
+        configurations["MAX_NUMBER_OF_CONSTRAINTS_IN_CONSTRAINT_SET"] = sys.maxsize
 
         configurations["DEBUG_LOGGING_INTERVAL"] = 50
         configurations["LOG_FILE_NAME"] = "{}_d_lengthening_INF_INF_{}.txt".format(platform.node(), simulation_number)

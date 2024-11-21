@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import functools
 import itertools
 import logging
+import sys
 from collections import defaultdict
 from copy import deepcopy
 
@@ -532,7 +533,7 @@ class CostVector(UnicodeMixin, object):
 
     @staticmethod
     def get_inf_vector():
-        return CostVector(float("inf"))  # TODO create static variable
+        return CostVector(sys.maxsize)  # TODO create static variable
 
     @staticmethod
     def get_empty_vector():

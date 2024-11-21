@@ -1,6 +1,7 @@
 # Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import sys
 import unittest
 
 from src.grammar.constraint_set import ConstraintSet
@@ -30,7 +31,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
         lexicon = Lexicon(['abb'], feature_table)
         grammar = Grammar(feature_table, constraint_set, lexicon)
         hypothesis = TraversableGrammarHypothesis(grammar, ['abab'])
-        print(hypothesis.get_energy())
+        print(hypothesis.update_energy())
 
     def test_normal(self):
         feature_table = FeatureTable.load(get_feature_table_fixture("a_b_and_cons_feature_table.json"))
@@ -39,7 +40,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
         lexicon = Lexicon(['abb'], feature_table)
         grammar = Grammar(feature_table, constraint_set, lexicon)
         hypothesis = TraversableGrammarHypothesis(grammar, ['abab'])
-        print(hypothesis.get_energy())
+        print(hypothesis.update_energy())
 
     def test_get_data_length_given_grammar_parsable_data(self):
         data = ['abab', 'baba']
@@ -49,17 +50,17 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
     def test_get_data_length_given_grammar_unparsable_data(self):
         data = ['a', 'b']
         traversable_hypothesis = TraversableGrammarHypothesis(self.grammar, data)
-        self.assertEqual(traversable_hypothesis.get_data_length_given_grammar(), float("inf"))
+        self.assertEqual(traversable_hypothesis.get_data_length_given_grammar(), sys.maxsize)
 
     def test_get_data_length_given_grammar_unparsable_data(self):
         data = ['a', 'b']
         traversable_hypothesis = TraversableGrammarHypothesis(self.grammar, data)
-        self.assertEqual(traversable_hypothesis.get_data_length_given_grammar(), float("inf"))
+        self.assertEqual(traversable_hypothesis.get_data_length_given_grammar(), sys.maxsize)
 
     def test_bb_initial_state(self):
         traversable_hypothesis = _get_initial_hypothesis_state("a_b_and_cons_feature_table.json",
                                                                "faith_constraint_set.json", "bb_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 412430)
+        self.assertEqual(traversable_hypothesis.update_energy(), 412430)
 
     def test_bb_target_state(self):
         configurations["RESTRICTION_ON_ALPHABET"] = False
@@ -68,7 +69,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
                                                               "bb_target_constraint_set.json",
                                                               "bb_target_lexicon.txt",
                                                               "bb_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 12414)
+        self.assertEqual(traversable_hypothesis.update_energy(), 12414)
 
     def test_bb_target_state_halfed(self):
         feature_table = FeatureTable.load(get_feature_table_fixture("a_b_and_cons_feature_table.json"))
@@ -79,11 +80,11 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
         grammar = Grammar(feature_table, constraint_set, lexicon)
         corpus = Corpus.load(get_corpus_fixture("bb_corpus.txt"))
         traversable_hypothesis = TraversableGrammarHypothesis(grammar, corpus)
-        self.assertEqual(traversable_hypothesis.get_energy(), 407430)
+        self.assertEqual(traversable_hypothesis.update_energy(), 407430)
 
     def test_french_deletion_target_state(self):
         traversable_hypothesis = _get_target_hypothesis_state_by_simulation_name("french_deletion")
-        self.assertEqual(traversable_hypothesis.get_energy(), 3415)  # used to be 3396
+        self.assertEqual(traversable_hypothesis.update_energy(), 3415)  # used to be 3396
 
     def test_french_deletion_hypotheses(self):
         def mark_min(list_of_ints):
@@ -118,7 +119,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
                                                                       "french_deletion_target_constraint_set.json",
                                                                       file,
                                                                       list_of_files[0])
-                energy = traversable_hypothesis.get_energy()
+                energy = traversable_hypothesis.update_energy()
                 # print(traversable_hypothesis.get_recent_energy_signature())
                 results.append(energy)
 
@@ -135,9 +136,9 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
         corpus = Corpus.load(get_corpus_fixture("t_aspiration_corpus.txt"))
         traversable_hypothesis = TraversableGrammarHypothesis(grammar, corpus)
         configurations["RESTRICTION_ON_ALPHABET"] = True
-        self.assertEqual(traversable_hypothesis.get_energy(), 167838)
+        self.assertEqual(traversable_hypothesis.update_energy(), 167838)
         configurations["RESTRICTION_ON_ALPHABET"] = False
-        self.assertEqual(traversable_hypothesis.get_energy(), 173676)
+        self.assertEqual(traversable_hypothesis.update_energy(), 173676)
 
     def test_t_aspiration_initial_state(self):
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 25
@@ -155,7 +156,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 100
         configurations["RESTRICTION_ON_ALPHABET"] = True
         traversable_hypothesis = _get_target_hypothesis_state_by_simulation_name("aspiration_and_lengthening")
-        self.assertEqual(traversable_hypothesis.get_energy(), 100861)  # used to be 100818
+        self.assertEqual(traversable_hypothesis.update_energy(), 100861)  # used to be 100818
 
     def test_aspiration_and_lengthening_extended_target_state(self):
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 100
@@ -164,7 +165,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
                                                               "aspiration_and_lengthening_target_constraint_set.json",
                                                               "aspiration_and_lengthening_extended_target_lexicon.txt",
                                                               "aspiration_and_lengthening_extended_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 206059)
+        self.assertEqual(traversable_hypothesis.update_energy(), 206059)
 
     def test_aspiration_and_lengthening_448(self):
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 100
@@ -173,7 +174,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
                                                               "aspiration_and_lengthening_target_constraint_set.json",
                                                               "aspiration_and_lengthening_448_target_lexicon.txt",
                                                               "aspiration_and_lengthening_448_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 412577)
+        self.assertEqual(traversable_hypothesis.update_energy(), 412577)
 
     def test_aspiration_and_lengthening_extended_augmented_target_state(self):
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 100
@@ -195,14 +196,14 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
     def test_yimas_target_state(self):
         traversable_hypothesis = _get_target_hypothesis_state_by_simulation_name("yimas")
         print(traversable_hypothesis.grammar.constraint_set)
-        self.assertEqual(traversable_hypothesis.get_energy(), 2430)
+        self.assertEqual(traversable_hypothesis.update_energy(), 2430)
 
     def test_yimas_with_contiguity_target_state(self):
         traversable_hypothesis = _get_target_hypothesis_state("yimas_feature_table.json",
                                                               "yimas_with_contiguity_target_constraint_set.json",
                                                               "yimas_target_lexicon.txt",
                                                               "yimas_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 2438)
+        self.assertEqual(traversable_hypothesis.update_energy(), 2438)
 
     def test_tpk_aiu_yimas_with_contiguity_initial(self):
         configurations["RESTRICTION_ON_ALPHABET"] = True
@@ -210,7 +211,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
         traversable_hypothesis = _get_initial_hypothesis_state("yimas_tpk_aiu_feature_table.csv",
                                                                "yimas_tpk_aiu_contiguity_constraint_set.txt",
                                                                "yimas_tpk_aiu_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 2811)
+        self.assertEqual(traversable_hypothesis.update_energy(), 2811)
 
     def test_tpk_aiu_yimas_8_initial(self):
         configurations["RESTRICTION_ON_ALPHABET"] = True
@@ -218,7 +219,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
         traversable_hypothesis = _get_initial_hypothesis_state("yimas_tpk_aiu_feature_table.csv",
                                                                "yimas_tpk_aiu_constraint_set.txt",
                                                                "yimas_tpk_aiu_8_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 335)
+        self.assertEqual(traversable_hypothesis.update_energy(), 335)
 
     def test_tpk_aiu_yimas_8_target(self):
         configurations["RESTRICTION_ON_ALPHABET"] = True
@@ -227,7 +228,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
                                                               "yimas_tpk_aiu_target_constraint_set.txt",
                                                               "yimas_tpk_aiu_8_target_lexicon.txt",
                                                               "yimas_tpk_aiu_8_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 305)
+        self.assertEqual(traversable_hypothesis.update_energy(), 305)
 
     def test_tpk_aiu_yimas_initial(self):
         configurations["RESTRICTION_ON_ALPHABET"] = True
@@ -235,7 +236,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
         traversable_hypothesis = _get_initial_hypothesis_state("yimas_tpk_aiu_feature_table.csv",
                                                                "yimas_tpk_aiu_constraint_set.txt",
                                                                "yimas_tpk_aiu_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 2811)
+        self.assertEqual(traversable_hypothesis.update_energy(), 2811)
         # 100: 72111
 
     def test_tpk_aiu_yimas_target(self):
@@ -245,20 +246,20 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
                                                               "yimas_tpk_aiu_target_constraint_set.txt",
                                                               "yimas_tpk_aiu_target_lexicon.txt",
                                                               "yimas_tpk_aiu_corpus.txt")
-        self.assertEqual(traversable_hypothesis.get_energy(), 71766)
+        self.assertEqual(traversable_hypothesis.update_energy(), 71766)
         # 100: 71766
 
     def test_td_kg_ai_aspiration_and_lengthening_initial(self):
         configurations["RESTRICTION_ON_ALPHABET"] = True
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 100
         traversable_hypothesis = _get_initial_hypothesis_state_by_simulation_name("td_kg_ai_aspiration_and_lengthening")
-        self.assertEqual(traversable_hypothesis.get_energy(), 165943)
+        self.assertEqual(traversable_hypothesis.update_energy(), 165943)
 
     def test_td_kg_ai_aspiration_and_lengthening_target(self):
         configurations["RESTRICTION_ON_ALPHABET"] = True
         configurations["DATA_ENCODING_LENGTH_MULTIPLIER"] = 100
         traversable_hypothesis = _get_target_hypothesis_state_by_simulation_name("td_kg_ai_aspiration_and_lengthening")
-        self.assertEqual(traversable_hypothesis.get_energy(), 163570)
+        self.assertEqual(traversable_hypothesis.update_energy(), 163570)
 
     def tearDown(self):
         configurations.reset_to_original_configurations()

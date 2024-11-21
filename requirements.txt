@@ -1,4 +1,4 @@
 six~=1.2.0
 click~=8.1.7
-setuptools~=75.2
 pydantic~=2.9
+pympler~=1.1

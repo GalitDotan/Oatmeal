@@ -36,8 +36,8 @@ class Grammar(UnicodeMixin, object):
 
         weighted_mutatable_object_list = get_weighted_list(mutation_weights)
         object_to_mutate = choice(weighted_mutatable_object_list)
-        mutation_result = object_to_mutate.make_mutation()
-        return mutation_result
+        mutation = object_to_mutate.make_mutation()
+        return mutation
 
     def get_transducer(self):
         constraint_set_key = str(self.constraint_set)  # constraint_set is the identifier of the grammar transducer

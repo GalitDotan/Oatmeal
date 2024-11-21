@@ -1,4 +1,5 @@
 import os
+import sys
 import unittest
 
 from src.exceptions import OtmlConfigurationError
@@ -13,7 +14,7 @@ class TestOtmlConfigurationManager(unittest.TestCase):
         self.config = OtmlConfiguration.load(config_path)
 
     def test_loading_given_inf_string_should_convert_to_infinity(self):
-        self.assertEqual(self.config.max_features_in_bundle, float("inf"))
+        self.assertEqual(self.config.max_features_in_bundle, sys.maxsize)
 
     def test_loading_given_exponents_should_calculate_value(self):
         self.assertEqual(self.config.threshold, 10 ** -2)

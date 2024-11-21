@@ -6,6 +6,7 @@ import os
 import random
 import re
 import subprocess
+import sys
 import time
 from datetime import timedelta
 from math import exp
@@ -57,7 +58,10 @@ class SimulatedAnnealing(object):
 
     def run(self) -> tuple[int, TraversableGrammarHypothesis]:
         """
-        staring simulated annealing
+        Run the simulated annealing.
+
+        Returns:
+            The number of steps taken and the final hypothesis.
         """
         self.before_loop()
 
@@ -79,7 +83,7 @@ class SimulatedAnnealing(object):
             return  # mutation failed - the neighbor hypothesis is the same as current hypothesis
 
         self.neighbor_hypothesis = neighbor_hypothesis
-        self.neighbor_hypothesis_energy = self.neighbor_hypothesis.get_energy()
+        self.neighbor_hypothesis_energy = self.neighbor_hypothesis.update_energy()
         delta = self.neighbor_hypothesis_energy - self.current_hypothesis_energy
 
         if delta < 0:
@@ -108,14 +112,14 @@ class SimulatedAnnealing(object):
         logger.info(settings)
         logger.info(self.current_hypothesis.grammar.feature_table)
         self.step_limitation = settings.steps_limitation
-        if self.step_limitation != float("inf"):
+        if self.step_limitation != sys.maxsize:
             self.number_of_expected_steps = self.step_limitation
         else:
             self.number_of_expected_steps = self._calculate_num_of_steps()
 
         logger.info("Number of expected steps is: {:,}".format(self.number_of_expected_steps))
-        self.current_hypothesis_energy = self.current_hypothesis.get_energy()
-        if self.current_hypothesis_energy == float("INF"):
+        self.current_hypothesis_energy = self.current_hypothesis.update_energy()
+        if self.current_hypothesis_energy == sys.maxsize:
             raise ValueError("first hypothesis energy can not be INF")
 
         self._log_hypothesis_state()
