@@ -7,8 +7,9 @@ import logging
 import os
 from copy import deepcopy
 from random import choice
+from typing import Any
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, Field, computed_field
 from six import string_types, integer_types, StringIO, iterkeys
 
 from src.exceptions import FeatureParseError
@@ -26,10 +27,12 @@ class Feature(BaseModel):
 
 
 class FeatureList(BaseModel):
-    features: list[Feature]
+    features: list[Feature] = Field(allow_mutation=False)
 
+    @computed_field
     @property
-    def labels(self):
+    def labels(self) -> set[str]:
+        """Compute labels from features."""
         return {f.label for f in self.features}
 
     def __getitem__(self, key: int | str):
@@ -62,53 +65,64 @@ class FeatureList(BaseModel):
 
 
 class FeatureTable(UnicodeMixin, object):
-    def __init__(self, feature_table_dict_from_json):
-        self.feature_table_dict = dict()
-        self.features_list = FeatureList.model_validate(dict(features=feature_table_dict_from_json["feature"]))
-        self.segments_list = list()
+    def __init__(self, feature_table_raw: dict[str, Any]):
+        self._segment_to_feature_dict: dict[str, dict[str, str]] = dict()
+        self._features: FeatureList = FeatureList.model_validate(dict(features=feature_table_raw["feature"]))
+        self._segments: list[Segment] = list()
 
-        self.feature_order_dict = dict()
-        for i, feature in enumerate(self.features_list):
-            self.feature_order_dict[i] = feature
+        self._index_to_feature: dict = dict()
 
-        for symbol in feature_table_dict_from_json["feature_table"].keys():
-            feature_values = feature_table_dict_from_json["feature_table"][symbol]
-            if len(feature_values) != len(self.features_list):
+        for i, feature in enumerate(self._features):
+            self._index_to_feature[i] = feature
+
+        for symbol in feature_table_raw["feature_table"].keys():
+            feature_values = feature_table_raw["feature_table"][symbol]
+            if len(feature_values) != len(self._features):
                 raise FeatureParseError("Mismatch in number of features for segment {0}".format(symbol))
             symbol_feature_dict = dict()
             for i, feature_value in enumerate(feature_values):
-                feature = self.features_list[i]
-                if not feature_value in feature.values:
+                feature = self._features[i]
+                if feature_value not in feature.values:
                     raise FeatureParseError("Illegal feature was found for segment {0}".format(symbol))
                 symbol_feature_dict[feature.label] = feature_value
-            self.feature_table_dict[symbol] = symbol_feature_dict
+            self._segment_to_feature_dict[symbol] = symbol_feature_dict
 
         for symbol in self.get_alphabet():
-            self.segments_list.append(Segment(symbol, self))
+            self._segments.append(Segment(symbol, self))
+
+    def __repr__(self):
+        return self._segment_to_feature_dict
 
     @classmethod
-    def loads(cls, feature_table_str):
-        feature_table_dict = json.loads(feature_table_str)
-        return cls(feature_table_dict)
+    def load(cls, feature_table_filename: str):
+        """
+        Load feature table from a file.
 
-    @classmethod
-    def load(cls, feature_table_fn):
-        file = codecs.open(feature_table_fn, "r")
-        if os.path.splitext(feature_table_fn)[1] == ".json":
+        Args:
+            feature_table_filename: filename
+
+        Returns:
+            FeatureTable: a new feature table instance
+        """
+        file = codecs.open(feature_table_filename, "r")
+        if os.path.splitext(feature_table_filename)[1] == ".json":
             feature_table_dict = json.load(file)
         else:
-            feature_table_dict = FeatureTable.get_feature_table_dict_form_csv(file)
+            feature_table_dict = FeatureTable._get_feature_table_dict_form_csv(file)
         file.close()
         return cls(feature_table_dict)
 
     @staticmethod
-    def get_feature_table_dict_form_csv(file):
+    def _get_feature_table_dict_form_csv(file):
+        """
+        Parse feature table from a CSV file.
+        """
         feature_table_dict = dict()
         feature_table_dict["feature"] = list()
         feature_table_dict["feature_table"] = dict()
         lines = file.readlines()
         lines = [x.strip() for x in lines]
-        feature_label_list = lines[0][1:].split(",")  # first line, ignore firt comma (,cons, labial..)
+        feature_label_list = lines[0][1:].split(",")  # first line, ignore first comma (,cons, labial..)
         feature_table_dict["feature"] = list()
         for label in feature_label_list:
             feature_table_dict["feature"].append({"label": label, "values": ["-", "+"]})
@@ -119,32 +133,33 @@ class FeatureTable(UnicodeMixin, object):
 
         return feature_table_dict
 
-    def get_number_of_features(self):
-        return len(self.features_list)
+    def get_number_of_features(self) -> int:
+        return len(self._features)
 
-    def get_features(self):
-        return self.features_list.labels
+    def get_features(self) -> set[str]:
+        return self._features.labels
 
-    def get_random_value(self, feature):
-        return choice(self.features_list[feature])
+    def get_random_value(self, feature: int) -> str:
+        return choice(self._features[feature])
 
-    def get_alphabet(self):
-        return list(iterkeys(self.feature_table_dict))
+    def get_alphabet(self) -> list[str]:
+        return list(iterkeys(self._segment_to_feature_dict))
 
-    def get_segments(self):
-        return deepcopy(self.segments_list)
+    def get_segments(self) -> list['Segment']:
+        """Returns a ***copy*** of the segments' list"""
+        return deepcopy(self._segments)
 
-    def get_random_segment(self):
+    def get_random_segment(self) -> str:
         return choice(self.get_alphabet())
 
-    def get_ordered_feature_vector(self, char):
-        return [self[char][self.feature_order_dict[i]] for i in range(self.get_number_of_features())]
+    def get_ordered_feature_vector(self, char) -> list[str]:
+        return [self[char][self._index_to_feature[i]] for i in range(self.get_number_of_features())]
 
-    def is_valid_feature(self, feature_label):
-        return feature_label in self.features_list
+    def is_valid_feature(self, feature_label) -> bool:
+        return feature_label in self._features
 
-    def is_valid_symbol(self, symbol):
-        return symbol in self.feature_table_dict
+    def is_valid_symbol(self, symbol) -> bool:
+        return symbol in self._segment_to_feature_dict
 
     def __unicode__(self):
         values_str_io = StringIO()
@@ -157,45 +172,45 @@ class FeatureTable(UnicodeMixin, object):
         )
 
         print("{:20s}".format("Segment/Feature"), end="", file=values_str_io)
-        for i in list(range(len(self.feature_order_dict))):
-            print("{:10s}".format(self.feature_order_dict[i]), end="", file=values_str_io)
+        for i in list(range(len(self._index_to_feature))):
+            print("{:10s}".format(self._index_to_feature[i]), end="", file=values_str_io)
         print("", file=values_str_io)  # new line
-        for segment in sorted(iterkeys(self.feature_table_dict)):
+        for segment in sorted(iterkeys(self._segment_to_feature_dict)):
             print("{:20s}".format(segment), end="", file=values_str_io)
-            for i in list(range(len(self.feature_order_dict))):
-                feature = self.feature_order_dict[i]
-                print("{:10s}".format(self.feature_table_dict[segment][feature]), end="", file=values_str_io)
+            for i in list(range(len(self._index_to_feature))):
+                feature = self._index_to_feature[i]
+                print("{:10s}".format(self._segment_to_feature_dict[segment][feature]), end="", file=values_str_io)
             print("", file=values_str_io)
 
         return values_str_io.getvalue()
 
     def __getitem__(self, item):
         if isinstance(item, string_types):
-            return self.feature_table_dict[item]
+            return self._segment_to_feature_dict[item]
         if isinstance(item, integer_types):  # TODO this should support an ordered access to the feature table.
             #  is this a good implementation?
-            return self.feature_table_dict[self.feature_order_dict[item]]
+            return self._segment_to_feature_dict[self._index_to_feature[item]]
         else:
             segment, feature = item
-            return self.feature_table_dict[segment][feature]
+            return self._segment_to_feature_dict[segment][feature]
 
 
 class Segment(UnicodeMixin, object):
-    def __init__(self, symbol, feature_table=None):
-        self.symbol = symbol  # JOKER and NULL segments need feature_table=None
+    def __init__(self, symbol: str, feature_table: FeatureTable | None = None):
+        self.symbol: str = symbol  # JOKER and NULL segments need feature_table=None
         if feature_table:
-            self.feature_table = feature_table
-            self.feature_dict = feature_table[symbol]
+            self.feature_table: FeatureTable = feature_table
+            self.feature_dict: dict[str, str] = feature_table[symbol]
 
         self.hash = hash(self.symbol)
 
-    def get_encoding_length(self):
+    def get_encoding_length(self) -> int:
         return len(self.feature_dict)
 
-    def has_feature_bundle(self, feature_bundle):
+    def has_feature_bundle(self, feature_bundle) -> bool:
         return all(item in self.feature_dict.items() for item in feature_bundle.get_feature_dict().items())
 
-    def get_symbol(self):
+    def get_symbol(self) -> str:
         return self.symbol
 
     @staticmethod
@@ -207,7 +222,7 @@ class Segment(UnicodeMixin, object):
         """
         if isinstance(x, set):
             x, y = y, x  # if x is a set then maybe y is a segment, switch between them so that
-            # Segment.__and__ will take affect
+            # Segment.__and__ will take effect
         return x & y
 
     def __and__(self, other):
@@ -260,9 +275,9 @@ JOKER_SEGMENT = Segment("*")
 
 
 class FeatureType(UnicodeMixin, object):
-    def __init__(self, label, values):
-        self.label = label
-        self.values = values
+    def __init__(self, label: str, values: list[str]):
+        self.label: str = label
+        self.values: list[str] = values
 
     def get_random_value(self):
         return choice(self.values)

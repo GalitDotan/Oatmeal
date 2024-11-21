@@ -11,7 +11,7 @@ from random import choice, randrange
 from six import StringIO, PY3
 
 from src.exceptions import GrammarParseError
-from src.grammar.constraint import Constraint, get_number_of_constraints
+from src.grammar.constraint import Constraint, _get_number_of_constraints
 from src.grammar.constraint import MaxConstraint, DepConstraint, PhonotacticConstraint, IdentConstraint
 from src.models.transducer import Transducer
 from src.otml_configuration import settings
@@ -41,7 +41,7 @@ class ConstraintSet(UnicodeMixin, object):
             self.constraints.append(constraint_class(bundles_list, feature_table))
 
     def get_encoding_length(self):
-        k = ceil(log(get_number_of_constraints() + self.feature_table.get_number_of_features() + 2 + 1, 2))
+        k = ceil(log(_get_number_of_constraints() + self.feature_table.get_number_of_features() + 2 + 1, 2))
         return k * (1 + sum([constraint.get_encoding_length() for constraint in self.constraints]))
 
     def make_mutation(self):

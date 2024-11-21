@@ -24,13 +24,13 @@ _all_constraints = list()
 constraint_transducers = dict()
 
 
-def get_number_of_constraints():
+def _get_number_of_constraints():
     return len(_all_constraints)
 
 
 class ConstraintMetaClass(type):
     def __new__(mcs, name, bases, attributes):
-        if name != "NewBase" and name != "Constraint":  # NewBase is a the name of the base class used
+        if name != "NewBase" and name != "Constraint":  # NewBase is the name of the base class used
             _all_constraints.append(name)  # in six.with_metaclass
         return type.__new__(mcs, name, bases, attributes)
 
