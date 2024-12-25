@@ -91,7 +91,7 @@ class FeatureTable(UnicodeMixin, object):
             self._segments.append(Segment(symbol, self))
 
     def __repr__(self):
-        return self._segment_to_feature_dict
+        return self.get_features()
 
     @classmethod
     def load(cls, feature_table_filename: str):

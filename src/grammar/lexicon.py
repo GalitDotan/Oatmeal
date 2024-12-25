@@ -7,7 +7,7 @@ from ast import literal_eval
 from math import log, ceil
 from random import choice, randint
 
-from src.grammar.feature_table import Segment, NULL_SEGMENT, JOKER_SEGMENT
+from src.grammar.feature_table import Segment, NULL_SEGMENT, JOKER_SEGMENT, FeatureTable
 from src.models.transducer import CostVector, Arc, State, Transducer
 from src.otml_configuration import settings
 from src.utils.randomization_tools import get_weighted_list
@@ -21,14 +21,17 @@ word_transducers = dict()
 class Word(UnicodeMixin, object):
     __slots__ = ["word_string", "feature_table", "segments"]
 
-    def __init__(self, word_string, feature_table):
+    def __init__(self, word_string: str, feature_table: FeatureTable):
         """
         word_string and segment should be in sync at any time
 
         """
-        self.word_string = word_string
-        self.feature_table = feature_table
-        self.segments = [Segment(char, self.feature_table) for char in self.word_string]
+        self.word_string: str = word_string
+        self.feature_table: FeatureTable = feature_table
+        self.segments: list[Segment] = [Segment(char, self.feature_table) for char in self.word_string]
+
+    def __unicode__(self):
+        return self.word_string
 
     def change_segment(self):
         """changing the word_string and therefore the segments composing it
@@ -213,15 +216,13 @@ class Lexicon(UnicodeMixin, object):
     def _get_number_of_segments(self):
         return sum([len(word) for word in self.words])
 
-    def __unicode__(self):
+    def __unicode__(self):  # like __repr__ but specifically for unicode str representation
         if settings.log_lexicon_words:
-            return "Lexicon, number of words: {0}, number of segments: {1}, {2}".format(len(self.words),
-                                                                                        self._get_number_of_segments(),
-                                                                                        [str(w.word_string) for w in
-                                                                                         self.words])
+            return (f"Lexicon: {len(self.words)} words: {self.words} "
+                    f"with {self._get_number_of_segments()} segments in total")
         else:
-            return "Lexicon, number of words: {0}, number of segments: {1}".format(len(self.words),
-                                                                                   self._get_number_of_segments())
+            return f"Lexicon, number of words: {0}, number of segments: {1}".format(len(self.words),
+                                                                                    self._get_number_of_segments())
 
     # we can optimize this by creating dict
     def __getitem__(self, item):
