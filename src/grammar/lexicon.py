@@ -13,6 +13,8 @@ from src.otml_configuration import settings
 from src.utils.randomization_tools import get_weighted_list
 from src.utils.unicode_mixin import UnicodeMixin
 
+DEFAULT_LEX_CATEGORY = "default"
+
 logger = logging.getLogger(__name__)
 
 word_transducers = dict()
@@ -24,8 +26,7 @@ class Word(UnicodeMixin, object):
     def __init__(self, word_string: str, feature_table: FeatureTable):
         """
         word_string and segment should be in sync at any time
-
-        """
+        """  # TODO: consider adding the lexical category here
         self.word_string: str = word_string
         self.feature_table: FeatureTable = feature_table
         self.segments: list[Segment] = [Segment(char, self.feature_table) for char in self.word_string]
@@ -144,16 +145,12 @@ class Word(UnicodeMixin, object):
 
 class Lexicon(UnicodeMixin, object):
 
-    def __init__(self, input_words, feature_table):
+    def __init__(self, words: list[str], feature_table):
         """
         input_words is either a list of words or a file than contains a list of words
         """
-        if type(input_words) == list:
-            string_words = input_words
-        else:
-            string_words = get_words_from_file(input_words)
-        self.words = [Word(word_string, feature_table) for word_string in string_words]
-        self.feature_table = feature_table
+        self.words: list[Word] = [Word(word_string, feature_table) for word_string in words]
+        self.feature_table: FeatureTable = feature_table
 
     def make_mutation(self):
         """
@@ -242,3 +239,19 @@ def get_words_from_file(corpus_file_name):
         words = literal_eval(corpus_string)
 
     return words
+
+
+def parse_words_per_category_from_file(corpus_file_name):
+    with codecs.open(corpus_file_name, "r") as f:
+        corpus_string = f.read()
+
+    if "[" in corpus_string:
+        raise NotImplementedError()
+
+    words_raw = corpus_string.split()
+    words_split = [word.split("_") for word in words_raw]
+    categories = {word[1] for word in words_split if len(word) > 1}
+    words_per_category = {cat: [word[0] for word in words_split if len(word) > 1 and word[1] == cat] for cat in
+                          categories}
+    words_per_category[DEFAULT_LEX_CATEGORY] = [word[0] for word in words_split if len(word) == 1]
+    return words_per_category

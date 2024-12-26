@@ -12,7 +12,7 @@ from typing import Any
 from pydantic import BaseModel, model_validator, Field, computed_field
 from six import string_types, integer_types, StringIO, iterkeys
 
-from src.exceptions import FeatureParseError
+from src.exceptions import FeatureParseError, UnknownFeatureError
 from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)
@@ -90,8 +90,11 @@ class FeatureTable(UnicodeMixin, object):
         for symbol in self.get_alphabet():
             self._segments.append(Segment(symbol, self))
 
-    def __repr__(self):
+    def __str__(self):
         return self.get_features()
+
+    def __repr__(self):
+        return str(self)
 
     @classmethod
     def load(cls, feature_table_filename: str):
@@ -186,6 +189,9 @@ class FeatureTable(UnicodeMixin, object):
 
     def __getitem__(self, item):
         if isinstance(item, string_types):
+            result = self._segment_to_feature_dict.get(item)
+            if result is None:
+                raise UnknownFeatureError(f"{item} is invalid")
             return self._segment_to_feature_dict[item]
         if isinstance(item, integer_types):  # TODO this should support an ordered access to the feature table.
             #  is this a good implementation?
@@ -198,6 +204,7 @@ class FeatureTable(UnicodeMixin, object):
 class Segment(UnicodeMixin, object):
     def __init__(self, symbol: str, feature_table: FeatureTable | None = None):
         self.symbol: str = symbol  # JOKER and NULL segments need feature_table=None
+
         if feature_table:
             self.feature_table: FeatureTable = feature_table
             self.feature_dict: dict[str, str] = feature_table[symbol]
