@@ -1,0 +1,58 @@
+[
+  {
+    "type": "Faith",
+    "bundles": []
+  },
+  {
+    "type": "Dep",
+    "bundles": [
+      {
+        "stress": "+"
+      }
+    ]
+  },
+  {
+    "type": "Dep",
+    "bundles": [
+      {
+        "stress": "-"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "syll": "+"
+      }
+    ]
+  },
+  {
+    "type": "Ident-IO-High/Low",
+    "bundles": [
+      {
+        "feature": "high/low"
+      }
+    ]
+  },
+  {
+    "type": "HighVowelBeforePharyngealWithinSyllable",
+    "bundles": []
+  },
+  {
+    "type": "NonLowVowelBeforePharyngealWithinSyllable",
+    "bundles": []
+  },
+  {
+    "type": "FootBinarity",
+    "bundles": []
+  },
+  {
+    "type": "Rightmost",
+    "bundles": []
+  },
+  {
+    "type": "Trochee",
+    "bundles": []
+  }
+]
