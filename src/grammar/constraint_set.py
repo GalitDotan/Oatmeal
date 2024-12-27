@@ -8,8 +8,6 @@ import pickle
 from math import ceil, log
 from random import choice, randrange
 
-from six import PY3
-
 from src.exceptions import GrammarParseError
 from src.grammar.constraint import Constraint, _get_number_of_constraints
 from src.grammar.constraint import MaxConstraint, DepConstraint, PhonotacticConstraint, IdentConstraint
@@ -67,15 +65,9 @@ class ConstraintSet:
 
     @classmethod
     def load_from_printed_string_representation(cls, constraint_set_string, feature_table):
-        """
-        works only in PY3
-        """
-        if PY3:
-            constraint_set_json_str = cls.json_from_printed_string_representation(constraint_set_string)
-            constraint_set_list = json.loads(constraint_set_json_str)
-            return cls(constraint_set_list, feature_table)
-        else:
-            raise GrammarParseError("load_from_printed_string_representation works only in PY3")
+        constraint_set_json = cls.json_from_printed_string_representation(constraint_set_string)
+        constraint_set_list = json.loads(constraint_set_json)
+        return cls(constraint_set_list, feature_table)
 
     @classmethod
     def json_from_printed_string_representation(cls, constraint_set_string):
