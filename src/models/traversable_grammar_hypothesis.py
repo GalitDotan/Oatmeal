@@ -7,7 +7,7 @@ import sys
 from math import ceil, log
 
 from src.grammar.grammar import Grammar
-from src.otml_configuration import settings
+from src.models.otml_configuration import settings
 from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)

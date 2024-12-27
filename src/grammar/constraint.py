@@ -13,7 +13,7 @@ from src.exceptions import GrammarParseError
 from src.grammar.feature_bundle import FeatureBundle
 from src.grammar.feature_table import JOKER_SEGMENT, NULL_SEGMENT
 from src.models.transducer import CostVector, Arc, State, Transducer
-from src.otml_configuration import settings
+from src.models.otml_configuration import settings
 from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)

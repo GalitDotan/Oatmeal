@@ -17,7 +17,7 @@ from src.grammar.constraint_set import ConstraintSet
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Word
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
-from src.otml_configuration import settings
+from src.models.otml_configuration import settings
 from src.utils.mail import MailManager
 
 logger = logging.getLogger(__name__)

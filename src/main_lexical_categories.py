@@ -6,7 +6,7 @@ from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.models.corpus import Corpus
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
-from src.otml_configuration import OtmlConfiguration, settings
+from src.models.otml_configuration import OtmlConfiguration, settings
 from src.simulated_annealing import SimulatedAnnealing
 
 SIMULATION_NAME = 'french_deletion_categories'

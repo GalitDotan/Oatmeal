@@ -9,7 +9,7 @@ from random import choice, randint
 
 from src.grammar.feature_table import Segment, NULL_SEGMENT, JOKER_SEGMENT, FeatureTable
 from src.models.transducer import CostVector, Arc, State, Transducer
-from src.otml_configuration import settings
+from src.models.otml_configuration import settings
 from src.utils.randomization_tools import get_weighted_list
 from src.utils.unicode_mixin import UnicodeMixin
 

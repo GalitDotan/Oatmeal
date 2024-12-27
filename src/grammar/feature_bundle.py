@@ -8,7 +8,7 @@ from six import iterkeys
 
 from src.exceptions import GrammarParseError
 from src.exceptions import OtmlConfigurationError
-from src.otml_configuration import settings
+from src.models.otml_configuration import settings
 from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)

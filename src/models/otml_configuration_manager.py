@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from copy import deepcopy
 
 from src.models.configuration_manager import ConfigurationManager
-from src.otml_configuration import OtmlConfiguration
+from src.models.otml_configuration import OtmlConfiguration
 from src.utils.unicode_mixin import UnicodeMixin
 
 

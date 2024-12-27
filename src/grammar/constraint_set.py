@@ -14,7 +14,7 @@ from src.exceptions import GrammarParseError
 from src.grammar.constraint import Constraint, _get_number_of_constraints
 from src.grammar.constraint import MaxConstraint, DepConstraint, PhonotacticConstraint, IdentConstraint
 from src.models.transducer import Transducer
-from src.otml_configuration import settings
+from src.models.otml_configuration import settings
 from src.utils.randomization_tools import get_weighted_list
 from src.utils.unicode_mixin import UnicodeMixin
 
