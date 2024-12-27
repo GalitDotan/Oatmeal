@@ -4,7 +4,7 @@ import unittest
 from copy import deepcopy
 
 from src.grammar.constraint import PhonotacticConstraint
-from src.grammar.feature_table import FeatureTable, Segment, NULL_SEGMENT
+from src.grammar.features.feature_table import FeatureTable, Segment, NULL_SEGMENT
 from src.grammar.lexicon import Word
 from src.models.transducer import CostVector, Arc, State, Transducer
 from tests.test_logic.persistence_tools import get_feature_table_fixture

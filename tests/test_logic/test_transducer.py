@@ -4,9 +4,8 @@ import unittest
 from copy import deepcopy
 
 from src.grammar.constraint import PhonotacticConstraint, MaxConstraint, DepConstraint, FaithConstraint
-from src.grammar.feature_table import FeatureTable, Segment
-from src.models.transducer import CostVector, Arc, State, Transducer, JOKER_SEGMENT, NULL_SEGMENT, \
-    CostVectorOperationError
+from src.grammar.features.feature_table import FeatureTable, Segment, NULL_SEGMENT, JOKER_SEGMENT
+from src.models.transducer import CostVector, Arc, State, Transducer, CostVectorOperationError
 from tests.test_logic.persistence_tools import get_pickle, get_feature_table_fixture
 
 

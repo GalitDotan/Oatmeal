@@ -3,7 +3,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import unittest
 
 from src.grammar.constraint_set import ConstraintSet, GrammarParseError
-from src.grammar.feature_table import FeatureTable
+from src.grammar.features.feature_table import FeatureTable
 from src.models.corpus import Corpus
 from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
 
@@ -19,7 +19,7 @@ class TestGrammarAndFeature(unittest.TestCase):
     def test_validity_of_segments(self):
         for word_string in self.corpus.words:
             for segment in word_string:
-                self.assertTrue(self.feature_table.is_valid_symbol(segment),
+                self.assertTrue(self.feature_table._is_valid_symbol(segment),
                                 "The word {} contains the illegal segment {}".format(word_string, segment))
 
     def test_grammar_with_feature_validity_missing_feature(self):

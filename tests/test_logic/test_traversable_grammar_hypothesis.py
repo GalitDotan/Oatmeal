@@ -5,13 +5,14 @@ import sys
 import unittest
 
 from src.grammar.constraint_set import ConstraintSet
-from src.grammar.feature_table import FeatureTable
+from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.models.corpus import Corpus
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from tests.test_logic.otml_configuration_for_testing import configurations
-from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture, \
+from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, \
+    get_corpus_fixture, \
     clear_modules_caching, get_feature_table_by_fixture, get_corpus_by_fixture
 
 
@@ -110,7 +111,7 @@ class TestTraversableGrammarHypothesis(unittest.TestCase):
                              "french_deletion_target_lexicon.txt"]
 
         print("n  ident  og  target")
-        for n in list(range(25, 26)):
+        for n in range(25, 26):
             configurations["CORPUS_DUPLICATION_FACTOR"] = n
             print(n, end=" ")
             results = []

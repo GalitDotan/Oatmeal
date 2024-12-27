@@ -33,7 +33,7 @@ sys.path.append(PROJECT_PATH)
 
 from tests.test_logic.otml_configuration_for_testing import configurations
 from src.grammar.lexicon import Lexicon
-from src.grammar.feature_table import FeatureTable
+from src.grammar.features.feature_table import FeatureTable
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.grammar import Grammar
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis

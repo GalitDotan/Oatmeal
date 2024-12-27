@@ -54,7 +54,7 @@ class Weights(Model):
     @field_validator("*")
     @classmethod
     def parse_int(cls, value):
-        if type(value) == int:
+        if type(value) is int:
             return value
         return int(value)
 
@@ -129,7 +129,7 @@ class OtmlConfiguration(Model, Singleton):
     @field_validator("*", mode="before")
     @classmethod
     def _parse_json_field(cls, raw):
-        if type(raw) != str:
+        if type(raw) is not str:
             return raw
         try:
             if raw.casefold() == "inf":

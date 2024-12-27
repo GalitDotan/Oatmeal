@@ -4,7 +4,7 @@ import os
 import unittest
 
 from src.grammar.constraint_set import ConstraintSet
-from src.grammar.feature_table import FeatureTable
+from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.grammar.lexicon import Word

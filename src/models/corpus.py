@@ -5,15 +5,14 @@ import textwrap
 
 from src.grammar.lexicon import Word, get_words_from_file, parse_words_per_category_from_file
 from src.models.otml_configuration import settings
-from src.utils.unicode_mixin import UnicodeMixin
 
 
-class Corpus(UnicodeMixin, object):
+class Corpus:
 
     def __init__(self, string_words):
         self.words = string_words
 
-    def __unicode__(self):
+    def __str__(self):
         return f"Corpus with {len(self)} words: {self.words[:3]}..."
 
     def __getitem__(self, item):

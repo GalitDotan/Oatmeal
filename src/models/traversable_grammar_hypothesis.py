@@ -8,12 +8,11 @@ from math import ceil, log
 
 from src.grammar.grammar import Grammar
 from src.models.otml_configuration import settings
-from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)
 
 
-class TraversableGrammarHypothesis(UnicodeMixin, object):  # TODO: do it with pydantic
+class TraversableGrammarHypothesis:
 
     def __init__(self, grammar: Grammar, data: list[str]):
         self.grammar: Grammar = grammar
@@ -124,5 +123,5 @@ class TraversableGrammarHypothesis(UnicodeMixin, object):  # TODO: do it with py
         grammar_copy = pickle.loads(pickle.dumps(self.grammar, -1))
         return TraversableGrammarHypothesis(grammar_copy, self.data)
 
-    def __unicode__(self):
+    def __str__(self):
         return "Hypothesis with energy: {0}".format(self.update_energy())

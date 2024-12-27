@@ -1,7 +1,7 @@
 import os
 
 from src.grammar.constraint_set import ConstraintSet
-from src.grammar.feature_table import FeatureTable
+from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.models.corpus import Corpus
@@ -9,7 +9,7 @@ from src.models.otml_configuration import OtmlConfiguration, settings
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing
 
-SIMULATION_NAME = 'french_deletion_categories'
+SIMULATION_NAME = 'french_deletion'
 CONFIG_DIR = os.path.join('simulations', SIMULATION_NAME)
 
 OtmlConfiguration.load(CONFIG_DIR)
@@ -35,7 +35,7 @@ simulated_annealing_per_category = {cat: SimulatedAnnealing(initial_hypothesis) 
                                     initial_hypothesis_per_category.items()}
 
 for cat, simulated_annealing in simulated_annealing_per_category.items():
-    if len(corpus_per_category[cat]) == 0:
+    if len(corpus_per_category[cat]) == 0:  # no words in this category
         continue
     print(f'Starting optimization for {cat}')
     step, hypothesis = simulated_annealing.run()
@@ -44,6 +44,11 @@ for cat, simulated_annealing in simulated_annealing_per_category.items():
 
     print(f'Initial hypothesis: {simulated_annealing.initial_hypothesis}')
     print(f'Final hypothesis: {simulated_annealing.current_hypothesis}')
+
+    print(f'# Lexicon: {simulated_annealing.current_hypothesis.grammar.lexicon}')
+    print(f'# Feature table: {simulated_annealing.current_hypothesis.grammar.feature_table}')
+    print(f'# Constraints Set: {simulated_annealing.current_hypothesis.grammar.constraint_set}')
+
     print(f'Finished optimization for {cat}')
 
 print("Done")

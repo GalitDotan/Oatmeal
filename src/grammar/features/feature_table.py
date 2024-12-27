@@ -1,70 +1,21 @@
-# Python2 and Python 3 compatibility:
-# from __future__ import absolute_import, division, print_function, unicode_literals
-
 import codecs
 import json
 import logging
 import os
 from copy import deepcopy
+from io import StringIO
 from random import choice
 from typing import Any
 
-from pydantic import BaseModel, model_validator, Field, computed_field
-from six import string_types, integer_types, StringIO, iterkeys
+from six import iterkeys, string_types, integer_types
 
 from src.exceptions import FeatureParseError, UnknownFeatureError
-from src.utils.unicode_mixin import UnicodeMixin
+from src.grammar.features.feature_list import FeatureList
 
 logger = logging.getLogger(__name__)
 
 
-class Feature(BaseModel):
-    label: str
-    values: list[str]
-
-    def __repr__(self):
-        return f"{self.label}: {self.values}"
-
-
-class FeatureList(BaseModel):
-    features: list[Feature] = Field(allow_mutation=False)
-
-    @computed_field
-    @property
-    def labels(self) -> set[str]:
-        """Compute labels from features."""
-        return {f.label for f in self.features}
-
-    def __getitem__(self, key: int | str):
-        if type(key) == str:
-            if key in self.labels:
-                return [f.values for f in self.features if f.label == key][0]
-            else:
-                raise KeyError(key)
-        if type(key) == int:
-            return self.features[key]
-
-    def __len__(self):
-        return len(self.features)
-
-    def __iter__(self):
-        return iter(self.features)
-
-    def __contains__(self, key: str | Feature):
-        if type(key) == str:
-            return key in self.labels
-        return key in self.features
-
-    @model_validator(mode="after")
-    def _validate_distinct(self):
-        for label in self.labels:
-            features = [f for f in self.features if f.label == label]
-            if len(features) > 1:
-                raise FeatureParseError("Feature was defined more than once", {"label": label, "definitions": features})
-        return self
-
-
-class FeatureTable(UnicodeMixin, object):
+class FeatureTable:
     def __init__(self, feature_table_raw: dict[str, Any]):
         self._segment_to_feature_dict: dict[str, dict[str, str]] = dict()
         self._features: FeatureList = FeatureList.model_validate(dict(features=feature_table_raw["feature"]))
@@ -89,9 +40,6 @@ class FeatureTable(UnicodeMixin, object):
 
         for symbol in self.get_alphabet():
             self._segments.append(Segment(symbol, self))
-
-    def __str__(self):
-        return self.get_features()
 
     def __repr__(self):
         return str(self)
@@ -158,30 +106,36 @@ class FeatureTable(UnicodeMixin, object):
     def get_ordered_feature_vector(self, char) -> list[str]:
         return [self[char][self._index_to_feature[i]] for i in range(self.get_number_of_features())]
 
-    def is_valid_feature(self, feature_label) -> bool:
+    def _is_valid_feature(self, feature_label) -> bool:
+        """Validate that the label exists in features."""
         return feature_label in self._features
 
-    def is_valid_symbol(self, symbol) -> bool:
+    def _is_valid_symbol(self, symbol) -> bool:
+        """Validate that the symbol exists in the segment to feature dictionary."""
         return symbol in self._segment_to_feature_dict
 
-    def __unicode__(self):
-        values_str_io = StringIO()
-        print(
-            "Feature Table with {0} features and {1} segments:".format(
-                self.get_number_of_features(), len(self.get_alphabet())
-            ),
-            end="\n",
-            file=values_str_io,
-        )
+    def __str__(self):
+        return self.get_human_readable_feature_table()
 
-        print("{:20s}".format("Segment/Feature"), end="", file=values_str_io)
-        for i in list(range(len(self._index_to_feature))):
-            print("{:10s}".format(self._index_to_feature[i]), end="", file=values_str_io)
+    def get_human_readable_feature_table(self):
+        values_str_io = StringIO()
+        print(f"Feature Table with {len(self._features)} features and {len(self._segments)} segments:",
+              file=values_str_io)
+
+        print("{:20s}".format("Segment/Feature"),
+              end="",
+              file=values_str_io)
+
+        for i in range(len(self._index_to_feature)):
+            print("{:10s}".format(str(self._index_to_feature[i])), end="", file=values_str_io)
+
         print("", file=values_str_io)  # new line
+
         for segment in sorted(iterkeys(self._segment_to_feature_dict)):
             print("{:20s}".format(segment), end="", file=values_str_io)
-            for i in list(range(len(self._index_to_feature))):
-                feature = self._index_to_feature[i]
+
+            for i in range(len(self._index_to_feature)):
+                feature = str(self._index_to_feature[i])
                 print("{:10s}".format(self._segment_to_feature_dict[segment][feature]), end="", file=values_str_io)
             print("", file=values_str_io)
 
@@ -201,7 +155,7 @@ class FeatureTable(UnicodeMixin, object):
             return self._segment_to_feature_dict[segment][feature]
 
 
-class Segment(UnicodeMixin, object):
+class Segment:
     def __init__(self, symbol: str, feature_table: FeatureTable | None = None):
         self.symbol: str = symbol  # JOKER and NULL segments need feature_table=None
 
@@ -210,15 +164,6 @@ class Segment(UnicodeMixin, object):
             self.feature_dict: dict[str, str] = feature_table[symbol]
 
         self.hash = hash(self.symbol)
-
-    def get_encoding_length(self) -> int:
-        return len(self.feature_dict)
-
-    def has_feature_bundle(self, feature_bundle) -> bool:
-        return all(item in self.feature_dict.items() for item in feature_bundle.get_feature_dict().items())
-
-    def get_symbol(self) -> str:
-        return self.symbol
 
     @staticmethod
     def intersect(x, y):
@@ -257,7 +202,7 @@ class Segment(UnicodeMixin, object):
     def __hash__(self):
         return self.hash
 
-    def __unicode__(self):
+    def __str__(self):  # TODO: check if this gives the constraints order
         if hasattr(self, "feature_table"):
             values_str_io = StringIO()
             ordered_feature_vector = self.feature_table.get_ordered_feature_vector(self.symbol)
@@ -271,29 +216,16 @@ class Segment(UnicodeMixin, object):
     def __getitem__(self, item):
         return self.feature_dict[item]
 
+    def get_encoding_length(self) -> int:
+        return len(self.feature_dict)
 
-# ----------------------
+    def has_feature_bundle(self, feature_bundle) -> bool:
+        return all(item in self.feature_dict.items() for item in feature_bundle.get_feature_dict().items())
+
+    def get_symbol(self) -> str:
+        return self.symbol
+
+
 # Special segments - required for transducer construction
 NULL_SEGMENT = Segment("-")
 JOKER_SEGMENT = Segment("*")
-
-
-# ----------------------
-
-
-class FeatureType(UnicodeMixin, object):
-    def __init__(self, label: str, values: list[str]):
-        self.label: str = label
-        self.values: list[str] = values
-
-    def get_random_value(self):
-        return choice(self.values)
-
-    def __unicode__(self):
-        values_str_io = StringIO()
-        for value in self.values:
-            print(value, end=", ", file=values_str_io)
-        return "FeatureType {0} with possible values: [{1}]".format(self.label, values_str_io.getvalue()[:-2])
-
-    def __contains__(self, item):
-        return item in self.values

@@ -6,7 +6,7 @@ import unittest
 
 from six import StringIO
 
-from src.grammar.feature_table import FeatureTable
+from src.grammar.features.feature_table import FeatureTable
 from src.models.corpus import Corpus
 from tests.test_logic.persistence_tools import get_corpus_fixture, get_feature_table_fixture
 

@@ -7,11 +7,10 @@ from ast import literal_eval
 from math import log, ceil
 from random import choice, randint
 
-from src.grammar.feature_table import Segment, NULL_SEGMENT, JOKER_SEGMENT, FeatureTable
-from src.models.transducer import CostVector, Arc, State, Transducer
+from src.grammar.features.feature_table import FeatureTable, Segment, NULL_SEGMENT, JOKER_SEGMENT
 from src.models.otml_configuration import settings
+from src.models.transducer import CostVector, Arc, State, Transducer
 from src.utils.randomization_tools import get_weighted_list
-from src.utils.unicode_mixin import UnicodeMixin
 
 DEFAULT_LEX_CATEGORY = "default"
 
@@ -20,7 +19,7 @@ logger = logging.getLogger(__name__)
 word_transducers = dict()
 
 
-class Word(UnicodeMixin, object):
+class Word:
     __slots__ = ["word_string", "feature_table", "segments"]
 
     def __init__(self, word_string: str, feature_table: FeatureTable):
@@ -31,7 +30,7 @@ class Word(UnicodeMixin, object):
         self.feature_table: FeatureTable = feature_table
         self.segments: list[Segment] = [Segment(char, self.feature_table) for char in self.word_string]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.word_string
 
     def change_segment(self):
@@ -130,7 +129,7 @@ class Word(UnicodeMixin, object):
         global word_transducers
         word_transducers = dict()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.word_string
 
     def __len__(self):
@@ -143,7 +142,7 @@ class Word(UnicodeMixin, object):
         return hash(self.word_string)
 
 
-class Lexicon(UnicodeMixin, object):
+class Lexicon:
 
     def __init__(self, words: list[str], feature_table):
         """
@@ -151,6 +150,20 @@ class Lexicon(UnicodeMixin, object):
         """
         self.words: list[Word] = [Word(word_string, feature_table) for word_string in words]
         self.feature_table: FeatureTable = feature_table
+
+    def __str__(self):
+        if settings.log_lexicon_words:
+            return (f"Lexicon: {len(self.words)} words: {[str(word) for word in self.words]} "
+                    f"with {self._get_number_of_segments()} segments in total")
+        else:
+            return f"Lexicon, number of words: {len(self.words)}, number of segments: {self._get_number_of_segments()}"
+
+    # we can optimize this by creating dict
+    def __getitem__(self, item):
+        return self.words[item].get_segments()
+
+    def __len__(self):
+        return len(self.words)
 
     def make_mutation(self):
         """
@@ -212,21 +225,6 @@ class Lexicon(UnicodeMixin, object):
 
     def _get_number_of_segments(self):
         return sum([len(word) for word in self.words])
-
-    def __unicode__(self):  # like __repr__ but specifically for unicode str representation
-        if settings.log_lexicon_words:
-            return (f"Lexicon: {len(self.words)} words: {self.words} "
-                    f"with {self._get_number_of_segments()} segments in total")
-        else:
-            return f"Lexicon, number of words: {0}, number of segments: {1}".format(len(self.words),
-                                                                                    self._get_number_of_segments())
-
-    # we can optimize this by creating dict
-    def __getitem__(self, item):
-        return self.words[item].get_segments()
-
-    def __len__(self):
-        return len(self.words)
 
 
 def get_words_from_file(corpus_file_name):

@@ -11,13 +11,12 @@ from copy import deepcopy
 from six import PY3, StringIO, itervalues
 
 from src.exceptions import CostVectorOperationError
-from src.grammar.feature_table import NULL_SEGMENT, JOKER_SEGMENT, Segment
-from src.utils.unicode_mixin import UnicodeMixin
+from src.grammar.features.feature_table import Segment, NULL_SEGMENT, JOKER_SEGMENT
 
 logger = logging.getLogger(__name__)
 
 
-class Transducer(UnicodeMixin, object):
+class Transducer:
     __slots__ = ["name", "states", "alphabet", "_arcs", "initial_state", "final_states", "arcs_by_state_dict",
                  "length_of_cost_vectors"]
 
@@ -345,7 +344,7 @@ class Transducer(UnicodeMixin, object):
         intersected_transducer.clear_dead_states()
         return intersected_transducer
 
-    def __unicode__(self):
+    def __str__(self):
         str_io = StringIO()
         if self.name:
             print(self.name, file=str_io, end=" ")
@@ -387,7 +386,7 @@ class Transducer(UnicodeMixin, object):
         return result
 
 
-class State(UnicodeMixin, object):
+class State:
     __slots__ = ["label", "index", "hash"]
 
     def __init__(self, label, index=0):
@@ -416,11 +415,11 @@ class State(UnicodeMixin, object):
     def __hash__(self):
         return self.hash
 
-    def __unicode__(self):
+    def __str__(self):
         return "({0},{1})".format(self.label, str(self.index))
 
 
-class Arc(UnicodeMixin, object):
+class Arc:
     __slots__ = ["origin_state", "input", "output", "cost_vector", "terminal_state", "hash"]
 
     def __init__(self, origin_state, input, output, cost_vector, terminal_state):
@@ -460,7 +459,7 @@ class Arc(UnicodeMixin, object):
     def __hash__(self):
         return self.hash
 
-    def __unicode__(self):
+    def __str__(self):
         if isinstance(self.output, set):
             output = str(self.output)
         else:
@@ -470,7 +469,7 @@ class Arc(UnicodeMixin, object):
                     str(self.terminal_state)])
 
 
-class CostVector(UnicodeMixin, object):
+class CostVector:
     def __init__(self, vector):
         self.vector = vector
         self.hash = hash(str(self.vector))
@@ -497,7 +496,7 @@ class CostVector(UnicodeMixin, object):
         """Vector concatenation"""
         return CostVector(self.vector + other.vector)
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.vector)
 
     def __len__(self):

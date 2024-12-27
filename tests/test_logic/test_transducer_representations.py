@@ -5,7 +5,7 @@ import unittest
 from src.grammar.constraint import HeadDepConstraint, MainLeftConstraint, PrecedeConstraint, ContiguityConstraint
 from src.grammar.constraint import MaxConstraint, DepConstraint, IdentConstraint, PhonotacticConstraint, FaithConstraint
 from src.grammar.constraint_set import ConstraintSet
-from src.grammar.feature_table import FeatureTable
+from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.grammar.lexicon import Word

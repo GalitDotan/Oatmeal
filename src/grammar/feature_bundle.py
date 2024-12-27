@@ -9,17 +9,16 @@ from six import iterkeys
 from src.exceptions import GrammarParseError
 from src.exceptions import OtmlConfigurationError
 from src.models.otml_configuration import settings
-from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)
 
 
-class FeatureBundle(UnicodeMixin, object):
+class FeatureBundle:
     __slots__ = ["feature_dict", "feature_table"]
 
     def __init__(self, feature_dict, feature_table):
         for feature in feature_dict.keys():
-            if not feature_table.is_valid_feature(feature):
+            if not feature_table._is_valid_feature(feature):
                 raise GrammarParseError("Illegal feature: {0}".format(feature))
 
         self.feature_dict = feature_dict
@@ -61,7 +60,7 @@ class FeatureBundle(UnicodeMixin, object):
     def __eq__(self, other):
         return self.feature_dict == other.feature_dict
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.feature_dict)
 
     def __getitem__(self, item):

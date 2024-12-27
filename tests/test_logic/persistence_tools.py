@@ -6,7 +6,7 @@ from os.path import split, abspath, join
 
 from six import PY3, StringIO
 
-from src.grammar.feature_table import FeatureTable
+from src.grammar.features.feature_table import FeatureTable
 from src.models.corpus import Corpus
 
 tests_dir_path, filename = split(abspath(__file__))
