@@ -5,14 +5,12 @@ from src.grammar.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.models.corpus import Corpus
-from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.models.otml_configuration import OtmlConfiguration, settings
+from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing
 
 SIMULATION_NAME = 'french_deletion_categories'
-
-ROOT_DIR = os.path.split(os.path.abspath(__file__))[0]
-CONFIG_DIR = os.path.join(ROOT_DIR, 'tests', 'fixtures', SIMULATION_NAME)
+CONFIG_DIR = os.path.join('simulations', SIMULATION_NAME)
 
 OtmlConfiguration.load(CONFIG_DIR)
 
@@ -21,9 +19,18 @@ constraint_set = ConstraintSet.load(settings.constraints_file, feature_table)
 corpus_per_category = Corpus.load_corpus_per_category(settings.corpus_file)
 lexicon_per_category = {cat: Lexicon(corpus.get_words(), feature_table) for cat, corpus in corpus_per_category.items()}
 lexical_categories = lexicon_per_category.keys()
+
 initial_hypothesis_per_category = {
-    cat: TraversableGrammarHypothesis(grammar=Grammar(feature_table, constraint_set, lexicon_per_category[cat]),
-                                      data=corpus_per_category[cat].get_words()) for cat in lexical_categories}
+    cat: TraversableGrammarHypothesis(
+        grammar=Grammar(
+            feature_table,
+            constraint_set,
+            lexicon_per_category[cat],
+            grammar_name=f'{SIMULATION_NAME}_{cat}',
+        ),
+        data=corpus_per_category[cat].get_words()
+    ) for cat in lexical_categories}
+
 simulated_annealing_per_category = {cat: SimulatedAnnealing(initial_hypothesis) for cat, initial_hypothesis in
                                     initial_hypothesis_per_category.items()}
 

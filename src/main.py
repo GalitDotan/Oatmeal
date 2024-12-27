@@ -9,7 +9,8 @@ from src.models.otml_configuration import OtmlConfiguration, settings
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing
 
-CONFIG_DIR = os.path.join('simulations', 'abnese')
+SIMULATION_NAME = 'abnese'
+CONFIG_DIR = os.path.join('simulations', SIMULATION_NAME)
 
 OtmlConfiguration.load(CONFIG_DIR)
 
@@ -18,8 +19,14 @@ corpus = Corpus.load(settings.corpus_file)
 constraint_set = ConstraintSet.load(settings.constraints_file, feature_table)
 lexicon = Lexicon(corpus.get_words(), feature_table)
 
-initial_hypothesis = TraversableGrammarHypothesis(grammar=Grammar(feature_table, constraint_set, lexicon),
-                                                  data=corpus.get_words())
+initial_hypothesis = TraversableGrammarHypothesis(
+    grammar=Grammar(
+        feature_table,
+        constraint_set, lexicon,
+        grammar_name=SIMULATION_NAME
+    ),
+    data=corpus.get_words()
+)
 simulated_annealing = SimulatedAnnealing(initial_hypothesis)
 
 print("Starting optimization")
