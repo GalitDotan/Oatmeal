@@ -3,13 +3,14 @@ import os
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
-from src.grammar.lexicon import Lexicon
+from src.grammar.lexicon import Lexicon, Word
+from src.init_simulation import run_simulated_annealing_with_prints
 from src.models.corpus import Corpus
 from src.models.otml_configuration import OtmlConfiguration, settings
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing
 
-SIMULATION_NAME = 'SMH'
+SIMULATION_NAME = 'bb_demote_only'
 CONFIG_DIR = os.path.join('simulations', SIMULATION_NAME)
 
 OtmlConfiguration.load(CONFIG_DIR)
@@ -40,16 +41,19 @@ for cat, simulated_annealing in simulated_annealing_per_category.items():
     print(f'Starting optimization for {cat}')
 
     step, hypothesis = simulated_annealing.run()
-    final_grammar = simulated_annealing.current_hypothesis.grammar
+    final_grammar = run_simulated_annealing_with_prints(simulated_annealing)
 
-    print(f'Ran {step} steps.')
-
-    print(f'Initial hypothesis: {simulated_annealing.initial_hypothesis}')
-    print(f'Final hypothesis: {simulated_annealing.current_hypothesis}')
-
-    print(f'# Lexicon: {final_grammar.lexicon}')
-    print(f'# Feature table: {final_grammar.feature_table}')
-    print(f'# Constraints Set: {final_grammar.constraint_set}')
+    """
+    noH = Word(word_string="no'H", feature_table=final_grammar.feature_table)
+    moreH = Word(word_string="more'H", feature_table=final_grammar.feature_table)
+    hivliH = Word(word_string="hivli'H", feature_table=final_grammar.feature_table)
+    niHbal = Word(word_string="niHba'l", feature_table=final_grammar.feature_table)
+    print(f'{final_grammar.generate(noH)}, {final_grammar.generate(moreH)}, '
+          f'{final_grammar.generate(hivliH)}, {final_grammar.generate(niHbal)}')
+    """
+    bb = Word(word_string="bb", feature_table=final_grammar.feature_table)
+    abb = Word(word_string="abb", feature_table=final_grammar.feature_table)
+    print(f'{final_grammar.generate(bb)}, {final_grammar.generate(abb)}')
 
     print(f'Finished optimization for {cat}')
 

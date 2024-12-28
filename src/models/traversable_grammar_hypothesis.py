@@ -83,8 +83,6 @@ class TraversableGrammarHypothesis:
     def parse_data(self) -> dict[str, set[tuple[str, int]]]:
         """Parses Words
 
-        :param data: Words to be parsed, usually it will parse the corpus words
-        :type data: a list of Words
         :rtype: A dictionary that has the Words in data as keys and the values are sets of tuples. Each tuple
         contains (Word, int) which the Word is able to generate the Word in the key of the dictionary and
         the int is the number of outputs that the Word can generate.

@@ -74,8 +74,6 @@ class SimulatedAnnealing(object):
 
         while (self.current_temperature > self.threshold) and (self.step != self.step_limitation):
             self.make_step()
-            moH = Word(word_string="mo'H", feature_table=self.current_hypothesis.grammar.feature_table)
-            print(f'Energy: {self.current_hypothesis_energy}. {self.current_hypothesis.grammar.generate(moH)}')
 
         self._after_loop()
         return self.step, self.current_hypothesis

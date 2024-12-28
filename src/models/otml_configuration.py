@@ -87,6 +87,7 @@ class OtmlConfiguration(Model, Singleton):
     config_folder: str
     config_file: str
     constraints_file: str
+    target_constraints_file: str | None = None
     features_file: str
     corpus_file: str
 
