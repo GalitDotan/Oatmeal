@@ -2,7 +2,7 @@ from src.grammar.feature_models import FeaturesModel, FeatureModel, FeatureListM
 
 
 class IsSyllable(FeatureModel):
-    label: str = 'syl'
+    label: str = 'syll'
 
 
 class IsStress(FeatureModel):
@@ -102,7 +102,7 @@ smh_feature_table = FeaturesModel(
             ]
         ),
         FeatureListModel(
-            label="ʔ",
+            label="y",
             features=[
                 IsSyllable(value=True),
                 IsStress(),
@@ -157,7 +157,7 @@ smh_feature_table = FeaturesModel(
             ]
         ),
         FeatureListModel(
-            label="ʃ",
+            label="S",
             features=[
                 IsSyllable(value=True),
                 IsStress(),
@@ -168,7 +168,7 @@ smh_feature_table = FeaturesModel(
             ]
         ),
         FeatureListModel(
-            label="ʒ",
+            label="x",
             features=[
                 IsSyllable(value=True),
                 IsStress(),
@@ -179,18 +179,7 @@ smh_feature_table = FeaturesModel(
             ]
         ),
         FeatureListModel(
-            label="χ",
-            features=[
-                IsSyllable(value=True),
-                IsStress(),
-                IsCons(value=True),
-                IsHigh(),
-                IsLow(),
-                IsPharyngeal()
-            ]
-        ),
-        FeatureListModel(
-            label="ħ",
+            label="H",
             features=[
                 IsSyllable(value=True),
                 IsStress(),
@@ -201,7 +190,7 @@ smh_feature_table = FeaturesModel(
             ]
         ),
         FeatureListModel(
-            label="ʕ",
+            label="Y",
             features=[
                 IsSyllable(value=True),
                 IsStress(),
@@ -257,6 +246,17 @@ smh_feature_table = FeaturesModel(
         ),
         FeatureListModel(
             label="j",
+            features=[
+                IsSyllable(value=True),
+                IsStress(),
+                IsCons(value=True),
+                IsHigh(),
+                IsLow(),
+                IsPharyngeal()
+            ]
+        ),
+        FeatureListModel(
+            label="r",
             features=[
                 IsSyllable(value=True),
                 IsStress(),
@@ -337,4 +337,4 @@ smh_feature_table = FeaturesModel(
 )
 
 if __name__ == '__main__':
-    save_to_file(smh_feature_table, 'features_new')
+    save_to_file(smh_feature_table, 'features')

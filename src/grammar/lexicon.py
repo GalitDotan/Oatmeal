@@ -240,7 +240,7 @@ def get_words_from_file(corpus_file_name):
 
 
 def parse_words_per_category_from_file(corpus_file_name):
-    with codecs.open(corpus_file_name, "r") as f:
+    with codecs.open(corpus_file_name, "r", encoding="utf-8") as f:
         corpus_string = f.read()
 
     if "[" in corpus_string:

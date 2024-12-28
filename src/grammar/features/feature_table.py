@@ -44,6 +44,23 @@ class FeatureTable:
     def __repr__(self):
         return str(self)
 
+    def __str__(self):
+        return self.get_human_readable_feature_table()
+
+    def __getitem__(self, item):
+        if isinstance(item, string_types):
+            result = self._segment_to_feature_dict.get(item)
+            print(f'{item}: {result}')
+            if result is None:
+                raise UnknownFeatureError(f"{item} is invalid")
+            return self._segment_to_feature_dict[item]
+        if isinstance(item, integer_types):  # TODO this should support an ordered access to the feature table.
+            #  is this a good implementation?
+            return self._segment_to_feature_dict[self._index_to_feature[item]]
+        else:
+            segment, feature = item
+            return self._segment_to_feature_dict[segment][feature]
+
     @classmethod
     def load(cls, feature_table_filename: str):
         """
@@ -106,16 +123,13 @@ class FeatureTable:
     def get_ordered_feature_vector(self, char) -> list[str]:
         return [self[char][self._index_to_feature[i]] for i in range(self.get_number_of_features())]
 
-    def _is_valid_feature(self, feature_label) -> bool:
+    def is_valid_feature(self, feature_label) -> bool:
         """Validate that the label exists in features."""
         return feature_label in self._features
 
     def _is_valid_symbol(self, symbol) -> bool:
         """Validate that the symbol exists in the segment to feature dictionary."""
         return symbol in self._segment_to_feature_dict
-
-    def __str__(self):
-        return self.get_human_readable_feature_table()
 
     def get_human_readable_feature_table(self):
         values_str_io = StringIO()
@@ -140,19 +154,6 @@ class FeatureTable:
             print("", file=values_str_io)
 
         return values_str_io.getvalue()
-
-    def __getitem__(self, item):
-        if isinstance(item, string_types):
-            result = self._segment_to_feature_dict.get(item)
-            if result is None:
-                raise UnknownFeatureError(f"{item} is invalid")
-            return self._segment_to_feature_dict[item]
-        if isinstance(item, integer_types):  # TODO this should support an ordered access to the feature table.
-            #  is this a good implementation?
-            return self._segment_to_feature_dict[self._index_to_feature[item]]
-        else:
-            segment, feature = item
-            return self._segment_to_feature_dict[segment][feature]
 
 
 class Segment:

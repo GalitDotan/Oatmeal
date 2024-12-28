@@ -879,33 +879,3 @@ class NonLowVowelBeforePharyngealWithinSyllableConstraint(Constraint):
     @classmethod
     def get_constraint_name(cls):
         return "NonLowVowelBeforePharyngealWithinSyllable"
-
-
-class IdentIOHighLowConstraint(Constraint):
-    def __init__(self, bundles_list, feature_table):
-        super(IdentIOHighLowConstraint, self).__init__([], False, feature_table)
-
-    def _make_transducer(self):
-        """
-        Creates a transducer that enforces the IDENT-IO constraint for [high/low].
-        Ensures that an output vowel and its input correspondent have identical values
-        for the [high] and [low] features.
-        """
-        segments = self.feature_table.get_segments()
-        transducer = Transducer(segments, name=str(self))
-
-        # Single state for the transducer
-        state = State("q0")
-        transducer.set_as_single_state(state)
-
-        # Define arcs for IDENT-IO [high/low]
-        for segment in segments:
-            for corresponding_segment in segments:
-                cost = 0 if segment.has_same_high_low(corresponding_segment) else 1
-                transducer.add_arc(Arc(state, segment, corresponding_segment, CostVector([cost]), state))
-
-        return transducer
-
-    @classmethod
-    def get_constraint_name(cls):
-        return "Ident-IO-High/Low"
