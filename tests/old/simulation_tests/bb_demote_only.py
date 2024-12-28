@@ -1,6 +1,6 @@
 import sys
 
-from tests.test_logic.otml_with_simualtion import run_simulation
+from tests.old.test_logic.otml_with_simualtion import run_simulation
 
 configurations_tuples = [
     ("CONSTRAINT_SET_MUTATION_WEIGHTS", {
