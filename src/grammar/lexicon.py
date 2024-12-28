@@ -81,12 +81,11 @@ class Word:
         old_word_string = self.word_string
         index_of_deletion = randint(0, len(self.word_string) - 1)
         new_word_string = self.word_string[:index_of_deletion] + self.word_string[index_of_deletion + 1:]
-        if self.is_appropriate(new_word_string):
-            self._set_word_string(new_word_string)
-            # print("delete segment: {} -> {}".format(old_word_string, new_word_string))
-            return True
-        else:
+        if not self.is_appropriate(new_word_string):
             return False
+        self._set_word_string(new_word_string)
+        # print(f"delete segment: {old_word_string} -> {new_word_string}")
+        return True
 
     def _set_word_string(self, new_word_string):
         self.word_string = new_word_string

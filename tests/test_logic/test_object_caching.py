@@ -59,11 +59,11 @@ class TestObjectCaching(unittest.TestCase):
     def test_generate_caching(self):
         word = Word("bbb", self.feature_table)
         word_outputs = self.grammar.generate(word)
-        from src.grammar.grammar import outputs_by_constraint_set_and_word
+        from src.grammar.grammar import generation_memoization
 
         constraint_set_and_word_key = str(self.grammar.constraint_set) + str(word)
 
-        self.assertEqual(set(outputs_by_constraint_set_and_word[constraint_set_and_word_key]),
+        self.assertEqual(set(generation_memoization[constraint_set_and_word_key]),
                          set(word_outputs))
 
     def test_parse_data_caching(self):

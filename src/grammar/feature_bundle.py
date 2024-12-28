@@ -51,6 +51,7 @@ class FeatureBundle:
 
         feature_dict = dict()
         available_feature_labels = list(feature_table.get_features())
+
         for i in range(settings.initial_number_of_features):
             feature_label = choice(available_feature_labels)
             feature_dict[feature_label] = feature_table.get_random_value(feature_label)

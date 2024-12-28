@@ -16,34 +16,32 @@ from src.grammar.constraint import Constraint
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Word
-from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.models.otml_configuration import settings
-from src.utils.mail import MailManager
+from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 
 logger = logging.getLogger(__name__)
 
 process_id = os.getpid()
 
+_STARS = '*' * 10
+_LINE_SEPARATOR = '-' * 80
+HEADLINE_FORMAT = "{stars} {headline} {stars}"
+
 
 class SimulatedAnnealing(object):
 
     def __init__(self, initial_hypothesis: TraversableGrammarHypothesis,
-                 target_lexicon_indicator_function=None,
-                 sample_target_lexicon=None,
-                 sample_target_outputs=None,
-                 target_energy=None):
+                 target_lexicon_indicator_function: int | None = None,
+                 sample_target_lexicon: int | None = None,
+                 sample_target_outputs: int | None = None,
+                 target_energy: int | None = None):
 
         self.initial_hypothesis = initial_hypothesis
         self.current_hypothesis = initial_hypothesis
         self.target_lexicon_indicator_function = target_lexicon_indicator_function
         self.target_energy = target_energy
 
-        if sample_target_lexicon and sample_target_outputs:
-            self.target_data = True
-            self.sample_target_lexicon = sample_target_lexicon
-            self.sample_target_outputs = sample_target_outputs
-        else:
-            self.target_data = False
+        # all these parameters are going to be set DURING RUN
         self.step = 0
         self.current_temperature = None
         self.threshold = None
@@ -56,7 +54,14 @@ class SimulatedAnnealing(object):
         self.start_time = None
         self.previous_interval_time = None
         self.previous_interval_energy = None
-        self.mail_manager = MailManager()
+        self.target_data = False
+        self.sample_target_lexicon = None
+        self.sample_target_outputs = None
+
+        if sample_target_lexicon and sample_target_outputs:
+            self.target_data = True
+            self.sample_target_lexicon = sample_target_lexicon
+            self.sample_target_outputs = sample_target_outputs
 
     def run(self) -> tuple[int, TraversableGrammarHypothesis]:
         """
@@ -69,6 +74,8 @@ class SimulatedAnnealing(object):
 
         while (self.current_temperature > self.threshold) and (self.step != self.step_limitation):
             self.make_step()
+            moH = Word(word_string="mo'H", feature_table=self.current_hypothesis.grammar.feature_table)
+            print(f'Energy: {self.current_hypothesis_energy}. {self.current_hypothesis.grammar.generate(moH)}')
 
         self._after_loop()
         return self.step, self.current_hypothesis
@@ -93,23 +100,22 @@ class SimulatedAnnealing(object):
         else:
             p = exp(-delta / self.current_temperature)
         if random.random() < p:
-            # logger.info("switch")
+            logger.info("switch")
             self.current_hypothesis = self.neighbor_hypothesis
             self.current_hypothesis_energy = self.neighbor_hypothesis_energy
         else:
-            pass
-            # logger.info("no switch")
+            logger.info("did not switch")
 
     def before_loop(self):
         self.start_time = time.time()
         self.previous_interval_time = self.start_time
-        logger.info("Process Id: {}".format(process_id))
+        logger.info(f"Process Id: {process_id}")
         if settings.random_seed:
             seed = choice(range(1, 1000))
-            logger.info("Seed: {} - randomly selected".format(seed))
+            logger.info(f"Seed: {seed} - randomly selected")
         else:
             seed = settings.seed
-            logger.info("Seed: {} - specified".format(seed))
+            logger.info(f"Seed: {seed} - specified")
         random.seed(seed)
         logger.info(settings)
         logger.info(self.current_hypothesis.grammar.feature_table)
@@ -129,7 +135,6 @@ class SimulatedAnnealing(object):
         self.current_temperature = settings.initial_temp
         self.threshold = settings.threshold
         self.cooling_parameter = settings.cooling_factor
-        # logger.info("distinct_words: {}".format(self.current_hypothesis.grammar.lexicon.get_number_of_distinct_words()))
 
     def _check_for_intervals(self):
         if not self.step % settings.debug_logging_interval:
@@ -139,28 +144,23 @@ class SimulatedAnnealing(object):
 
     def _debug_interval(self):
         current_time = time.time()
-        logger.info("\n" + "-" * 125)
+        logger.info(_LINE_SEPARATOR)
         percentage_completed = 100 * float(self.step) / float(self.number_of_expected_steps)
         logger.info("Step {0:,} of {1:,} ({2:.2f}%)".format(self.step, self.number_of_expected_steps,
                                                             percentage_completed))
-        logger.info("-" * 80)
+        logger.info(_LINE_SEPARATOR)
         elapsed_time = current_time - self.start_time
-        logger.info("Time from simulation start: {}".format(_pretty_runtime_str(elapsed_time)))
-        crude_expected_time = elapsed_time * (100 / percentage_completed)
-        logger.info("Expected simulation time: {} ".format(_pretty_runtime_str(crude_expected_time)))
-        logger.info("Current temperature: {}".format(self.current_temperature))
+        logger.info(f"Time from simulation start: {_pretty_runtime_str(elapsed_time)}")
+        logger.info(f"Expected simulation time: {_pretty_runtime_str(elapsed_time * (100 / percentage_completed))}")
+        logger.info(f"Current temperature: {self.current_temperature}")
         self._log_hypothesis_state()
-        logger.info("Energy difference from last interval: {}".format(
-            self.current_hypothesis_energy - self.previous_interval_energy))
+        logger.info(
+            f"Energy difference from last interval: {self.current_hypothesis_energy - self.previous_interval_energy}")
         self.previous_interval_energy = self.current_hypothesis_energy
         time_from_last_interval = current_time - self.previous_interval_time
-        logger.info("Time from last interval: {}".format(_pretty_runtime_str(time_from_last_interval)))
-        logger.info(
-            "Time to finish based on current interval: {}".format(self.by_interval_time(time_from_last_interval)))
+        logger.info(f"Time from last interval: {_pretty_runtime_str(time_from_last_interval)}")
+        logger.info(f"Time to finish based on current interval: {self.by_interval_time(time_from_last_interval)}")
         self.previous_interval_time = current_time
-        # logger.info("Memory usage: {} MB".format(self._get_memory_usage()))
-        # logger.info(debug_tools.get_statistics())
-        # logger.info("distinct_words: {}".format(self.current_hypothesis.grammar.lexicon.get_number_of_distinct_words()))
 
     def by_interval_time(self, time_from_last_interval):
         number_of_remaining_steps = self.number_of_expected_steps - self.step
@@ -170,18 +170,18 @@ class SimulatedAnnealing(object):
 
     def _after_loop(self):
         current_time = time.time()
-        logger.info("*" * 10 + " Final Hypothesis " + "*" * 10)
+        logger.info(HEADLINE_FORMAT.format(stars=_STARS, headline="Final Hypothesis"))
         self._log_hypothesis_state()
-        logger.info("simulated annealing runtime was: {}".format(_pretty_runtime_str(current_time - self.start_time)))
+        logger.info(f"simulated annealing runtime was: {_pretty_runtime_str(current_time - self.start_time)}")
 
     def _log_hypothesis_state(self):
-        logger.info("Grammar with: {}:".format(self.current_hypothesis.grammar.constraint_set))
+        logger.info(f"Grammar with: {self.current_hypothesis.grammar.constraint_set}:")
         if settings.restriction_on_alphabet:
             restricted_alphabet = self.current_hypothesis.grammar.lexicon.get_distinct_segments()
             restricted_alphabet_list = [segment.symbol for segment in restricted_alphabet]
-            logger.info("Alphabet: {}".format(restricted_alphabet_list))
-        logger.info("{}".format(self.current_hypothesis.grammar.lexicon))
-        logger.info("Parse: {}".format(self.current_hypothesis.get_recent_data_parse()))
+            logger.info(f"Alphabet: {restricted_alphabet_list}")
+        logger.info(f"Lexicon: {self.current_hypothesis.grammar.lexicon}")
+        logger.info(f"Parse: {self.current_hypothesis.get_recent_data_parse()}")
         logger.info(self.current_hypothesis.get_recent_energy_signature())
         if self.target_energy:
             energy_delta = self.current_hypothesis.combined_energy - self.target_energy
@@ -191,14 +191,11 @@ class SimulatedAnnealing(object):
             lexicon_string_words = [str(word) for word in self.current_hypothesis.grammar.lexicon.get_words()]
             logger.info(self.target_lexicon_indicator_function(lexicon_string_words))
 
-        if self.target_data:
+        if self.target_data is not None and self.sample_target_outputs is not None:
             outputs = self.current_hypothesis.grammar.get_all_outputs_grammar(
                 new_string_word_list=self.sample_target_lexicon)
-            string_outputs = [str(word) for word in outputs]
-            outputs_set = set(string_outputs)
-            desired_outputs_set = set(self.sample_target_outputs)
-            target_grammar_parse_indicator = outputs_set == desired_outputs_set
-            logger.info("Desired grammar: {}".format(target_grammar_parse_indicator))
+            result = {str(word) for word in outputs}
+            logger.info(f"Desired grammar: {result == set(self.sample_target_outputs)}")
 
     @staticmethod
     def _get_memory_usage():
@@ -216,11 +213,10 @@ class SimulatedAnnealing(object):
         return step
 
     def clear_modules_caching(self):
-        if True:
-            Grammar.clear_caching()
-            ConstraintSet.clear_caching()
-            Constraint.clear_caching()
-            Word.clear_caching()
+        Grammar.clear_caching()
+        ConstraintSet.clear_caching()
+        Constraint.clear_caching()
+        Word.clear_caching()
 
         diagnostics_flag = False
         if diagnostics_flag:
@@ -234,17 +230,14 @@ class SimulatedAnnealing(object):
             import grammar.constraint
             import grammar.lexicon
 
-            outputs_by_constraint_set_and_word_size = object_size_in_mb(
-                grammar.grammar.outputs_by_constraint_set_and_word)
+            memoization_size = object_size_in_mb(grammar.grammar.generation_memoization)
             grammar_transducers_size = object_size_in_mb(grammar.grammar.grammar_transducers)
             constraint_set_transducers_size = object_size_in_mb(grammar.constraint_set.constraint_set_transducers)
             constraint_transducers_size = object_size_in_mb(grammar.constraint.constraint_transducers)
             word_transducers_size = object_size_in_mb(grammar.lexicon.word_transducers)
 
-            logger.info(
-                "asizeof outputs_by_constraint_set_and_word: {} MB".format(outputs_by_constraint_set_and_word_size))
-            logger.info("length outputs_by_constraint_set_and_word: {}".format(
-                len(grammar.grammar.outputs_by_constraint_set_and_word)))
+            logger.info(f"asizeof generation_memoization: {memoization_size} MB")
+            logger.info(f"length generation_memoization: {len(grammar.grammar.generation_memoization)}")
 
             logger.info("asizeof grammar_transducers: {} MB".format(grammar_transducers_size))
             logger.info("length grammar_transducers: {}".format(len(grammar.grammar.grammar_transducers)))
@@ -254,13 +247,11 @@ class SimulatedAnnealing(object):
             logger.info("asizeof word_transducers: {} MB".format(word_transducers_size))
             logger.info("length word_transducers: {}".format(len(grammar.lexicon.word_transducers)))
 
-            sum_asizeof = outputs_by_constraint_set_and_word_size + grammar_transducers_size + \
-                          constraint_set_transducers_size + constraint_transducers_size + \
-                          word_transducers_size
+            sum_asizeof = (memoization_size + grammar_transducers_size + constraint_set_transducers_size +
+                           constraint_transducers_size + word_transducers_size)
 
-            logger.info("sum asizeof: {} MB".format(sum_asizeof))
-
-            logger.info("Memory usage: {} MB".format(self._get_memory_usage()))
+            logger.info(f"sum asizeof: {sum_asizeof} MB")
+            logger.info(f"Memory usage: {self._get_memory_usage()} MB")
 
 
 def _pretty_runtime_str(run_time_in_seconds):
@@ -275,10 +266,10 @@ def _pretty_runtime_str(run_time_in_seconds):
 
     if days_string:
         days_string = days_string[:-2]
-        return "{}, {} hours, {} minutes, {} seconds".format(days_string, hours, minutes, seconds)
+        return f"{days_string}, {hours} hours, {minutes} minutes, {seconds} seconds"
     elif hours:
-        return "{} hours, {} minutes, {} seconds".format(hours, minutes, seconds)
+        return f"{hours} hours, {minutes} minutes, {seconds} seconds"
     elif minutes:
-        return "{} minutes, {} seconds".format(minutes, seconds)
+        return f"{minutes} minutes, {seconds} seconds"
     else:
-        return "{} seconds".format(seconds)
+        return f"{seconds} seconds"

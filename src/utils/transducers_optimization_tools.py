@@ -88,22 +88,22 @@ def make_optimal_paths(transducer_input, feature_table):
         states = transducer.get_states()
         for state1, state2 in itertools.product(states, states):
             initial_state = word_transducer.initial_state & state1
-            final_state = word_transducer.get_a_final_state() & state2
-            temp_transducer = pickle.loads(pickle.dumps(intersected_machine, -1))
-            temp_transducer.initial_state = initial_state
-            temp_transducer.set_final_state(final_state)
-            temp_transducer.clear_dead_states()
-            if final_state in temp_transducer.get_final_states():  # otherwise no path.
-                try:
-                    temp_transducer = remove_suboptimal_paths(temp_transducer)
-                    # write_to_dot(temp_transducer, "temp_transducer")
-                    range = temp_transducer.get_range()
-                    arc = Arc(state1, segment, range, _get_path_cost(temp_transducer), state2)
-                    new_arcs.append(arc)
-                except KeyError:
-                    pass
-                # print("****")
-                # print(temp_transducer.dot_representation())
+        final_state = word_transducer.get_a_final_state() & state2
+        temp_transducer = pickle.loads(pickle.dumps(intersected_machine, -1))
+        temp_transducer.initial_state = initial_state
+        temp_transducer.set_final_state(final_state)
+        temp_transducer.clear_dead_states()
+        if final_state in temp_transducer.get_final_states():  # otherwise no path.
+            try:
+                temp_transducer = remove_suboptimal_paths(temp_transducer)
+                # write_to_dot(temp_transducer, "temp_transducer")
+                range = temp_transducer.get_range()
+                arc = Arc(state1, segment, range, _get_path_cost(temp_transducer), state2)
+                new_arcs.append(arc)
+            except KeyError:
+                pass
+        # print("****")
+        # print(temp_transducer.dot_representation())
 
     transducer.set_arcs(new_arcs)
     return transducer

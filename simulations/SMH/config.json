@@ -1,6 +1,6 @@
 {
-  "simulation_name": "french deletion example simulation",
-  "log_file_name": "",
+  "simulation_name": "SMH",
+  "log_file_name": "SMH",
   "log_lexicon_words": "True",
   "corpus_duplication_factor": 1,
   "allow_candidates_with_changed_segments": "False",
@@ -16,29 +16,29 @@
   "random_position_for_feature_bundle_removal_in_phonotactic": "True",
   "lexicon_mutation_weights": {
     "insert_segment": 1,
-    "delete_segment": 1,
+    "delete_segment": 0,
     "change_segment": 0
   },
   "constraint_set_mutation_weights": {
-    "insert_constraint": 1,
-    "remove_constraint": 1,
+    "insert_constraint": 0,
+    "remove_constraint": 0,
     "demote_constraint": 1,
-    "insert_feature_bundle_phonotactic_constraint": 1,
-    "remove_feature_bundle_phonotactic_constraint": 1,
+    "insert_feature_bundle_phonotactic_constraint": 0,
+    "remove_feature_bundle_phonotactic_constraint": 0,
     "augment_feature_bundle": 0
   },
   "constraint_insertion_weights": {
     "dep": 0,
     "max": 1,
-    "ident": 0,
-    "phonotactic": 1
+    "ident": 1,
+    "phonotactic": 0
   },
-  "initial_temp": 100,
+  "initial_temp": 10000,
   "threshold": "10**-2",
   "cooling_factor": 0.999,
   "debug_logging_interval": 50,
   "clear_modules_caching_interval": 50,
-  "steps_limitation": "INF",
+  "steps_limitation": 100,
   "random_seed": "True",
   "seed": 0,
   "data_encoding_length_multiplier": 100,

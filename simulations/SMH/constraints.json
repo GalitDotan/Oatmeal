@@ -28,31 +28,11 @@
     ]
   },
   {
-    "type": "Ident-IO-High/Low",
+    "type": "Ident",
     "bundles": [
       {
-        "feature": "high/low"
+        "syll": "-"
       }
     ]
-  },
-  {
-    "type": "HighVowelBeforePharyngealWithinSyllable",
-    "bundles": []
-  },
-  {
-    "type": "NonLowVowelBeforePharyngealWithinSyllable",
-    "bundles": []
-  },
-  {
-    "type": "FootBinarity",
-    "bundles": []
-  },
-  {
-    "type": "Rightmost",
-    "bundles": []
-  },
-  {
-    "type": "Trochee",
-    "bundles": []
   }
 ]

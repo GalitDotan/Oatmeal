@@ -50,7 +50,6 @@ class FeatureTable:
     def __getitem__(self, item):
         if isinstance(item, string_types):
             result = self._segment_to_feature_dict.get(item)
-            print(f'{item}: {result}')
             if result is None:
                 raise UnknownFeatureError(f"{item} is invalid")
             return self._segment_to_feature_dict[item]
@@ -121,7 +120,7 @@ class FeatureTable:
         return choice(self.get_alphabet())
 
     def get_ordered_feature_vector(self, char) -> list[str]:
-        return [self[char][self._index_to_feature[i]] for i in range(self.get_number_of_features())]
+        return [self[char][str(feature)] for feature in self._index_to_feature.values()]
 
     def is_valid_feature(self, feature_label) -> bool:
         """Validate that the label exists in features."""

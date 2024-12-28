@@ -94,15 +94,17 @@ class ConstraintSet:
         return k * (1 + sum([constraint.get_encoding_length() for constraint in self.constraints]))
 
     def make_mutation(self):
-        mutation_weights = [(self._insert_constraint, settings.constraint_set_mutation_weights.insert_constraint),
-                            (self._remove_constraint, settings.constraint_set_mutation_weights.remove_constraint),
-                            (self._demote_constraint, settings.constraint_set_mutation_weights.demote_constraint),
-                            (self._insert_feature_bundle_phonotactic_constraint,
-                             settings.constraint_set_mutation_weights.insert_feature_bundle_phonotactic_constraint),
-                            (self._remove_feature_bundle_phonotactic_constraint,
-                             settings.constraint_set_mutation_weights.remove_feature_bundle_phonotactic_constraint),
-                            (self._augment_feature_bundle,
-                             settings.constraint_set_mutation_weights.augment_feature_bundle)]
+        mutation_weights = [
+            (self._insert_constraint, settings.constraint_set_mutation_weights.insert_constraint),
+            (self._remove_constraint, settings.constraint_set_mutation_weights.remove_constraint),
+            (self._demote_constraint, settings.constraint_set_mutation_weights.demote_constraint),
+            (self._insert_feature_bundle_phonotactic_constraint,
+             settings.constraint_set_mutation_weights.insert_feature_bundle_phonotactic_constraint),
+            (self._remove_feature_bundle_phonotactic_constraint,
+             settings.constraint_set_mutation_weights.remove_feature_bundle_phonotactic_constraint),
+            (self._augment_feature_bundle,
+             settings.constraint_set_mutation_weights.augment_feature_bundle)
+        ]
 
         weighted_mutation_function_list = get_weighted_list(mutation_weights)
         return choice(weighted_mutation_function_list)()
@@ -176,10 +178,12 @@ class ConstraintSet:
         logger.debug("In _insert_constraint")
         if len(self.constraints) >= settings.max_constraints_in_constraint_set:
             return False
-        mutation_weights_for_insert = [(DepConstraint, settings.constraint_insertion_weights.dep),
-                                       (MaxConstraint, settings.constraint_insertion_weights.max),
-                                       (IdentConstraint, settings.constraint_insertion_weights.ident),
-                                       (PhonotacticConstraint, settings.constraint_insertion_weights.phonotactic)]
+        mutation_weights_for_insert = [
+            (DepConstraint, settings.constraint_insertion_weights.dep),
+            (MaxConstraint, settings.constraint_insertion_weights.max),
+            (IdentConstraint, settings.constraint_insertion_weights.ident),
+            (PhonotacticConstraint, settings.constraint_insertion_weights.phonotactic)
+        ]
 
         weighted_constraint_class_for_insert = get_weighted_list(mutation_weights_for_insert)
 
@@ -193,16 +197,19 @@ class ConstraintSet:
 
     def get_transducer(self):
         constraint_set_key = str(self)
+
         if constraint_set_key in constraint_set_transducers:
             return constraint_set_transducers[constraint_set_key]
+
         transducer = self._make_transducer()
         constraint_set_transducers[constraint_set_key] = transducer
         return transducer
 
     def _make_transducer(self):
         if len(self.constraints) == 1:  # if there is only on constraint in the
-            return pickle.loads(
-                pickle.dumps(self.constraints[0].get_transducer(), -1))  # constraint set there is no need to intersect
+            # constraint set there is no need to intersect
+            return pickle.loads(pickle.dumps(self.constraints[0].get_transducer(), -1))
+
         constraints_transducers = [constraint.get_transducer() for constraint in self.constraints]
         return Transducer.intersection(*constraints_transducers)
 

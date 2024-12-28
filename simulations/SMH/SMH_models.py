@@ -168,6 +168,17 @@ smh_feature_table = FeaturesModel(
             ]
         ),
         FeatureListModel(
+            label="Z",
+            features=[
+                IsSyllable(value=True),
+                IsStress(),
+                IsCons(value=True),
+                IsHigh(),
+                IsLow(),
+                IsPharyngeal()
+            ]
+        ),
+        FeatureListModel(
             label="x",
             features=[
                 IsSyllable(value=True),

@@ -23,7 +23,7 @@ class Transducer:
     def __init__(self, alphabet, name=None, length_of_cost_vectors=1):
         self.name = name
         self.states = list()
-        self.alphabet = alphabet  # contains Segments
+        self.alphabet: list[Segment] = alphabet  # contains Segments
         self._arcs = list()
         self.initial_state = None
         self.final_states = list()

@@ -38,16 +38,18 @@ for cat, simulated_annealing in simulated_annealing_per_category.items():
     if len(corpus_per_category[cat]) == 0:  # no words in this category
         continue
     print(f'Starting optimization for {cat}')
+
     step, hypothesis = simulated_annealing.run()
+    final_grammar = simulated_annealing.current_hypothesis.grammar
 
     print(f'Ran {step} steps.')
 
     print(f'Initial hypothesis: {simulated_annealing.initial_hypothesis}')
     print(f'Final hypothesis: {simulated_annealing.current_hypothesis}')
 
-    print(f'# Lexicon: {simulated_annealing.current_hypothesis.grammar.lexicon}')
-    print(f'# Feature table: {simulated_annealing.current_hypothesis.grammar.feature_table}')
-    print(f'# Constraints Set: {simulated_annealing.current_hypothesis.grammar.constraint_set}')
+    print(f'# Lexicon: {final_grammar.lexicon}')
+    print(f'# Feature table: {final_grammar.feature_table}')
+    print(f'# Constraints Set: {final_grammar.constraint_set}')
 
     print(f'Finished optimization for {cat}')
 

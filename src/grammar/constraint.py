@@ -1,3 +1,4 @@
+import abc
 import logging
 import sys
 from itertools import permutations
@@ -100,7 +101,7 @@ class Constraint(with_metaclass(ConstraintMetaClass)):
 
     def __str__(self):
         str_io = StringIO()
-        print("{0}[".format(self.get_constraint_name()), file=str_io, end="")
+        print(f"{self.get_constraint_name()}[", file=str_io, end="")
         for featureBundle in self.feature_bundles:
             if len(self.feature_bundles) > 1:
                 print("[", file=str_io, end="")
@@ -118,6 +119,11 @@ class Constraint(with_metaclass(ConstraintMetaClass)):
     def __hash__(self):
         return hash(str(self))
 
+    @classmethod
+    @abc.abstractmethod
+    def get_constraint_name(cls):
+        pass
+
 
 class MaxConstraint(Constraint):
     def __init__(self, bundles_list, feature_table):
@@ -129,10 +135,9 @@ class MaxConstraint(Constraint):
         for segment in segments:
             transducer.add_arc(Arc(state, segment, segment, CostVector.get_vector(1, 0), state))
             transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 0), state))
-            if segment.has_feature_bundle(self.feature_bundle):
-                transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 1), state))
-            else:
-                transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 0), state))
+
+            value = 1 if segment.has_feature_bundle(self.feature_bundle) else 0
+            transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, value), state))
 
         if settings.allow_candidates_with_changed_segments:
             for first_segment, second_segment in permutations(segments, 2):
@@ -155,10 +160,9 @@ class DepConstraint(Constraint):
         for segment in segments:
             transducer.add_arc(Arc(state, segment, segment, CostVector.get_vector(1, 0), state))
             transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 0), state))
-            if segment.has_feature_bundle(self.feature_bundle):
-                transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 1), state))
-            else:
-                transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 0), state))
+
+            value = 1 if segment.has_feature_bundle(self.feature_bundle) else 0
+            transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, value), state))
 
         if settings.allow_candidates_with_changed_segments:
             for first_segment, second_segment in permutations(segments, 2):
@@ -182,18 +186,17 @@ class IdentConstraint(Constraint):
             transducer.add_arc(Arc(state, segment, segment, CostVector.get_vector(1, 0), state))
             transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 0), state))
             transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 0), state))
+
             input_segment = segment
             if input_segment.has_feature_bundle(self.feature_bundle):
                 for output_segment in segments:
-                    if output_segment.has_feature_bundle(self.feature_bundle):
-                        transducer.add_arc(
-                            Arc(state, input_segment, output_segment, CostVector.get_vector(1, 0), state))
-                    else:
-                        transducer.add_arc(
-                            Arc(state, input_segment, output_segment, CostVector.get_vector(1, 1), state))
+                    value = 0 if output_segment.has_feature_bundle(self.feature_bundle) else 1
+                    transducer.add_arc(Arc(state, input_segment, output_segment,
+                                           CostVector.get_vector(1, value), state))
             else:
                 for output_segment in segments:
-                    transducer.add_arc(Arc(state, input_segment, output_segment, CostVector.get_vector(1, 0), state))
+                    transducer.add_arc(Arc(state, input_segment, output_segment,
+                                           CostVector.get_vector(1, 0), state))
         return transducer
 
     @classmethod
@@ -523,359 +526,3 @@ class ContiguityConstraint(Constraint):
 
 yimas_cons = ["t", "p", "k", "c"]
 yimas_vowels = ["a", "i", "u", "v"]
-
-
-class TrocheeConstraint(Constraint):
-    def __init__(self, bundles_list, feature_table):
-        # TROCHEE does not rely on specific feature bundles, so we pass an empty list
-        super(TrocheeConstraint, self).__init__([], False, feature_table)
-
-    def _make_transducer(self):
-        """
-        Creates a transducer to enforce left-headed feet (trochaic structure).
-        Violations are assigned if stress does not fall on the leftmost syllable of a foot.
-        """
-        segments = self.feature_table.get_segments()
-        transducer = Transducer(segments, name=str(self))
-
-        # States for the transducer
-        state_initial = State("q0")  # Initial state
-        state_stressed = State("q_stressed")  # State after encountering a stressed syllable
-        state_unstressed = State("q_unstressed")  # State for unstressed syllables
-
-        # Add states to the transducer
-        transducer.add_state(state_initial)
-        transducer.add_state(state_stressed)
-        transducer.add_state(state_unstressed)
-
-        # Set initial and final states
-        transducer.initial_state = state_initial
-        transducer.add_final_state(state_initial)
-        transducer.add_final_state(state_stressed)
-        transducer.add_final_state(state_unstressed)
-
-        # Define the segment symbol for stress (e.g., ")
-        stress_symbol = "'"  # Typically used for stress in phonological representations
-
-        # Define arcs for TROCHEE constraint
-        for segment in segments:
-            segment_symbol = segment.get_symbol()
-
-            if segment_symbol == stress_symbol:
-                # Stress encountered: must be the first in the foot (left-headed)
-                transducer.add_arc(
-                    Arc(state_initial, segment, segment, CostVector([0]), state_stressed)  # No violation
-                )
-                transducer.add_arc(
-                    Arc(state_unstressed, segment, segment, CostVector([1]), state_stressed)
-                    # Violation if stress follows unstressed
-                )
-                transducer.add_arc(
-                    Arc(state_stressed, segment, segment, CostVector([1]), state_stressed)
-                    # Violation if multiple stresses
-                )
-            else:
-                # Unstressed syllables
-                transducer.add_arc(
-                    Arc(state_initial, segment, segment, CostVector([0]), state_unstressed)  # No violation
-                )
-                transducer.add_arc(
-                    Arc(state_unstressed, segment, segment, CostVector([0]), state_unstressed)  # No violation
-                )
-                transducer.add_arc(
-                    Arc(state_stressed, segment, segment, CostVector([0]), state_stressed)  # No violation
-                )
-
-        # Add arcs for null segments (handle alignment or missing data gracefully)
-        for state in [state_initial, state_stressed, state_unstressed]:
-            transducer.add_arc(Arc(state, NULL_SEGMENT, NULL_SEGMENT, CostVector([0]), state))
-
-        return transducer
-
-    @classmethod
-    def get_constraint_name(cls):
-        return "Trochee"
-
-
-class FootBinarityConstraint(Constraint):
-    def __init__(self, bundles_list, feature_table):
-        super(FootBinarityConstraint, self).__init__([], False, feature_table)
-
-    def _make_transducer(self):
-        """
-        Creates a transducer to enforce foot binarity.
-        Feet must consist of exactly two syllables under a syllabic or moraic analysis.
-        """
-        segments = self.feature_table.get_segments()
-        transducer = Transducer(segments, name=str(self))
-
-        # States for the transducer
-        state_initial = State("q0")  # Initial state
-        state_one_syllable = State("q1")  # After encountering one syllable
-        state_two_syllables = State("q2")  # After encountering two syllables
-
-        # Add states to the transducer
-        transducer.add_state(state_initial)
-        transducer.add_state(state_one_syllable)
-        transducer.add_state(state_two_syllables)
-
-        # Set initial and final states
-        transducer.initial_state = state_initial
-        transducer.add_final_state(state_two_syllables)
-
-        # Define arcs for syllables
-        for segment in segments:
-            if segment.is_syllable():
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_one_syllable))
-                transducer.add_arc(Arc(state_one_syllable, segment, segment, CostVector([0]), state_two_syllables))
-                # Penalize feet larger than binary
-                transducer.add_arc(Arc(state_two_syllables, segment, segment, CostVector([1]), state_two_syllables))
-            else:
-                # Non-syllabic segments do not affect foot binarity
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_one_syllable, segment, segment, CostVector([0]), state_one_syllable))
-                transducer.add_arc(Arc(state_two_syllables, segment, segment, CostVector([0]), state_two_syllables))
-
-        return transducer
-
-    @classmethod
-    def get_constraint_name(cls):
-        return "FootBinarity"
-
-
-class RightmostConstraint(Constraint):
-    def __init__(self, bundles_list, feature_table):
-        super(RightmostConstraint, self).__init__([], False, feature_table)
-
-    def _make_transducer(self):
-        """
-        Creates a transducer to enforce the alignment of the rightmost edge of every prosodic word
-        with the rightmost edge of some head foot.
-        """
-        segments = self.feature_table.get_segments()
-        transducer = Transducer(segments, name=str(self))
-
-        # States for the transducer
-        state_initial = State("q0")  # Initial state
-        state_head_foot = State("q_head_foot")  # After encountering the head foot
-        state_right_edge = State("q_right_edge")  # After aligning with the right edge
-
-        # Add states to the transducer
-        transducer.add_state(state_initial)
-        transducer.add_state(state_head_foot)
-        transducer.add_state(state_right_edge)
-
-        # Set initial and final states
-        transducer.initial_state = state_initial
-        transducer.add_final_state(state_right_edge)
-
-        # Define arcs for alignment
-        for segment in segments:
-            if segment.is_head_foot():
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_head_foot))
-            elif segment.is_right_edge():
-                transducer.add_arc(Arc(state_head_foot, segment, segment, CostVector([0]), state_right_edge))
-                transducer.add_arc(Arc(state_right_edge, segment, segment, CostVector([0]), state_right_edge))
-            else:
-                # Penalize misalignment
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([1]), state_initial))
-                transducer.add_arc(Arc(state_head_foot, segment, segment, CostVector([1]), state_head_foot))
-                transducer.add_arc(Arc(state_right_edge, segment, segment, CostVector([1]), state_right_edge))
-
-        return transducer
-
-    @classmethod
-    def get_constraint_name(cls):
-        return "Rightmost"
-
-
-class HighVowelBeforePharyngealConstraint(Constraint):
-    def __init__(self, bundles_list, feature_table):
-        super(HighVowelBeforePharyngealConstraint, self).__init__([], False, feature_table)
-
-    def _make_transducer(self):
-        """
-        Creates a transducer that forbids high vowels before a pharyngeal segment.
-        """
-        segments = self.feature_table.get_segments()
-        transducer = Transducer(segments, name=str(self))
-
-        # States for the transducer
-        state_initial = State("q0")
-        state_high_vowel = State("q_high_vowel")  # After encountering a high vowel
-
-        # Add states to the transducer
-        transducer.add_state(state_initial)
-        transducer.add_state(state_high_vowel)
-
-        # Set initial and final states
-        transducer.initial_state = state_initial
-        transducer.add_final_state(state_initial)
-
-        # Define arcs for the constraint
-        for segment in segments:
-            if segment.is_high_vowel():
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_high_vowel))
-            elif segment.is_pharyngeal():
-                # Pharyngeal following a high vowel incurs a violation
-                transducer.add_arc(Arc(state_high_vowel, segment, segment, CostVector([1]), state_initial))
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-            else:
-                # Other segments do not affect the violation count
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_high_vowel, segment, segment, CostVector([0]), state_high_vowel))
-
-        return transducer
-
-    @classmethod
-    def get_constraint_name(cls):
-        return "HighVowelBeforePharyngeal"
-
-
-class HighVowelBeforePharyngealWithinSyllableConstraint(Constraint):
-    def __init__(self, bundles_list, feature_table):
-        super(HighVowelBeforePharyngealWithinSyllableConstraint, self).__init__([], False, feature_table)
-
-    def _make_transducer(self):
-        """
-        Creates a transducer that forbids high vowels before a pharyngeal segment
-        within the domain of the syllable.
-        """
-        segments = self.feature_table.get_segments()
-        transducer = Transducer(segments, name=str(self))
-
-        # States for the transducer
-        state_initial = State("q0")
-        state_high_vowel = State("q_high_vowel")  # After encountering a high vowel
-        state_pharyngeal = State("q_pharyngeal")  # After encountering a pharyngeal
-
-        # Add states to the transducer
-        transducer.add_state(state_initial)
-        transducer.add_state(state_high_vowel)
-        transducer.add_state(state_pharyngeal)
-
-        # Set initial and final states
-        transducer.initial_state = state_initial
-        transducer.add_final_state(state_initial)
-
-        # Define arcs for the constraint
-        for segment in segments:
-            if segment.is_high_vowel():
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_high_vowel))
-            elif segment.is_pharyngeal():
-                # Pharyngeal following a high vowel within a syllable incurs a violation
-                transducer.add_arc(Arc(state_high_vowel, segment, segment, CostVector([1]), state_pharyngeal))
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_pharyngeal, segment, segment, CostVector([0]), state_pharyngeal))
-            elif segment.is_syllable_boundary():
-                # Reset to the initial state at syllable boundaries
-                transducer.add_arc(Arc(state_high_vowel, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_pharyngeal, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-            else:
-                # Other segments do not affect the violation count
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_high_vowel, segment, segment, CostVector([0]), state_high_vowel))
-                transducer.add_arc(Arc(state_pharyngeal, segment, segment, CostVector([0]), state_pharyngeal))
-
-        return transducer
-
-    @classmethod
-    def get_constraint_name(cls):
-        return "HighVowelBeforePharyngealWithinSyllable"
-
-
-class FaithConstraint(Constraint):
-    """
-    FAITH constraint enforces general preservation of input-output correspondence.
-    This includes preventing deletions, insertions, or feature changes.
-    """
-
-    def __init__(self, bundles_list, feature_table):
-        super(FaithConstraint, self).__init__([], False, feature_table)
-
-    def _make_transducer(self):
-        """
-        Creates a transducer that enforces general faithfulness by penalizing any input-output mismatch.
-        """
-        segments = self.feature_table.get_segments()
-        transducer = Transducer(segments, name=str(self))
-
-        # Single state for the transducer
-        state = State("q0")
-        transducer.set_as_single_state(state)
-
-        # Define arcs for general faithfulness
-        for segment in segments:
-            # Faithful mapping: input matches output (no violation)
-            transducer.add_arc(Arc(state, segment, segment, CostVector([0]), state))
-
-            # Deletion: input maps to NULL_SEGMENT (violation)
-            transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector([1]), state))
-
-            # Insertion: NULL_SEGMENT maps to output (violation)
-            transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector([1]), state))
-
-            # Substitution: input maps to a different output (violation)
-            for other_segment in segments:
-                if other_segment != segment:
-                    transducer.add_arc(Arc(state, segment, other_segment, CostVector([1]), state))
-
-        return transducer
-
-    @classmethod
-    def get_constraint_name(cls):
-        return "Faith"
-
-
-class NonLowVowelBeforePharyngealWithinSyllableConstraint(Constraint):
-    def __init__(self, bundles_list, feature_table):
-        super(NonLowVowelBeforePharyngealWithinSyllableConstraint, self).__init__([], False, feature_table)
-
-    def _make_transducer(self):
-        """
-        Creates a transducer that forbids non-low vowels before a pharyngeal segment
-        within the domain of the syllable.
-        """
-        segments = self.feature_table.get_segments()
-        transducer = Transducer(segments, name=str(self))
-
-        # States for the transducer
-        state_initial = State("q0")
-        state_non_low_vowel = State("q_non_low_vowel")  # After encountering a non-low vowel
-        state_pharyngeal = State("q_pharyngeal")  # After encountering a pharyngeal
-
-        # Add states to the transducer
-        transducer.add_state(state_initial)
-        transducer.add_state(state_non_low_vowel)
-        transducer.add_state(state_pharyngeal)
-
-        # Set initial and final states
-        transducer.initial_state = state_initial
-        transducer.add_final_state(state_initial)
-
-        # Define arcs for the constraint
-        for segment in segments:
-            if segment.is_non_low_vowel():
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_non_low_vowel))
-            elif segment.is_pharyngeal():
-                # Pharyngeal following a non-low vowel within a syllable incurs a violation
-                transducer.add_arc(Arc(state_non_low_vowel, segment, segment, CostVector([1]), state_pharyngeal))
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_pharyngeal, segment, segment, CostVector([0]), state_pharyngeal))
-            elif segment.is_syllable_boundary():
-                # Reset to the initial state at syllable boundaries
-                transducer.add_arc(Arc(state_non_low_vowel, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_pharyngeal, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-            else:
-                # Other segments do not affect the violation count
-                transducer.add_arc(Arc(state_initial, segment, segment, CostVector([0]), state_initial))
-                transducer.add_arc(Arc(state_non_low_vowel, segment, segment, CostVector([0]), state_non_low_vowel))
-                transducer.add_arc(Arc(state_pharyngeal, segment, segment, CostVector([0]), state_pharyngeal))
-
-        return transducer
-
-    @classmethod
-    def get_constraint_name(cls):
-        return "NonLowVowelBeforePharyngealWithinSyllable"
