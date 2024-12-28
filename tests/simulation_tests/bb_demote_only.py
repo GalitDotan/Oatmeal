@@ -1,14 +1,7 @@
-import os
 import sys
-
-FILE_PATH = os.path.abspath(os.path.join(__file__, '..'))
-PROJECT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../../'))
-os.chdir(FILE_PATH)
-sys.path.append(PROJECT_PATH)
 
 from tests.test_logic.otml_with_simualtion import run_simulation
 
-simulation_number = 1
 configurations_tuples = [
     ("CONSTRAINT_SET_MUTATION_WEIGHTS", {
         "insert_constraint": 0,
@@ -64,15 +57,24 @@ sample_target_outputs = ["bab", "abab"]
 
 target_constraint_set_file_name = "bb_demote_only_target_constraint_set.txt"
 
-if __name__ == '__main__':
+
+def main():
+    simulation_number = 1
+
     if len(sys.argv) > 1:
         simulation_number = sys.argv[1]
 
-    run_simulation(configurations_tuples, simulation_number, log_file_template, feature_table_file_name,
-                   corpus_file_name, constraint_set_file_name,
-                   sample_target_lexicon=sample_target_lexicon,
-                   sample_target_outputs=sample_target_outputs,
-                   target_lexicon_indicator_function=target_lexicon_indicator_function,
-                   target_constraint_set_file_name=target_constraint_set_file_name,
-                   target_lexicon_file_name=None,
-                   convert_corpus_word_to_target_word_function=convert_corpus_word_to_target_word_function)
+    run_simulation(
+        'bb_demote_only',
+        simulation_number,
+        log_file_template,
+        sample_target_lexicon=sample_target_lexicon,
+        sample_target_outputs=sample_target_outputs,
+        target_lexicon_indicator_function=target_lexicon_indicator_function,
+        target_constraint_set_file_name=target_constraint_set_file_name,
+        target_lexicon_file_name=None,
+        convert_corpus_word_to_target_word_function=convert_corpus_word_to_target_word_function)
+
+
+if __name__ == '__main__':
+    main()
