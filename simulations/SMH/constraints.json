@@ -1,9 +1,5 @@
 [
   {
-    "type": "Faith",
-    "bundles": []
-  },
-  {
     "type": "Dep",
     "bundles": [
       {
@@ -15,7 +11,24 @@
     "type": "Dep",
     "bundles": [
       {
-        "stress": "-"
+        "cons": "+"
+      }
+    ]
+  },
+  {
+    "type": "Dep",
+    "bundles": [
+      {
+        "cons": "-",
+        "low": "-"
+      }
+    ]
+  },
+  {
+    "type": "Ident",
+    "bundles": [
+      {
+        "syll": "-"
       }
     ]
   },
@@ -28,11 +41,56 @@
     ]
   },
   {
-    "type": "Ident",
+    "type": "Phonotactic",
     "bundles": [
       {
-        "syll": "-"
+        "high": "+"
+      },
+      {
+        "phar": "+"
       }
     ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "high": "+"
+      },
+      {
+        "stress": "+"
+      },
+      {
+        "phar": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "low": "-",
+        "high": "-",
+        "syll": "+"
+      },
+      {
+        "phar": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "phar": "+"
+      },
+      {
+        "phar": "+"
+      }
+    ]
+  },
+  {
+    "type": "Faith",
+    "bundles": []
   }
 ]

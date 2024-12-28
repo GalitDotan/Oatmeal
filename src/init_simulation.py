@@ -35,6 +35,11 @@ def init_simulated_annealing(simulation_name: str):
 
 def run_simulated_annealing_with_prints(simulated_annealing: SimulatedAnnealing) -> Grammar:
     print("Starting optimization")
+    initial_grammar = simulated_annealing.current_hypothesis.grammar
+    print(f'# Initial Lexicon: {initial_grammar.lexicon}')
+    print(f'# Initial Feature table: {initial_grammar.feature_table}')
+    print(f'# Initial Constraints Set: {initial_grammar.constraint_set}')
+
     step, hypothesis = simulated_annealing.run()
     final_grammar = simulated_annealing.current_hypothesis.grammar
 

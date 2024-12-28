@@ -10,7 +10,7 @@ from src.models.otml_configuration import OtmlConfiguration, settings
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing
 
-SIMULATION_NAME = 'bb_demote_only'
+SIMULATION_NAME = 'SMH'
 CONFIG_DIR = os.path.join('simulations', SIMULATION_NAME)
 
 OtmlConfiguration.load(CONFIG_DIR)
@@ -38,23 +38,15 @@ simulated_annealing_per_category = {cat: SimulatedAnnealing(initial_hypothesis) 
 for cat, simulated_annealing in simulated_annealing_per_category.items():
     if len(corpus_per_category[cat]) == 0:  # no words in this category
         continue
-    print(f'Starting optimization for {cat}')
+    print(f'Current lexical category: {cat}')
 
-    step, hypothesis = simulated_annealing.run()
     final_grammar = run_simulated_annealing_with_prints(simulated_annealing)
 
-    """
     noH = Word(word_string="no'H", feature_table=final_grammar.feature_table)
     moreH = Word(word_string="more'H", feature_table=final_grammar.feature_table)
     hivliH = Word(word_string="hivli'H", feature_table=final_grammar.feature_table)
     niHbal = Word(word_string="niHba'l", feature_table=final_grammar.feature_table)
     print(f'{final_grammar.generate(noH)}, {final_grammar.generate(moreH)}, '
           f'{final_grammar.generate(hivliH)}, {final_grammar.generate(niHbal)}')
-    """
-    bb = Word(word_string="bb", feature_table=final_grammar.feature_table)
-    abb = Word(word_string="abb", feature_table=final_grammar.feature_table)
-    print(f'{final_grammar.generate(bb)}, {final_grammar.generate(abb)}')
-
-    print(f'Finished optimization for {cat}')
 
 print("Done")

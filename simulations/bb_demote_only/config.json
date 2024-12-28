@@ -1,6 +1,6 @@
 {
-  "simulation_name": "SMH",
-  "log_file_name": "SMH",
+  "simulation_name": "bb_demote_only",
+  "log_file_name": "bb_demote_only",
   "log_lexicon_words": "True",
   "corpus_duplication_factor": 1,
   "allow_candidates_with_changed_segments": "False",

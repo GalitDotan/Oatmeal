@@ -72,7 +72,25 @@ class SimulatedAnnealing(object):
         """
         self.before_loop()
 
+        print("here")
+
         while (self.current_temperature > self.threshold) and (self.step != self.step_limitation):
+            if self.step % 20 == 0:
+                grammar = self.current_hypothesis.grammar
+                noHH = Word(word_string="no'HH", feature_table=grammar.feature_table)
+                noH = Word(word_string="no'H", feature_table=grammar.feature_table)
+                moreH = Word(word_string="more'H", feature_table=grammar.feature_table)
+                hivliH = Word(word_string="hivli'H", feature_table=grammar.feature_table)
+                niHbal = Word(word_string="niHba'l", feature_table=grammar.feature_table)
+                print()
+                print(f'# Constraints Set: {grammar.constraint_set}')
+                print(f'{noHH.word_string} -> {grammar.generate(noHH)}')
+                print(f'{noH.word_string} -> {grammar.generate(noH)}')
+                print(f'{moreH.word_string} -> {grammar.generate(moreH)}')
+                print(f'{hivliH.word_string} -> {grammar.generate(hivliH)}')
+                print(f'{niHbal.word_string} -> {grammar.generate(niHbal)}')
+            else:
+                print(".", end='')
             self.make_step()
 
         self._after_loop()

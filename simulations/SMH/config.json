@@ -7,7 +7,7 @@
   "restriction_on_alphabet": "False",
   "max_constraints_in_constraint_set": "INF",
   "min_constraints_in_constraint_set": 1,
-  "max_feature_bundles_in_phonotactic_constraint": 2,
+  "max_feature_bundles_in_phonotactic_constraint": "INF",
   "min_feature_bundles_in_phonotactic_constraint": 1,
   "max_features_in_bundle": "INF",
   "initial_number_of_features": 1,
@@ -28,19 +28,19 @@
     "augment_feature_bundle": 0
   },
   "constraint_insertion_weights": {
-    "dep": 0,
+    "dep": 1,
     "max": 1,
-    "ident": 1,
-    "phonotactic": 0
+    "ident": 0,
+    "phonotactic": 1
   },
-  "initial_temp": 10000,
-  "threshold": "10**-2",
-  "cooling_factor": 0.999,
+  "initial_temp": 20,
+  "cooling_factor": 0.99,
+  "threshold": "10**-4",
   "debug_logging_interval": 50,
   "clear_modules_caching_interval": 50,
   "steps_limitation": 10000,
-  "random_seed": "True",
+  "random_seed": "False",
   "seed": 0,
-  "data_encoding_length_multiplier": 100,
+  "data_encoding_length_multiplier": 1,
   "grammar_encoding_length_multiplier": 1
 }
