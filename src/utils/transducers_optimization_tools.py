@@ -42,8 +42,6 @@ def remove_suboptimal_paths(transducer):
     try:  # TODO for debug prints
         most_harmonic_final = get_cheapest_state(transducer.get_final_states(), costs)
     except KeyError as ex:
-        # print(transducer.get_final_states())
-        # print(transducer.dot_representation())
         raise ex
     transducer.set_final_state(most_harmonic_final)
 
@@ -52,13 +50,10 @@ def remove_suboptimal_paths(transducer):
         if costs[arc.origin_state] + arc.cost_vector == costs[arc.terminal_state]:
             new_arcs.append(arc)
     transducer.set_arcs(new_arcs)
-
-    # logger.debug("remove_suboptimal_paths: transducer output: %s", transducer)
     return transducer
 
 
 def _get_path_cost(transducer):
-    # logger.debug("_get_path_cost: transducer input: %s", transducer)
     current_state = transducer.get_a_final_state()
     path_cost = CostVector.get_vector(transducer.get_length_of_cost_vectors(), 0)
     initial_state = transducer.initial_state
@@ -83,27 +78,25 @@ def make_optimal_paths(transducer_input, feature_table):
     for segment in alphabet:
         word = Word(segment.get_symbol(), feature_table)
         word_transducer = word.get_transducer()
-        # (word_transducer.dot_representation())
+
         intersected_machine = Transducer.intersection(word_transducer, transducer)
         states = transducer.get_states()
         for state1, state2 in itertools.product(states, states):
             initial_state = word_transducer.initial_state & state1
-        final_state = word_transducer.get_a_final_state() & state2
-        temp_transducer = pickle.loads(pickle.dumps(intersected_machine, -1))
-        temp_transducer.initial_state = initial_state
-        temp_transducer.set_final_state(final_state)
-        temp_transducer.clear_dead_states()
-        if final_state in temp_transducer.get_final_states():  # otherwise no path.
-            try:
-                temp_transducer = remove_suboptimal_paths(temp_transducer)
-                # write_to_dot(temp_transducer, "temp_transducer")
-                range = temp_transducer.get_range()
-                arc = Arc(state1, segment, range, _get_path_cost(temp_transducer), state2)
-                new_arcs.append(arc)
-            except KeyError:
-                pass
-        # print("****")
-        # print(temp_transducer.dot_representation())
+            final_state = word_transducer.get_a_final_state() & state2
+            temp_transducer = pickle.loads(pickle.dumps(intersected_machine, -1))
+            temp_transducer.initial_state = initial_state
+            temp_transducer.set_final_state(final_state)
+            temp_transducer.clear_dead_states()
+            if final_state in temp_transducer.get_final_states():  # otherwise no path.
+                try:
+                    temp_transducer = remove_suboptimal_paths(temp_transducer)
+                    # write_to_dot(temp_transducer, "temp_transducer")
+                    range = temp_transducer.get_range()
+                    arc = Arc(state1, segment, range, _get_path_cost(temp_transducer), state2)
+                    new_arcs.append(arc)
+                except KeyError:
+                    pass
 
     transducer.set_arcs(new_arcs)
     return transducer
@@ -166,7 +159,5 @@ def optimize_transducer_grammar_for_word(word, eval):
 
     for state in new_final_states:
         new_transducer.add_final_state(state)
-
-    # new_transducer.clear_dead_states(with_impasse_states=True) #TODO give it a try
 
     return new_transducer
