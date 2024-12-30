@@ -19,7 +19,7 @@ class FeatureBundle:
     def __init__(self, feature_dict, feature_table):
         for feature in feature_dict.keys():
             if not feature_table.is_valid_feature(feature):
-                raise GrammarParseError("Illegal feature: {0}".format(feature))
+                raise GrammarParseError(f"Illegal feature: {feature}")
 
         self.feature_dict = feature_dict
         self.feature_table = feature_table

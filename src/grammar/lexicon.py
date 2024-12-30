@@ -190,7 +190,10 @@ class Lexicon:
             return self.words[index_of_word_to_change].insert_segment(segment_to_insert)
 
     def _delete_segment(self):
-        selected_word = choice(self.words)
+        try:
+            selected_word = choice(self.words)
+        except IndexError:
+            pass
         if len(selected_word) == 1:
             self.words.remove(selected_word)
             return True

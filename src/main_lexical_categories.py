@@ -10,7 +10,7 @@ from src.models.otml_configuration import OtmlConfiguration, settings
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing
 
-SIMULATION_NAME = 'SMH'
+SIMULATION_NAME = 'SMH_demote_only_categories'
 CONFIG_DIR = os.path.join('simulations', SIMULATION_NAME)
 
 OtmlConfiguration.load(CONFIG_DIR)

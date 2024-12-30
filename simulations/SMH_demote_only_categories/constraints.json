@@ -1,9 +1,36 @@
 [
   {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "cons": "+"
+      },
+      {
+        "phar": "+"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "cons": "-"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "cons": "+"
+      }
+    ]
+  },
+  {
     "type": "Dep",
     "bundles": [
       {
-        "stress": "+"
+        "cons": "-"
       }
     ]
   },
@@ -16,35 +43,43 @@
     ]
   },
   {
-    "type": "Dep",
+    "type": "Phonotactic",
     "bundles": [
       {
-        "cons": "-",
+        "cons": "+"
+      },
+      {
+        "cons": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "cons": "-"
+      },
+      {
+        "cons": "-"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "high": "+"
+      },
+      {
+        "phar": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
         "low": "-"
-      }
-    ]
-  },
-  {
-    "type": "Ident",
-    "bundles": [
-      {
-        "syll": "-"
-      }
-    ]
-  },
-  {
-    "type": "Max",
-    "bundles": [
-      {
-        "syll": "+"
-      }
-    ]
-  },
-  {
-    "type": "Phonotactic",
-    "bundles": [
-      {
-        "high": "+"
       },
       {
         "phar": "+"
@@ -55,65 +90,11 @@
     "type": "Phonotactic",
     "bundles": [
       {
-        "high": "+"
+        "phar": "+",
+        "voice": "+"
       },
       {
-        "stress": "+"
-      },
-      {
-        "phar": "+"
-      }
-    ]
-  },
-  {
-    "type": "Phonotactic",
-    "bundles": [
-      {
-        "low": "-",
-        "high": "-",
-        "syll": "+"
-      },
-      {
-        "phar": "+"
-      }
-    ]
-  },
-  {
-    "type": "Faith",
-    "bundles": []
-  },
-  {
-    "type": "Phonotactic",
-    "bundles": [
-      {
-        "phar": "+"
-      },
-      {
-        "phar": "+"
-      }
-    ]
-  },
-  {
-    "type": "Ident",
-    "bundles": [
-      {
-        "high": "+"
-      }
-    ]
-  },
-  {
-    "type": "Ident",
-    "bundles": [
-      {
-        "high": "-"
-      }
-    ]
-  },
-  {
-    "type": "Dep",
-    "bundles": [
-      {
-        "syll": "+"
+        "cons": "+"
       }
     ]
   }

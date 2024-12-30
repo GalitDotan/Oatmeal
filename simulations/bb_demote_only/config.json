@@ -21,7 +21,7 @@
   },
   "constraint_set_mutation_weights": {
     "insert_constraint": 0,
-    "remove_constraint": 0,
+    "remove_constraint": 1,
     "demote_constraint": 1,
     "insert_feature_bundle_phonotactic_constraint": 0,
     "remove_feature_bundle_phonotactic_constraint": 0,
