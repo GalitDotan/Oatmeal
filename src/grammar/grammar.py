@@ -90,7 +90,7 @@ class Grammar:
         if memoization_key in generation_memoization:
             return generation_memoization[memoization_key]
 
-        outputs = self._get_outputs(word)
+        outputs = self._get_outputs(word, save_to_dot=False)
         generation_memoization[memoization_key] = outputs
         return outputs
 
@@ -122,6 +122,6 @@ class Grammar:
             words = self.lexicon.get_words()
 
         for word in words:
-            outputs.extend(self._get_outputs(word))
+            outputs.extend(self._get_outputs(word, save_to_dot=False))
 
         return outputs

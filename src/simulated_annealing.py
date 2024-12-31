@@ -73,7 +73,8 @@ class SimulatedAnnealing(object):
         self.before_loop()
 
         while (self.current_temperature > self.threshold) and (self.step != self.step_limitation):
-            print(self.current_hypothesis.grammar)
+            if self.step % 100 == 0:
+                print(self.current_hypothesis.grammar)
             self.make_step()
 
         self._after_loop()
