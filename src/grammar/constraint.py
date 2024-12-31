@@ -1,6 +1,4 @@
-# Python2 and Python 3 compatibility:
-from __future__ import absolute_import, division, print_function, unicode_literals
-
+import abc
 import logging
 import sys
 from itertools import permutations
@@ -11,10 +9,9 @@ from six import StringIO, with_metaclass
 from src.exceptions import ConstraintError
 from src.exceptions import GrammarParseError
 from src.grammar.feature_bundle import FeatureBundle
-from src.grammar.feature_table import JOKER_SEGMENT, NULL_SEGMENT
+from src.grammar.features.feature_table import NULL_SEGMENT, JOKER_SEGMENT
+from src.models.otml_configuration import settings
 from src.models.transducer import CostVector, Arc, State, Transducer
-from src.otml_configuration import settings
-from src.utils.unicode_mixin import UnicodeMixin
 
 logger = logging.getLogger(__name__)
 
@@ -24,21 +21,22 @@ _all_constraints = list()
 constraint_transducers = dict()
 
 
-def get_number_of_constraints():
+def _get_number_of_constraints():
     return len(_all_constraints)
 
 
 class ConstraintMetaClass(type):
     def __new__(mcs, name, bases, attributes):
-        if name != "NewBase" and name != "Constraint":  # NewBase is a the name of the base class used
+        if name != "NewBase" and name != "Constraint":  # NewBase is the name of the base class used
             _all_constraints.append(name)  # in six.with_metaclass
         return type.__new__(mcs, name, bases, attributes)
 
 
-class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
+class Constraint(with_metaclass(ConstraintMetaClass)):
+    """Base constraint class"""
 
     def __init__(self, bundles_list, allow_multiple_bundles, feature_table):
-        """bundle_list can contain either raw dictionaries or full blown FeatureBundle"""
+        """bundle_list can contain either raw dictionaries or full-blown FeatureBundle"""
         self.feature_table = feature_table
         if len(bundles_list) > 1 and not allow_multiple_bundles:
             raise GrammarParseError("More bundles than allowed")
@@ -46,20 +44,20 @@ class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
         self.feature_bundles = list()  # contain FeatureBundles
 
         for bundle in bundles_list:
-            if type(bundle) == dict:
+            if type(bundle) is dict:
                 self.feature_bundles.append(FeatureBundle(bundle, feature_table))
-            elif type(bundle) == FeatureBundle:
+            elif type(bundle) is FeatureBundle:
                 self.feature_bundles.append(bundle)
             else:
                 raise GrammarParseError("Not a dict or FeatureBundle")
 
-    def augment_feature_bundle(self):
+    def augment_feature_bundle(self) -> bool:
         success = choice(self.feature_bundles).augment_feature_bundle()
         if success:
             return True
         return False
 
-    def get_encoding_length(self):
+    def get_encoding_length(self) -> int:
         return 1 + sum([featureBundle.get_encoding_length() for featureBundle in self.feature_bundles]) + 1
 
     @classmethod
@@ -97,13 +95,13 @@ class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
         constraint_transducers = dict()
 
     def __eq__(self, other):
-        if type(self) == type(other):
+        if type(self) is type(other):
             return self.feature_bundles == other.feature_bundles
         return False
 
-    def __unicode__(self):
+    def __str__(self):
         str_io = StringIO()
-        print("{0}[".format(self.get_constraint_name()), file=str_io, end="")
+        print(f"{self.get_constraint_name()}[", file=str_io, end="")
         for featureBundle in self.feature_bundles:
             if len(self.feature_bundles) > 1:
                 print("[", file=str_io, end="")
@@ -121,6 +119,11 @@ class Constraint(with_metaclass(ConstraintMetaClass, UnicodeMixin)):
     def __hash__(self):
         return hash(str(self))
 
+    @classmethod
+    @abc.abstractmethod
+    def get_constraint_name(cls):
+        pass
+
 
 class MaxConstraint(Constraint):
     def __init__(self, bundles_list, feature_table):
@@ -132,10 +135,9 @@ class MaxConstraint(Constraint):
         for segment in segments:
             transducer.add_arc(Arc(state, segment, segment, CostVector.get_vector(1, 0), state))
             transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 0), state))
-            if segment.has_feature_bundle(self.feature_bundle):
-                transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 1), state))
-            else:
-                transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 0), state))
+
+            value = 1 if segment.has_feature_bundle(self.feature_bundle) else 0
+            transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, value), state))
 
         if settings.allow_candidates_with_changed_segments:
             for first_segment, second_segment in permutations(segments, 2):
@@ -158,10 +160,9 @@ class DepConstraint(Constraint):
         for segment in segments:
             transducer.add_arc(Arc(state, segment, segment, CostVector.get_vector(1, 0), state))
             transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 0), state))
-            if segment.has_feature_bundle(self.feature_bundle):
-                transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 1), state))
-            else:
-                transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 0), state))
+
+            value = 1 if segment.has_feature_bundle(self.feature_bundle) else 0
+            transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, value), state))
 
         if settings.allow_candidates_with_changed_segments:
             for first_segment, second_segment in permutations(segments, 2):
@@ -185,18 +186,17 @@ class IdentConstraint(Constraint):
             transducer.add_arc(Arc(state, segment, segment, CostVector.get_vector(1, 0), state))
             transducer.add_arc(Arc(state, segment, NULL_SEGMENT, CostVector.get_vector(1, 0), state))
             transducer.add_arc(Arc(state, NULL_SEGMENT, segment, CostVector.get_vector(1, 0), state))
+
             input_segment = segment
             if input_segment.has_feature_bundle(self.feature_bundle):
                 for output_segment in segments:
-                    if output_segment.has_feature_bundle(self.feature_bundle):
-                        transducer.add_arc(
-                            Arc(state, input_segment, output_segment, CostVector.get_vector(1, 0), state))
-                    else:
-                        transducer.add_arc(
-                            Arc(state, input_segment, output_segment, CostVector.get_vector(1, 1), state))
+                    value = 0 if output_segment.has_feature_bundle(self.feature_bundle) else 1
+                    transducer.add_arc(Arc(state, input_segment, output_segment,
+                                           CostVector.get_vector(1, value), state))
             else:
                 for output_segment in segments:
-                    transducer.add_arc(Arc(state, input_segment, output_segment, CostVector.get_vector(1, 0), state))
+                    transducer.add_arc(Arc(state, input_segment, output_segment,
+                                           CostVector.get_vector(1, 0), state))
         return transducer
 
     @classmethod

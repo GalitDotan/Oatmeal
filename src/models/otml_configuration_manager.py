@@ -4,11 +4,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from copy import deepcopy
 
 from src.models.configuration_manager import ConfigurationManager
-from src.otml_configuration import OtmlConfiguration
-from src.utils.unicode_mixin import UnicodeMixin
+from src.models.otml_configuration import OtmlConfiguration
 
 
-class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin):
+class OtmlConfigurationManager(ConfigurationManager):
     configurations: OtmlConfiguration
 
     def __init__(self, config_path):
@@ -20,5 +19,5 @@ class OtmlConfigurationManager(ConfigurationManager, UnicodeMixin):
         )
         self.initial_configurations = deepcopy(self.configurations)
 
-    def __unicode__(self):
+    def __str__(self):
         return repr(self.configurations)

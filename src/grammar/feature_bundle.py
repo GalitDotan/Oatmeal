@@ -5,22 +5,21 @@ import logging
 from random import choice
 
 from six import iterkeys
-from src.utils.unicode_mixin import UnicodeMixin
 
 from src.exceptions import GrammarParseError
 from src.exceptions import OtmlConfigurationError
-from src.otml_configuration import settings
+from src.models.otml_configuration import settings
 
 logger = logging.getLogger(__name__)
 
 
-class FeatureBundle(UnicodeMixin, object):
+class FeatureBundle:
     __slots__ = ["feature_dict", "feature_table"]
 
     def __init__(self, feature_dict, feature_table):
         for feature in feature_dict.keys():
             if not feature_table.is_valid_feature(feature):
-                raise GrammarParseError("Illegal feature: {0}".format(feature))
+                raise GrammarParseError(f"Illegal feature: {feature}")
 
         self.feature_dict = feature_dict
         self.feature_table = feature_table
@@ -52,6 +51,7 @@ class FeatureBundle(UnicodeMixin, object):
 
         feature_dict = dict()
         available_feature_labels = list(feature_table.get_features())
+
         for i in range(settings.initial_number_of_features):
             feature_label = choice(available_feature_labels)
             feature_dict[feature_label] = feature_table.get_random_value(feature_label)
@@ -61,7 +61,7 @@ class FeatureBundle(UnicodeMixin, object):
     def __eq__(self, other):
         return self.feature_dict == other.feature_dict
 
-    def __unicode__(self):
+    def __str__(self):
         return str(self.feature_dict)
 
     def __getitem__(self, item):

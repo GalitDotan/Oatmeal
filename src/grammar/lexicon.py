@@ -7,28 +7,31 @@ from ast import literal_eval
 from math import log, ceil
 from random import choice, randint
 
-from src.grammar.feature_table import Segment, NULL_SEGMENT, JOKER_SEGMENT
+from src.grammar.features.feature_table import FeatureTable, Segment, NULL_SEGMENT, JOKER_SEGMENT
+from src.models.otml_configuration import settings
 from src.models.transducer import CostVector, Arc, State, Transducer
-from src.otml_configuration import settings
 from src.utils.randomization_tools import get_weighted_list
-from src.utils.unicode_mixin import UnicodeMixin
+
+DEFAULT_LEX_CATEGORY = "default"
 
 logger = logging.getLogger(__name__)
 
 word_transducers = dict()
 
 
-class Word(UnicodeMixin, object):
+class Word:
     __slots__ = ["word_string", "feature_table", "segments"]
 
-    def __init__(self, word_string, feature_table):
+    def __init__(self, word_string: str, feature_table: FeatureTable):
         """
         word_string and segment should be in sync at any time
+        """  # TODO: consider adding the lexical category here
+        self.word_string: str = word_string
+        self.feature_table: FeatureTable = feature_table
+        self.segments: list[Segment] = [Segment(char, self.feature_table) for char in self.word_string]
 
-        """
-        self.word_string = word_string
-        self.feature_table = feature_table
-        self.segments = [Segment(char, self.feature_table) for char in self.word_string]
+    def __str__(self):
+        return self.word_string
 
     def change_segment(self):
         """changing the word_string and therefore the segments composing it
@@ -78,12 +81,11 @@ class Word(UnicodeMixin, object):
         old_word_string = self.word_string
         index_of_deletion = randint(0, len(self.word_string) - 1)
         new_word_string = self.word_string[:index_of_deletion] + self.word_string[index_of_deletion + 1:]
-        if self.is_appropriate(new_word_string):
-            self._set_word_string(new_word_string)
-            # print("delete segment: {} -> {}".format(old_word_string, new_word_string))
-            return True
-        else:
+        if not self.is_appropriate(new_word_string):
             return False
+        self._set_word_string(new_word_string)
+        # print(f"delete segment: {old_word_string} -> {new_word_string}")
+        return True
 
     def _set_word_string(self, new_word_string):
         self.word_string = new_word_string
@@ -126,7 +128,7 @@ class Word(UnicodeMixin, object):
         global word_transducers
         word_transducers = dict()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.word_string
 
     def __len__(self):
@@ -139,18 +141,28 @@ class Word(UnicodeMixin, object):
         return hash(self.word_string)
 
 
-class Lexicon(UnicodeMixin, object):
+class Lexicon:
 
-    def __init__(self, input_words, feature_table):
+    def __init__(self, words: list[str], feature_table):
         """
         input_words is either a list of words or a file than contains a list of words
         """
-        if type(input_words) == list:
-            string_words = input_words
+        self.words: list[Word] = [Word(word_string, feature_table) for word_string in words]
+        self.feature_table: FeatureTable = feature_table
+
+    def __str__(self):
+        if settings.log_lexicon_words:
+            return (f"Lexicon: {len(self.words)} words: {[str(word) for word in self.words]} "
+                    f"with {self._get_number_of_segments()} segments in total")
         else:
-            string_words = get_words_from_file(input_words)
-        self.words = [Word(word_string, feature_table) for word_string in string_words]
-        self.feature_table = feature_table
+            return f"Lexicon, number of words: {len(self.words)}, number of segments: {self._get_number_of_segments()}"
+
+    # we can optimize this by creating dict
+    def __getitem__(self, item):
+        return self.words[item].get_segments()
+
+    def __len__(self):
+        return len(self.words)
 
     def make_mutation(self):
         """
@@ -178,7 +190,10 @@ class Lexicon(UnicodeMixin, object):
             return self.words[index_of_word_to_change].insert_segment(segment_to_insert)
 
     def _delete_segment(self):
-        selected_word = choice(self.words)
+        try:
+            selected_word = choice(self.words)
+        except IndexError:
+            pass
         if len(selected_word) == 1:
             self.words.remove(selected_word)
             return True
@@ -213,23 +228,6 @@ class Lexicon(UnicodeMixin, object):
     def _get_number_of_segments(self):
         return sum([len(word) for word in self.words])
 
-    def __unicode__(self):
-        if settings.log_lexicon_words:
-            return "Lexicon, number of words: {0}, number of segments: {1}, {2}".format(len(self.words),
-                                                                                        self._get_number_of_segments(),
-                                                                                        [str(w.word_string) for w in
-                                                                                         self.words])
-        else:
-            return "Lexicon, number of words: {0}, number of segments: {1}".format(len(self.words),
-                                                                                   self._get_number_of_segments())
-
-    # we can optimize this by creating dict
-    def __getitem__(self, item):
-        return self.words[item].get_segments()
-
-    def __len__(self):
-        return len(self.words)
-
 
 def get_words_from_file(corpus_file_name):
     with codecs.open(corpus_file_name, "r") as f:
@@ -241,3 +239,19 @@ def get_words_from_file(corpus_file_name):
         words = literal_eval(corpus_string)
 
     return words
+
+
+def parse_words_per_category_from_file(corpus_file_name):
+    with codecs.open(corpus_file_name, "r", encoding="utf-8") as f:
+        corpus_string = f.read()
+
+    if "[" in corpus_string:
+        raise NotImplementedError()
+
+    words_raw = corpus_string.split()
+    words_split = [word.split("_") for word in words_raw]
+    categories = {word[1] for word in words_split if len(word) > 1}
+    words_per_category = {cat: [word[0] for word in words_split if len(word) > 1 and word[1] == cat] for cat in
+                          categories}
+    words_per_category[DEFAULT_LEX_CATEGORY] = [word[0] for word in words_split if len(word) == 1]
+    return words_per_category

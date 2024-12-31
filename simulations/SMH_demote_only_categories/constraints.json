@@ -1,0 +1,101 @@
+[
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "cons": "+"
+      },
+      {
+        "phar": "+"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "cons": "-"
+      }
+    ]
+  },
+  {
+    "type": "Max",
+    "bundles": [
+      {
+        "cons": "+"
+      }
+    ]
+  },
+  {
+    "type": "Dep",
+    "bundles": [
+      {
+        "cons": "-"
+      }
+    ]
+  },
+  {
+    "type": "Dep",
+    "bundles": [
+      {
+        "cons": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "cons": "+"
+      },
+      {
+        "cons": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "cons": "-"
+      },
+      {
+        "cons": "-"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "high": "+"
+      },
+      {
+        "phar": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "low": "-"
+      },
+      {
+        "phar": "+"
+      }
+    ]
+  },
+  {
+    "type": "Phonotactic",
+    "bundles": [
+      {
+        "phar": "+",
+        "voice": "+"
+      },
+      {
+        "cons": "+"
+      }
+    ]
+  }
+]
