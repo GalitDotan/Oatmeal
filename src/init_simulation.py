@@ -13,6 +13,15 @@ SIMULATIONS_DIR = 'simulations'
 
 
 def init_simulated_annealing(simulation_name: str):
+    """
+    Initialize the simulated annealing process for a given simulation.
+
+    Args:
+        simulation_name (str): The name of the simulation directory containing the configuration files.
+
+    Returns:
+        SimulatedAnnealing: The initialized simulated annealing instance.
+    """
     config_dir = os.path.join(SIMULATIONS_DIR, simulation_name)
 
     OtmlConfiguration.load(config_dir)
@@ -34,6 +43,15 @@ def init_simulated_annealing(simulation_name: str):
 
 
 def run_simulated_annealing_with_prints(simulated_annealing: SimulatedAnnealing) -> Grammar:
+    """
+    Run the simulated annealing process with intermediate prints for debugging.
+
+    Args:
+        simulated_annealing (SimulatedAnnealing): The initialized simulated annealing instance.
+
+    Returns:
+        Grammar: The final optimized grammar after the process.
+    """
     print("Starting optimization")
     initial_grammar = simulated_annealing.current_hypothesis.grammar
     print(f'# Initial Lexicon: {initial_grammar.lexicon}')
@@ -55,6 +73,15 @@ def run_simulated_annealing_with_prints(simulated_annealing: SimulatedAnnealing)
 
 
 def init_simulated_annealing_categories(simulation_name: str):
+    """
+    Initialize simulated annealing processes for multiple lexical categories.
+
+    Args:
+        simulation_name (str): The name of the simulation directory containing the configuration files.
+
+    Returns:
+        tuple: A dictionary of simulated annealing instances for each category, and the corresponding corpora.
+    """
     config_dir = os.path.join(SIMULATIONS_DIR, simulation_name)
 
     OtmlConfiguration.load(config_dir)
@@ -85,6 +112,16 @@ def init_simulated_annealing_categories(simulation_name: str):
 def run_simulated_annealing_with_prints_categories(
         simulated_annealing_per_category: dict[str, SimulatedAnnealing],
         corpus_per_category: dict[str, Corpus]) -> dict[str, Grammar]:
+    """
+    Run simulated annealing processes for each lexical category with intermediate prints.
+
+    Args:
+        simulated_annealing_per_category (dict): A dictionary of simulated annealing instances for each category.
+        corpus_per_category (dict): A dictionary of corpora for each category.
+
+    Returns:
+        dict: A dictionary of final grammars for each category.
+    """
     final_grammars = dict()
 
     for cat, simulated_annealing in simulated_annealing_per_category.items():
