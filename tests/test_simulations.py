@@ -13,6 +13,7 @@ from src.init_simulation import init_simulated_annealing, run_simulated_annealin
             "bba": "bba",
             "aa": "aa",
             "aab": "aab",
+            "aabb": "aabb"
         }),
     ]
 )
@@ -24,12 +25,12 @@ def test_simulation(simulation_name: str, test_words: dict[str, str]):
     for ur, sr in test_words.items():
         ur_word = Word(word_string=ur, feature_table=final_grammar.feature_table)
         actual_srs = final_grammar.generate(ur_word)
-        print(f'/{ur} -> [{actual_srs}]')
+        print(f'/{ur} -> [{actual_srs}]. Expected: {sr}')
         results.append(sr in actual_srs)
 
     print(simulated_annealing.current_hypothesis.combined_energy)
     print(f'Number of constraints in the final grammar: {len(final_grammar.constraint_set.constraints)}')
-    assert all(results)  # make sure all SRs were correct
+    assert all(results), f'Results: {results}'  # make sure all SRs were correct
     # assert len(final_grammar.constraint_set.constraints) == 0  # no constraints
 
     print("Done")
@@ -45,12 +46,14 @@ def test_simulation(simulation_name: str, test_words: dict[str, str]):
                  "aab": "aab",
                  "bb": "bab",
                  "bba": "baba",
+                 "aabb": "aabab"
              },
              "V": {
                  "aa": "aba",
                  "aab": "abab",
                  "bb": "bb",
                  "bba": "bba",
+                 "aabb": "ababb"
              }
          }
          ),
@@ -70,12 +73,12 @@ def test_simulation_categories(simulation_name: str, test_words: dict[str, dict[
     for cat, test_words_cat in test_words.items():
         for ur, sr in test_words_cat.items():
             ur_word = Word(word_string=ur, feature_table=final_grammars[cat].feature_table)
-            actual.append(final_grammars[cat].generate(ur_word))
-            print(f'/{ur} -> [{actual[-1]}]')
-            expected.append({sr})
+            actual_srs = final_grammars[cat].generate(ur_word)
+            print(f'/{ur} -> [{actual_srs}]. Expected: {sr}')
+            results.append(sr in actual_srs)
         energies.append(simulated_annealing_per_category[cat].current_hypothesis.combined_energy)
 
-    print(energies)
+    print(f'Energies: {energies}')
     assert all(results)  # make sure all SRs were correct
 
     print("Done")

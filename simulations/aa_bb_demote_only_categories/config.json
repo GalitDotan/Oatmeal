@@ -33,7 +33,7 @@
     "ident": 0,
     "phonotactic": 1
   },
-  "initial_temp": 20,
+  "initial_temp": 100,
   "cooling_factor": 0.99,
   "threshold": "10 ** -4",
   "debug_logging_interval": 50,
