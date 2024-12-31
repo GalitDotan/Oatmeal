@@ -1,6 +1,6 @@
 {
-  "simulation_name": "bb_demote_only_categories",
-  "log_file_name": "bb_demote_only_categories",
+  "simulation_name": "bb_demote_only",
+  "log_file_name": "bb_demote_only",
   "log_lexicon_words": "True",
   "corpus_duplication_factor": 1,
   "allow_candidates_with_changed_segments": "False",
@@ -21,7 +21,7 @@
   },
   "constraint_set_mutation_weights": {
     "insert_constraint": 0,
-    "remove_constraint": 1,
+    "remove_constraint": 0,
     "demote_constraint": 1,
     "insert_feature_bundle_phonotactic_constraint": 0,
     "remove_feature_bundle_phonotactic_constraint": 0,
@@ -33,12 +33,12 @@
     "ident": 0,
     "phonotactic": 1
   },
-  "initial_temp": 100,
+  "initial_temp": 20,
   "cooling_factor": 0.99,
   "threshold": "10 ** -4",
   "debug_logging_interval": 50,
   "clear_modules_caching_interval": 50,
-  "steps_limitation": "INF",
+  "steps_limitation": 5000,
   "random_seed": "False",
   "seed": 3,
   "data_encoding_length_multiplier": 1,
