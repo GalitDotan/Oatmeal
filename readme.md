@@ -31,6 +31,8 @@ To run the tests, execute the following command in the project directory:
 pytest tests/test_simulations.py
 ```
 
+Note: it is important to run it from the root directory and not from src or tests.
+
 ## Credits
 
 Oatmeal is based on the original [otml](https://github.com/taucompling/otml) project. Special thanks to the TAU
