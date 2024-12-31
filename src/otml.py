@@ -10,8 +10,8 @@ from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.models.corpus import Corpus
-from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.models.otml_configuration import OtmlConfiguration, settings
+from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing
 
 

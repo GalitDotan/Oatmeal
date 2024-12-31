@@ -2,10 +2,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
+from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
+
 from src.grammar.constraint_set import ConstraintSet, GrammarParseError
 from src.grammar.features.feature_table import FeatureTable
 from src.models.corpus import Corpus
-from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
 
 
 class TestGrammarAndFeature(unittest.TestCase):

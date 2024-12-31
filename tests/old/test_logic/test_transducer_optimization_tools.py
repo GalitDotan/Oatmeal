@@ -3,12 +3,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import unittest
 from copy import deepcopy
 
+from tests.test_logic.persistence_tools import get_feature_table_fixture
+from tests.test_logic.persistence_tools import get_pickle
+
 from src.grammar.constraint import PhonotacticConstraint
 from src.grammar.features.feature_table import FeatureTable, Segment, NULL_SEGMENT
 from src.grammar.lexicon import Word
 from src.models.transducer import CostVector, Arc, State, Transducer
-from tests.test_logic.persistence_tools import get_feature_table_fixture
-from tests.test_logic.persistence_tools import get_pickle
 from src.utils.transducers_optimization_tools import remove_suboptimal_paths, make_optimal_paths, \
     optimize_transducer_grammar_for_word
 

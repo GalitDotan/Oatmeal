@@ -5,10 +5,10 @@ import sys
 import unittest
 
 from six import StringIO
+from tests.test_logic.persistence_tools import get_corpus_fixture, get_feature_table_fixture
 
 from src.grammar.features.feature_table import FeatureTable
 from src.models.corpus import Corpus
-from tests.test_logic.persistence_tools import get_corpus_fixture, get_feature_table_fixture
 
 
 class TestCorpus(unittest.TestCase):

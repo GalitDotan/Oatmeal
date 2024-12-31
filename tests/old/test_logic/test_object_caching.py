@@ -3,6 +3,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import pickle
 import unittest
 
+from tests.test_logic.otml_configuration_for_testing import configurations
+from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
+
 from src.grammar.constraint import MaxConstraint, PhonotacticConstraint
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.features.feature_table import FeatureTable
@@ -10,8 +13,6 @@ from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.grammar.lexicon import Word
 from src.models.corpus import Corpus
-from tests.test_logic.otml_configuration_for_testing import configurations
-from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture
 from src.utils.debug_tools import timeit
 
 

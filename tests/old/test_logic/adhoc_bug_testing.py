@@ -3,13 +3,15 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import cProfile
 import unittest
 
+from tests.test_logic.otml_configuration_for_testing import configurations
+from tests.test_logic.persistence_tools import get_feature_table_fixture, get_corpus_fixture, \
+    get_feature_table_by_fixture
+
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
 from src.models.corpus import Corpus
-from tests.test_logic.otml_configuration_for_testing import configurations
-from tests.test_logic.persistence_tools import get_feature_table_fixture, get_corpus_fixture, get_feature_table_by_fixture
 
 faith_8 = "Max[+voice] >> Phonotactic[[-syll][+long]] >> Dep[+syll] >> Max[+stop] >> Phonotactic[[-long][+voice]] >> Phonotactic[[+stop][+syll]] >> Dep[-syll] >> Max[+syll] >> Phonotactic[[-voice][-low]] >> Faith[]"
 

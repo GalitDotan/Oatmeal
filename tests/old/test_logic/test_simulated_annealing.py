@@ -3,6 +3,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
+from tests.test_logic.otml_configuration_for_testing import configurations
+from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, \
+    get_corpus_fixture, \
+    clear_modules_caching
+
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
@@ -10,9 +15,6 @@ from src.grammar.lexicon import Lexicon
 from src.models.corpus import Corpus
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing, _pretty_runtime_str
-from tests.test_logic.otml_configuration_for_testing import configurations
-from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture, get_corpus_fixture, \
-    clear_modules_caching
 
 
 class TestSimulatedAnnealing(unittest.TestCase):

@@ -1,12 +1,13 @@
 # Python2 and Python 3 compatibility:
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture
+from tests.test_logic.stochastic_testcase import StochasticTestCase
+
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
 from src.grammar.lexicon import Lexicon
-from tests.test_logic.persistence_tools import get_constraint_set_fixture, get_feature_table_fixture
-from tests.test_logic.stochastic_testcase import StochasticTestCase
 
 
 class TestGrammar(StochasticTestCase):

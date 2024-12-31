@@ -31,7 +31,6 @@ def test_simulation(simulation_name: str, test_words: dict[str, str]):
     print(simulated_annealing.current_hypothesis.combined_energy)
     print(f'Number of constraints in the final grammar: {len(final_grammar.constraint_set.constraints)}')
     assert all(results), f'Results: {results}'  # make sure all SRs were correct
-    # assert len(final_grammar.constraint_set.constraints) == 0  # no constraints
 
     print("Done")
 
@@ -64,11 +63,8 @@ def test_simulation_categories(simulation_name: str, test_words: dict[str, dict[
     final_grammars = run_simulated_annealing_with_prints_categories(simulated_annealing_per_category,
                                                                     corpus_per_category)
 
-    expected: list[set[str]] = []
-    actual: list[set[str]] = []
-    results = []
-
-    energies = []
+    results: list[bool] = []
+    energies: list[int] = []
 
     for cat, test_words_cat in test_words.items():
         for ur, sr in test_words_cat.items():

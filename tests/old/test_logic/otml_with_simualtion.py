@@ -3,6 +3,8 @@ import os
 import platform
 from os.path import join
 
+from tests.test_logic.persistence_tools import get_corpus_fixture
+
 from src.grammar.constraint_set import ConstraintSet
 from src.grammar.features.feature_table import FeatureTable
 from src.grammar.grammar import Grammar
@@ -11,7 +13,6 @@ from src.models.corpus import Corpus
 from src.models.otml_configuration import OtmlConfiguration, settings
 from src.models.traversable_grammar_hypothesis import TraversableGrammarHypothesis
 from src.simulated_annealing import SimulatedAnnealing
-from tests.test_logic.persistence_tools import get_corpus_fixture
 
 
 def _configure_logger(log_file_template: str, simulation_number: int):
